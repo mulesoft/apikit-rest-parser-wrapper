@@ -6,17 +6,10 @@
  */
 package org.mule.raml.interfaces.parser.rule;
 
-public interface IValidationResult {
+public enum Severity {
+  INFO, WARNING, ERROR;
 
-  String getMessage();
-
-  String getIncludeName();
-
-  int getLine();
-
-  boolean isLineUnknown();
-
-  String getPath();
-
-  Severity getSeverity();
+  public static Severity fromString(String severity) {
+    return valueOf(severity.toUpperCase());
+  }
 }
