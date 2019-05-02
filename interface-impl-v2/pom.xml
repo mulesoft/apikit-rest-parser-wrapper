@@ -32,11 +32,6 @@
             <artifactId>raml-parser-interface</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.mule.tools</groupId>
-            <artifactId>mule-apikit-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
 </project>
