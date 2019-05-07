@@ -19,38 +19,29 @@ public class CompositeErrorTestCase {
 
   @Test
   public void compositeErrorWithoutParsingErrorType() {
-    List<SimpleScaffoldingError> child = Arrays.asList(new SimpleScaffoldingError("cause1"));
-    CompositeScaffoldingError compositeErrorChild =
-        new CompositeScaffoldingError("description", ScaffoldingErrorType.RAML, child);
+    List<DefaultParsingError> child = Arrays.asList(new DefaultParsingError("cause1"));
+    CompositeParsingError compositeErrorChild = new CompositeParsingError("description", child);
     assertThat(compositeErrorChild.cause(), is("description:\ncause1"));
 
-    List<SimpleScaffoldingError> children =
-        Arrays.asList(new SimpleScaffoldingError("cause1"), new SimpleScaffoldingError("cause2"),
-                      new SimpleScaffoldingError("cause3"));
-    CompositeScaffoldingError compositeParsingErrorChildren =
-        new CompositeScaffoldingError("description", ScaffoldingErrorType.GENERATION, children);
+    List<DefaultParsingError> children =
+        Arrays.asList(new DefaultParsingError("cause1"), new DefaultParsingError("cause2"),
+                      new DefaultParsingError("cause3"));
+    CompositeParsingError compositeParsingErrorChildren =
+        new CompositeParsingError("description", children);
     assertThat(compositeParsingErrorChildren.cause(), is("description:\ncause1\ncause2\ncause3"));
-    assertThat(compositeParsingErrorChildren.errorType(), is(ScaffoldingErrorType.GENERATION));
   }
 
   @Test
   public void compositeErrorWithChildrenAndParsingErrorType() {
-    List<SimpleScaffoldingError> children =
-        Arrays.asList(new SimpleScaffoldingError("cause1"), new SimpleScaffoldingError("cause2"),
-                      new SimpleScaffoldingError("cause3"));
-    CompositeScaffoldingError compositeError =
-        new CompositeScaffoldingError("description", ScaffoldingErrorType.AMF, children);
+    List<DefaultParsingError> children =
+        Arrays.asList(new DefaultParsingError("cause1"), new DefaultParsingError("cause2"),
+                      new DefaultParsingError("cause3"));
+    CompositeParsingError compositeError = new CompositeParsingError("description",  children);
     assertThat(compositeError.cause(), is("description:\ncause1\ncause2\ncause3"));
-    assertThat(compositeError.errorType(), is(ScaffoldingErrorType.AMF));
   }
 
   @Test
   public void simpleTest() {
-    assertThat(new SimpleScaffoldingError("cause").cause(), Matchers.is("cause"));
-    assertThat(new SimpleScaffoldingError("cause").errorType(), Matchers.is(ScaffoldingErrorType.GENERATION));
-    assertThat(new SimpleScaffoldingError("cause", ScaffoldingErrorType.RAML).errorType(),
-               Matchers.is(ScaffoldingErrorType.RAML));
-    assertThat(new SimpleScaffoldingError("cause", ScaffoldingErrorType.AMF).errorType(),
-               Matchers.is(ScaffoldingErrorType.AMF));
+    assertThat(new DefaultParsingError("cause").cause(), Matchers.is("cause"));
   }
 }

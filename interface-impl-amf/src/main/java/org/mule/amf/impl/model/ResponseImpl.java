@@ -6,25 +6,24 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.Response;
-import org.mule.raml.interfaces.model.IMimeType;
-import org.mule.raml.interfaces.model.IResponse;
-import org.mule.raml.interfaces.model.parameter.IParameter;
+import org.mule.apikit.model.MimeType;
+import org.mule.apikit.model.Response;
+import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
-public class ResponseImpl implements IResponse {
+public class ResponseImpl implements Response {
 
-  Response response;
+  amf.client.model.domain.Response response;
 
-  public ResponseImpl(Response response) {
+  public ResponseImpl(amf.client.model.domain.Response response) {
     this.response = response;
   }
 
   @Override
-  public Map<String, IMimeType> getBody() {
+  public Map<String, MimeType> getBody() {
     return response.payloads().stream()
         .filter(p -> p.mediaType().nonNull())
         .collect(toMap(p -> p.mediaType().value(), MimeTypeImpl::new));
@@ -36,17 +35,17 @@ public class ResponseImpl implements IResponse {
   }
 
   @Override
-  public Map<String, IParameter> getHeaders() {
+  public Map<String, Parameter> getHeaders() {
     return null;
   }
 
   @Override
-  public void setBody(Map<String, IMimeType> body) {
+  public void setBody(Map<String, MimeType> body) {
 
   }
 
   @Override
-  public void setHeaders(Map<String, IParameter> headers) {
+  public void setHeaders(Map<String, Parameter> headers) {
 
   }
 
@@ -57,7 +56,7 @@ public class ResponseImpl implements IResponse {
 
   @Override
   public Map<String, String> getExamples() {
-    final Map<String, String> result = IResponse.super.getExamples();
+    final Map<String, String> result = Response.super.getExamples();
 
     response.examples().forEach(example -> result.put(example.mediaType().value(), example.value().value()));
 

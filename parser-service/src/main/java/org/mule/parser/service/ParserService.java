@@ -6,19 +6,17 @@
  */
 package org.mule.parser.service;
 
-import org.mule.amf.impl.ParserWrapperAmf;
+import org.mule.amf.impl.AMFParser;
 import org.mule.amf.impl.exceptions.ParserException;
-import org.mule.parser.service.logger.Logger;
-import org.mule.parser.service.logger.LoggerFactory;
-import org.mule.raml.implv1.ParserWrapperV1;
-import org.mule.raml.implv2.ParserWrapperV2;
-import org.mule.raml.interfaces.ParserType;
-import org.mule.raml.interfaces.ParserWrapper;
-import org.mule.raml.interfaces.loader.ResourceLoader;
-import org.mule.raml.interfaces.model.api.ApiRef;
-import org.mule.raml.interfaces.parser.rule.IValidationReport;
-import org.mule.raml.interfaces.parser.rule.IValidationResult;
-import org.mule.raml.interfaces.parser.rule.Severity;
+import org.mule.apikit.implv1.ParserWrapperV1;
+import org.mule.apikit.implv2.ParserWrapperV2;
+import org.mule.apikit.ApiParser;
+import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.api.ApiRef;
+import org.mule.apikit.validation.ApiValidationReport;
+import org.mule.apikit.validation.ExceptionApiValidationResult;
+import org.mule.apikit.validation.ApiValidationResult;
+import org.mule.apikit.validation.Severity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,41 +24,33 @@ import java.util.List;
 import static java.lang.String.*;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static org.mule.raml.interfaces.ParserType.AMF;
-import static org.mule.raml.interfaces.ParserType.AUTO;
-import static org.mule.raml.interfaces.ParserType.RAML;
-import static org.mule.raml.interfaces.model.ApiVendor.RAML_08;
-import static org.mule.raml.interfaces.parser.rule.Severity.WARNING;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+import static org.mule.apikit.validation.Severity.WARNING;
+import static org.mule.parser.service.ParserConfiguration.AMF;
+import static org.mule.parser.service.ParserConfiguration.AUTO;
+import static org.mule.parser.service.ParserConfiguration.RAML;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParserService {
 
-  public static final String MULE_APIKIT_PARSER = "mule.apikit.parser";
+  private static final String MULE_APIKIT_PARSER = "mule.apikit.parser";
 
-  private static final Logger DEFAULT_LOGGER = LoggerFactory.getLogger(ParserService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ParserService.class);
 
-  private final Logger LOGGER;
+  private final List<ParsingError> parsingErrors = new ArrayList<>();
 
-  private final List<ComponentScaffoldingError> parsingErrors = new ArrayList<>();
-
-  public ParserService() {
-    this(DEFAULT_LOGGER);
-  }
-
-  public ParserService(Logger logger) {
-    this.LOGGER = logger;
-  }
-
-  public List<ComponentScaffoldingError> getParsingErrors() {
+  public List<ParsingError> getParsingErrors() {
     return parsingErrors;
   }
 
-  public ParserWrapper getParser(final ApiRef apiRef) {
+  public ApiParser getParser(ApiRef apiRef) {
     return getParser(apiRef, AUTO);
   }
 
-
-  public ParserWrapper getParser(final ApiRef apiRef, ParserType parserType) {
-    final ParserType overridden = getOverriddenParserType();
+  public ApiParser getParser(ApiRef apiRef, ParserConfiguration parserType) {
+    ParserConfiguration overridden = getOverriddenParserType();
     if (overridden != AUTO) {
       return getParserFor(apiRef, overridden);
     } else {
@@ -68,7 +58,7 @@ public class ParserService {
     }
   }
 
-  private ParserType getOverriddenParserType() {
+  private ParserConfiguration getOverriddenParserType() {
     final String parserValue = System.getProperty(MULE_APIKIT_PARSER);
     if (AMF.name().equals(parserValue)) {
       return AMF;
@@ -79,60 +69,51 @@ public class ParserService {
     return AUTO;
   }
 
-  private ParserWrapper getParserFor(final ApiRef apiRef, ParserType parserType) {
-    ParserWrapper parserWrapper;
+  private ApiParser getParserFor(ApiRef apiRef, ParserConfiguration parserType) {
+    ApiParser apiParser;
     try {
       if (parserType == RAML) {
-        parserWrapper = createRamlParserWrapper(apiRef);
+        apiParser = createRamlParserWrapper(apiRef);
       } else {
-        parserWrapper = ParserWrapperAmf.create(apiRef, false);
+        apiParser = AMFParser.create(apiRef, false);
       }
 
-      final IValidationReport validationReport = parserWrapper.validationReport();
+      final ApiValidationReport validationReport = apiParser.validate();
 
       if (validationReport.conforms()) {
-        return parserWrapper;
+        return apiParser;
       } else {
-        ScaffoldingErrorType scaffoldingErrorType =
-            parserWrapper.getParserType().equals(RAML) ? ScaffoldingErrorType.RAML : ScaffoldingErrorType.AMF;
-        final List<IValidationResult> errorsFound = validationReport.getResults();
-        CompositeScaffoldingError validationError =
-            new CompositeScaffoldingError(format("Validation failed using parser type : %s, in file : %s",
-                                                 parserWrapper.getParserType(), apiRef.getLocation()),
-                                          scaffoldingErrorType,
-                                          errorsFound.stream().map(e -> new SimpleScaffoldingError(e.getMessage()))
-                                              .collect(toList()));
+        List<ApiValidationResult> errorsFound = validationReport.getResults();
+        CompositeParsingError validationError =
+            new CompositeParsingError(format("Validation failed using parser: %s, in file: %s",
+                                             apiParser.getParserType(), apiRef.getLocation()),
+                                              errorsFound.stream().map(e -> new DefaultParsingError(e.getMessage()))
+                                                .collect(toList()));
         parsingErrors.add(validationError);
         return applyFallback(apiRef, parserType, errorsFound);
       }
     } catch (ParserServiceException | ParserException e) {
       throw new ParserServiceException(e);
     } catch (Exception e) {
-      final List<IValidationResult> errors = singletonList(IValidationResult.fromException(e));
-      CompositeScaffoldingError exceptionError =
-          new CompositeScaffoldingError(format("Exception parsing errors in file : %s", apiRef.getLocation()),
-                                        parserType.equals(RAML) ? ScaffoldingErrorType.RAML : ScaffoldingErrorType.AMF,
-                                        errors.stream().map(er -> new SimpleScaffoldingError(er.getMessage()))
-                                            .collect(toList()));
-      parsingErrors.add(exceptionError);
-      return applyFallback(apiRef, parserType, errors);
+      parsingErrors.add(new DefaultParsingError(e.getMessage()));
+      return applyFallback(apiRef, parserType, singletonList(new ExceptionApiValidationResult(e)));
     }
   }
 
   // Only fallback if is RAML
-  private ParserWrapper applyFallback(ApiRef apiRef, ParserType parserType, List<IValidationResult> errorsFound)
+  private ApiParser applyFallback(ApiRef apiRef, ParserConfiguration parserType, List<ApiValidationResult> errorsFound)
       throws ParserServiceException {
     if (parserType == AUTO) {
-      final ParserWrapper fallbackParser = createRamlParserWrapper(apiRef);
-      if (fallbackParser.validationReport().conforms()) {
+      final ApiParser fallbackParser = createRamlParserWrapper(apiRef);
+      if (fallbackParser.validate().conforms()) {
         logErrors(errorsFound, WARNING);
         return fallbackParser;
       } else {
-        CompositeScaffoldingError fallbackError =
-            new CompositeScaffoldingError(format("Validation failed using fallback parser type : %s, in file : %s",
-                                                 fallbackParser.getParserType(), apiRef.getLocation()),
-                                          ScaffoldingErrorType.RAML, fallbackParser.validationReport().getResults().stream()
-                                              .map(e -> new SimpleScaffoldingError(e.getMessage())).collect(toList()));
+        CompositeParsingError fallbackError =
+            new CompositeParsingError(format("Validation failed using fallback parser: %s, in file: %s",
+                                             fallbackParser.getParserType(), apiRef.getLocation()),
+                                              fallbackParser.validate().getResults().stream()
+                                              .map(e -> new DefaultParsingError(e.getMessage())).collect(toList()));
         parsingErrors.add(fallbackError);
       }
     }
@@ -140,15 +121,15 @@ public class ParserService {
     throw new ParserServiceException(buildErrorMessage(errorsFound));
   }
 
-  private void logErrors(List<IValidationResult> validationResults) {
+  private void logErrors(List<ApiValidationResult> validationResults) {
     validationResults.forEach(error -> logError(error, error.getSeverity()));
   }
 
-  private void logErrors(List<IValidationResult> validationResults, Severity overridenSeverity) {
+  private void logErrors(List<ApiValidationResult> validationResults, Severity overridenSeverity) {
     validationResults.forEach(error -> logError(error, overridenSeverity));
   }
 
-  private void logError(IValidationResult error, Severity severity) {
+  private void logError(ApiValidationResult error, Severity severity) {
     if (severity == Severity.INFO) {
       LOGGER.info(error.getMessage());
     } else if (severity == WARNING) {
@@ -158,16 +139,16 @@ public class ParserService {
     }
   }
 
-  private static String buildErrorMessage(List<IValidationResult> validationResults) {
+  private static String buildErrorMessage(List<ApiValidationResult> validationResults) {
     final StringBuilder message = new StringBuilder("Invalid API descriptor -- errors found: ");
     message.append(validationResults.size()).append("\n\n");
-    for (IValidationResult error : validationResults) {
+    for (ApiValidationResult error : validationResults) {
       message.append(error.getMessage()).append("\n");
     }
     return message.toString();
   }
 
-  private static ParserWrapper createRamlParserWrapper(ApiRef apiRef) {
+  private static ApiParser createRamlParserWrapper(ApiRef apiRef) {
     final String path = apiRef.getLocation();
 
     final ResourceLoader apiLoader = apiRef.getResourceLoader().orElse(null);

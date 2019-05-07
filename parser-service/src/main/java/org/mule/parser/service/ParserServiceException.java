@@ -12,10 +12,6 @@ public class ParserServiceException extends RuntimeException {
     super(message);
   }
 
-  public ParserServiceException(String message, Throwable t) {
-    super(message, t);
-  }
-
   public ParserServiceException(Throwable t) {
     super(t);
   }

@@ -9,16 +9,15 @@ package org.mule.amf.impl.model;
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.Operation;
 import amf.client.model.domain.Request;
-import amf.client.model.domain.Response;
 import amf.client.model.domain.Shape;
-import org.mule.raml.interfaces.model.IAction;
-import org.mule.raml.interfaces.model.IActionType;
-import org.mule.raml.interfaces.model.IMimeType;
-import org.mule.raml.interfaces.model.IQueryString;
-import org.mule.raml.interfaces.model.IResource;
-import org.mule.raml.interfaces.model.IResponse;
-import org.mule.raml.interfaces.model.ISecurityReference;
-import org.mule.raml.interfaces.model.parameter.IParameter;
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.ActionType;
+import org.mule.apikit.model.MimeType;
+import org.mule.apikit.model.QueryString;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.Response;
+import org.mule.apikit.model.SecurityReference;
+import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -28,15 +27,15 @@ import java.util.Map;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
-public class ActionImpl implements IAction {
+public class ActionImpl implements Action {
 
   private final ResourceImpl resource;
   private final Operation operation;
-  private Map<String, IMimeType> bodies;
-  private Map<String, IResponse> responses;
-  private Map<String, IParameter> queryParameters;
-  private Map<String, IParameter> headers;
-  private Map<String, IParameter> resolvedUriParameters;
+  private Map<String, MimeType> bodies;
+  private Map<String, Response> responses;
+  private Map<String, Parameter> queryParameters;
+  private Map<String, Parameter> headers;
+  private Map<String, Parameter> resolvedUriParameters;
 
   public ActionImpl(final ResourceImpl resource, final Operation operation) {
     this.resource = resource;
@@ -44,8 +43,8 @@ public class ActionImpl implements IAction {
   }
 
   @Override
-  public IActionType getType() {
-    return IActionType.valueOf(operation.method().value().toUpperCase());
+  public ActionType getType() {
+    return ActionType.valueOf(operation.method().value().toUpperCase());
   }
 
   @Override
@@ -54,28 +53,28 @@ public class ActionImpl implements IAction {
   }
 
   @Override
-  public Map<String, IResponse> getResponses() {
+  public Map<String, Response> getResponses() {
     if (responses == null) {
       responses = loadResponses(operation);
     }
     return responses;
   }
 
-  private static Map<String, IResponse> loadResponses(final Operation operation) {
-    Map<String, IResponse> result = new LinkedHashMap<>();
-    for (Response response : operation.responses()) {
+  private static Map<String, Response> loadResponses(final Operation operation) {
+    Map<String, Response> result = new LinkedHashMap<>();
+    for (amf.client.model.domain.Response response : operation.responses()) {
       result.put(response.statusCode().value(), new ResponseImpl(response));
     }
     return result;
   }
 
   @Override
-  public IResource getResource() {
+  public Resource getResource() {
     return resource;
   }
 
   @Override
-  public Map<String, IMimeType> getBody() {
+  public Map<String, MimeType> getBody() {
     if (bodies == null) {
       bodies = loadBodies(operation);
     }
@@ -83,12 +82,12 @@ public class ActionImpl implements IAction {
     return bodies;
   }
 
-  private static Map<String, IMimeType> loadBodies(final Operation operation) {
+  private static Map<String, MimeType> loadBodies(final Operation operation) {
     final Request request = operation.request();
     if (request == null)
       return emptyMap();
 
-    final Map<String, IMimeType> result = new LinkedHashMap<>();
+    final Map<String, MimeType> result = new LinkedHashMap<>();
 
     request.payloads().stream()
         .filter(payload -> payload.mediaType().nonNull())
@@ -98,19 +97,19 @@ public class ActionImpl implements IAction {
   }
 
   @Override
-  public Map<String, IParameter> getQueryParameters() {
+  public Map<String, Parameter> getQueryParameters() {
     if (queryParameters == null) {
       queryParameters = loadQueryParameters(operation);
     }
     return queryParameters;
   }
 
-  private static Map<String, IParameter> loadQueryParameters(final Operation operation) {
+  private static Map<String, Parameter> loadQueryParameters(final Operation operation) {
     final Request request = operation.request();
     if (request == null)
       return emptyMap();
 
-    final Map<String, IParameter> result = new HashMap<>();
+    final Map<String, Parameter> result = new HashMap<>();
     request.queryParameters().forEach(parameter -> {
       result.put(parameter.name().value(), new ParameterImpl(parameter));
     });
@@ -118,12 +117,12 @@ public class ActionImpl implements IAction {
   }
 
   @Override
-  public Map<String, List<IParameter>> getBaseUriParameters() {
+  public Map<String, List<Parameter>> getBaseUriParameters() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Map<String, IParameter> getResolvedUriParameters() {
+  public Map<String, Parameter> getResolvedUriParameters() {
     if (resolvedUriParameters == null) {
       resolvedUriParameters = loadResolvedUriParameters(resource, operation);
     }
@@ -131,8 +130,8 @@ public class ActionImpl implements IAction {
     return resolvedUriParameters;
   }
 
-  private static Map<String, IParameter> loadResolvedUriParameters(final IResource resource, Operation operation) {
-    final Map<String, IParameter> operationUriParams;
+  private static Map<String, Parameter> loadResolvedUriParameters(final Resource resource, Operation operation) {
+    final Map<String, Parameter> operationUriParams;
     if (operation.request() != null) {
       operationUriParams = operation.request().uriParameters().stream()
           .collect(toMap(p -> p.name().value(), ParameterImpl::new));
@@ -140,26 +139,26 @@ public class ActionImpl implements IAction {
       operationUriParams = new HashMap<>();
     }
 
-    final Map<String, IParameter> uriParameters = resource.getResolvedUriParameters();
+    final Map<String, Parameter> uriParameters = resource.getResolvedUriParameters();
     uriParameters.forEach(operationUriParams::putIfAbsent);
 
     return operationUriParams;
   }
 
   @Override
-  public Map<String, IParameter> getHeaders() {
+  public Map<String, Parameter> getHeaders() {
     if (headers == null) {
       headers = loadHeaders(operation);
     }
     return headers;
   }
 
-  private Map<String, IParameter> loadHeaders(final Operation operation) {
+  private Map<String, Parameter> loadHeaders(final Operation operation) {
     final Request request = operation.request();
     if (request == null)
       return emptyMap();
 
-    final Map<String, IParameter> result = new HashMap<>();
+    final Map<String, Parameter> result = new HashMap<>();
     request.headers().forEach(parameter -> {
       result.put(parameter.name().value(), new ParameterImpl(parameter));
     });
@@ -167,7 +166,7 @@ public class ActionImpl implements IAction {
   }
 
   @Override
-  public List<ISecurityReference> getSecuredBy() {
+  public List<SecurityReference> getSecuredBy() {
     throw new UnsupportedOperationException();
   }
 
@@ -182,22 +181,22 @@ public class ActionImpl implements IAction {
   }
 
   @Override
-  public void setHeaders(Map<String, IParameter> headers) {
+  public void setHeaders(Map<String, Parameter> headers) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setQueryParameters(Map<String, IParameter> queryParameters) {
+  public void setQueryParameters(Map<String, Parameter> queryParameters) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setBody(Map<String, IMimeType> body) {
+  public void setBody(Map<String, MimeType> body) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void addResponse(String key, IResponse response) {
+  public void addResponse(String key, Response response) {
     throw new UnsupportedOperationException();
   }
 
@@ -212,7 +211,7 @@ public class ActionImpl implements IAction {
   }
 
   @Override
-  public IQueryString queryString() {
+  public QueryString queryString() {
     final Request request = operation.request();
 
     if (request == null)

@@ -25,8 +25,8 @@ import amf.plugins.features.validation.AMFValidatorPlugin;
 import amf.plugins.xml.XmlValidationPlugin;
 import org.apache.commons.io.IOUtils;
 import org.mule.amf.impl.exceptions.ParserException;
-import org.mule.raml.interfaces.model.ApiVendor;
-import org.mule.raml.interfaces.model.api.ApiRef;
+import org.mule.apikit.model.ApiVendor;
+import org.mule.apikit.model.api.ApiRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

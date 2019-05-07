@@ -20,23 +20,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.Assert;
-import org.mule.raml.implv1.ParserWrapperV1;
-import org.mule.raml.implv2.ParserWrapperV2;
-import org.mule.raml.interfaces.ParserWrapper;
-import org.mule.raml.interfaces.model.IRaml;
-import org.mule.raml.interfaces.model.api.ApiRef;
+import org.mule.apikit.implv1.ParserWrapperV1;
+import org.mule.apikit.implv2.ParserWrapperV2;
+import org.mule.apikit.ApiParser;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.api.ApiRef;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertNotNull;
 
 abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
 
-  protected IRaml amf;
-  protected IRaml raml;
+  protected ApiSpecification amf;
+  protected ApiSpecification raml;
   protected final boolean isRaml08;
 
-  protected ParserWrapper ramlWrapper;
-  protected ParserWrapper amfWrapper;
+  protected ApiParser ramlWrapper;
+  protected ApiParser amfWrapper;
 
   protected File input;
 
@@ -50,13 +50,13 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
     isRaml08 = isRaml08(input);
     // Create Java Parser Wrapper
     ramlWrapper = createJavaParserWrapper(apiPath, isRaml08);
-    raml = ramlWrapper.build();
+    raml = ramlWrapper.parse();
     assertNotNull(raml);
 
     // Create AMF Wrapper
     try {
-      amfWrapper = ParserWrapperAmf.create(ApiRef.create(uri), true);
-      amf = amfWrapper.build();
+      amfWrapper = AMFParser.create(ApiRef.create(uri), true);
+      amf = amfWrapper.parse();
       assertNotNull(amf);
     } catch (Exception e) {
       Assert.fail(e.getMessage());
@@ -95,9 +95,9 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
     return result;
   }
 
-  static ParserWrapper createJavaParserWrapper(final String apiPath, final boolean isRaml08) {
+  static ApiParser createJavaParserWrapper(final String apiPath, final boolean isRaml08) {
 
-    final ParserWrapper ramlWrapper = isRaml08 ? new ParserWrapperV1(apiPath) : new ParserWrapperV2(apiPath);
+    final ApiParser ramlWrapper = isRaml08 ? new ParserWrapperV1(apiPath) : new ParserWrapperV2(apiPath);
     ramlWrapper.validate();
     return ramlWrapper;
   }

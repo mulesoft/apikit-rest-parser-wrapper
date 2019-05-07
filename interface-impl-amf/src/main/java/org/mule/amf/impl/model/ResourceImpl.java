@@ -7,26 +7,26 @@
 package org.mule.amf.impl.model;
 
 import amf.client.model.domain.EndPoint;
-import org.mule.raml.interfaces.model.IAction;
-import org.mule.raml.interfaces.model.IActionType;
-import org.mule.raml.interfaces.model.IResource;
-import org.mule.raml.interfaces.model.parameter.IParameter;
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.ActionType;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
-import static org.mule.raml.interfaces.ParserUtils.resolveVersion;
+import static org.mule.apikit.ParserUtils.resolveVersion;
 
-public class ResourceImpl implements IResource {
+public class ResourceImpl implements Resource {
 
-  private AmfImpl amf;
+  private AMFImpl amf;
   private EndPoint endPoint;
-  private Map<IActionType, IAction> actions;
-  private Map<String, IParameter> resolvedUriParameters;
+  private Map<ActionType, Action> actions;
+  private Map<String, Parameter> resolvedUriParameters;
 
-  ResourceImpl(final AmfImpl amf, final EndPoint endPoint) {
+  ResourceImpl(final AMFImpl amf, final EndPoint endPoint) {
     this.amf = amf;
     this.endPoint = endPoint;
   }
@@ -52,31 +52,31 @@ public class ResourceImpl implements IResource {
   }
 
   @Override
-  public IAction getAction(final String name) {
+  public Action getAction(final String name) {
     return getActions().get(getActionKey(name));
   }
 
   @Override
-  public Map<IActionType, IAction> getActions() {
+  public Map<ActionType, Action> getActions() {
     if (actions == null)
       actions = loadActions(endPoint);
 
     return actions;
   }
 
-  private Map<IActionType, IAction> loadActions(final EndPoint endPoint) {
-    final Map<IActionType, IAction> map = new LinkedHashMap<>();
+  private Map<ActionType, Action> loadActions(final EndPoint endPoint) {
+    final Map<ActionType, Action> map = new LinkedHashMap<>();
     endPoint.operations()
         .forEach(operation -> map.put(getActionKey(operation.method().value()), new ActionImpl(this, operation)));
     return map;
   }
 
-  private static IActionType getActionKey(final String method) {
-    return IActionType.valueOf(method.toUpperCase());
+  private static ActionType getActionKey(final String method) {
+    return ActionType.valueOf(method.toUpperCase());
   }
 
   @Override
-  public Map<String, IResource> getResources() {
+  public Map<String, Resource> getResources() {
     return amf.getResources(this);
   }
 
@@ -87,7 +87,7 @@ public class ResourceImpl implements IResource {
   }
 
   @Override
-  public Map<String, IParameter> getResolvedUriParameters() {
+  public Map<String, Parameter> getResolvedUriParameters() {
     if (resolvedUriParameters == null) {
       resolvedUriParameters = loadResolvedUriParameters(endPoint);
     }
@@ -95,7 +95,7 @@ public class ResourceImpl implements IResource {
     return resolvedUriParameters;
   }
 
-  private static Map<String, IParameter> loadResolvedUriParameters(final EndPoint resource) {
+  private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource) {
     return resource.parameters().stream()
         .filter(p -> !"version".equals(p.name().value())) // version is an special uri param so it is ignored
         .collect(toMap(p -> p.name().value(), ParameterImpl::new));
@@ -107,7 +107,7 @@ public class ResourceImpl implements IResource {
   }
 
   @Override
-  public Map<String, List<IParameter>> getBaseUriParameters() {
+  public Map<String, List<Parameter>> getBaseUriParameters() {
     throw new UnsupportedOperationException();
   }
 

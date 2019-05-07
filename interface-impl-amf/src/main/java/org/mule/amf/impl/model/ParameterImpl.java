@@ -10,7 +10,6 @@ import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.DataNode;
 import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.Parameter;
 import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
 import amf.client.model.domain.ScalarShape;
@@ -19,8 +18,8 @@ import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
+import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
-import org.mule.raml.interfaces.model.parameter.IParameter;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +35,7 @@ import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
-class ParameterImpl implements IParameter {
+class ParameterImpl implements Parameter {
 
   private AnyShape schema;
   private boolean required;
@@ -45,7 +44,7 @@ class ParameterImpl implements IParameter {
   private final Map<String, Optional<PayloadValidator>> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType = APPLICATION_YAML;
 
-  ParameterImpl(final Parameter parameter) {
+  ParameterImpl(final amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
   }
 
@@ -94,7 +93,7 @@ class ParameterImpl implements IParameter {
     }
   }
 
-  private static AnyShape getSchema(final Parameter parameter) {
+  private static AnyShape getSchema(final amf.client.model.domain.Parameter parameter) {
     final Shape shape = parameter.schema();
     return castToAnyShape(shape);
   }

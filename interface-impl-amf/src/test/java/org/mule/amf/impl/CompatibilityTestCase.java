@@ -18,16 +18,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mule.raml.interfaces.ParserWrapper;
-import org.mule.raml.interfaces.model.ApiVendor;
-import org.mule.raml.interfaces.model.IRaml;
-import org.mule.raml.interfaces.model.api.ApiRef;
+import org.mule.apikit.ApiParser;
+import org.mule.apikit.model.ApiVendor;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.api.ApiRef;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mule.raml.interfaces.model.ApiVendor.RAML_08;
-import static org.mule.raml.interfaces.model.ApiVendor.RAML_10;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 @RunWith(Parameterized.class)
 public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
@@ -51,9 +51,9 @@ public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
   }
 
   @Test
-  public void dump() {//throws Exception {
-    final String amfDump = amfWrapper.dump(amf, "http://apikit-test");
-    final String ramlDump = ramlWrapper.dump(raml, "http://apikit-test");
+  public void dump() {
+    final String amfDump = amfWrapper.parse().dump("http://apikit-test");
+    final String ramlDump = ramlWrapper.parse().dump("http://apikit-test");
 
     // Dump to file
     final Path basePath = Paths.get(input.getPath()).getParent();
@@ -75,13 +75,13 @@ public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
     }
 
     // Parse java dumped file  
-    final ParserWrapper dumpedRamlWrapper = createJavaParserWrapper(ramlDumpPath.toUri().toString(), isRaml08);
-    final IRaml dumpedRaml = dumpedRamlWrapper.build();
+    final ApiParser dumpedRamlWrapper = createJavaParserWrapper(ramlDumpPath.toUri().toString(), isRaml08);
+    final ApiSpecification dumpedRaml = dumpedRamlWrapper.parse();
     assertNotNull(dumpedRaml);
 
     try {
-      final ParserWrapper dumpedAmfWrapper = ParserWrapperAmf.create(ApiRef.create(amfDumpPath.toUri()), true);
-      final IRaml dumpedAmf = dumpedAmfWrapper.build();
+      final ApiParser dumpedAmfWrapper = AMFParser.create(ApiRef.create(amfDumpPath.toUri()), true);
+      final ApiSpecification dumpedAmf = dumpedAmfWrapper.parse();
       assertNotNull(dumpedAmf);
       assertEqual(dumpedAmf, dumpedRaml);
     } catch (Exception e) {
