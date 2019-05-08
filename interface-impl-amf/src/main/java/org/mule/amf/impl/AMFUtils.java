@@ -6,7 +6,7 @@
  */
 package org.mule.amf.impl;
 
-import org.mule.apikit.model.api.ApiRef;
+import org.mule.apikit.model.api.ApiReference;
 
 import java.io.File;
 import java.net.URI;
@@ -15,7 +15,7 @@ import java.net.URL;
 
 public class AMFUtils {
 
-  public static URI getPathAsUri(ApiRef apiRef) {
+  public static URI getPathAsUri(ApiReference apiRef) {
     try {
       final URI uri = new URI(apiRef.getLocation());
       return uri.isAbsolute() ? uri : getUriFromFile(apiRef);
@@ -24,7 +24,7 @@ public class AMFUtils {
     }
   }
 
-  private static URI getUriFromFile(ApiRef apiRef) {
+  private static URI getUriFromFile(ApiReference apiRef) {
     final String location = apiRef.getLocation();
     if (apiRef.getResourceLoader().isPresent()) {
       final URI uri = apiRef.getResourceLoader().map(loader -> loader.getResource(location)).orElse(null);

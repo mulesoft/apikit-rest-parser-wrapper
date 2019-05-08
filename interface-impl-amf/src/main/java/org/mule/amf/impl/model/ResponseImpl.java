@@ -6,13 +6,13 @@
  */
 package org.mule.amf.impl.model;
 
+import static java.util.stream.Collectors.toMap;
+
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Map;
-
-import static java.util.stream.Collectors.toMap;
 
 public class ResponseImpl implements Response {
 

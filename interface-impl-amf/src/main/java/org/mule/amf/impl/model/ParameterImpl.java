@@ -6,17 +6,12 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.DataNode;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.ScalarNode;
-import amf.client.model.domain.ScalarShape;
-import amf.client.model.domain.Shape;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
-import amf.client.validate.ValidationResult;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
+import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
+import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
+
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
@@ -29,11 +24,17 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toMap;
-import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.ArrayShape;
+import amf.client.model.domain.DataNode;
+import amf.client.model.domain.NodeShape;
+import amf.client.model.domain.PropertyShape;
+import amf.client.model.domain.ScalarNode;
+import amf.client.model.domain.ScalarShape;
+import amf.client.model.domain.Shape;
+import amf.client.validate.PayloadValidator;
+import amf.client.validate.ValidationReport;
+import amf.client.validate.ValidationResult;
 
 class ParameterImpl implements Parameter {
 

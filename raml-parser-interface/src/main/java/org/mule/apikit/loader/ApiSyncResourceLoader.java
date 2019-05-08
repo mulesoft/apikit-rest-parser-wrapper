@@ -6,11 +6,11 @@
  */
 package org.mule.apikit.loader;
 
-import java.net.URI;
-
 import static org.mule.apikit.common.ApiSyncUtils.isExchangeModules;
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 import static org.mule.apikit.common.ApiSyncUtils.toApiSyncResource;
+
+import java.net.URI;
 
 public class ApiSyncResourceLoader implements ResourceLoader {
 

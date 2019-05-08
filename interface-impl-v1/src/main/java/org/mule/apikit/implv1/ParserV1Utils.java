@@ -6,13 +6,23 @@
  */
 package org.mule.apikit.implv1;
 
-import org.apache.commons.io.IOUtils;
 import org.mule.apikit.implv1.parser.visitor.RamlDocumentBuilderImpl;
 import org.mule.apikit.implv1.parser.visitor.RamlValidationServiceImpl;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.visitor.ApiDocumentBuilder;
 import org.mule.apikit.visitor.ApiValidationService;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
 import org.raml.parser.loader.ResourceLoader;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
@@ -23,15 +33,6 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 import org.yaml.snakeyaml.nodes.Tag;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class ParserV1Utils {
 

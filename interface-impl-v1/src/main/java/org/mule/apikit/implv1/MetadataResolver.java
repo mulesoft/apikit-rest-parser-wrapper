@@ -13,10 +13,11 @@ import org.mule.metadata.api.builder.StringTypeBuilder;
 import org.mule.metadata.api.builder.TypeBuilder;
 import org.mule.metadata.api.model.MetadataFormat;
 import org.mule.metadata.api.model.MetadataType;
-import org.raml.model.parameter.AbstractParam;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.raml.model.parameter.AbstractParam;
 
 public class MetadataResolver {
 

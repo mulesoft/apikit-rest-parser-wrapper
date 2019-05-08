@@ -6,21 +6,15 @@
  */
 package org.mule.apikit.implv2;
 
-import org.apache.commons.io.IOUtils;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
+
 import org.mule.apikit.implv2.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.implv2.v08.model.RamlImpl08V2;
 import org.mule.apikit.implv2.v10.model.RamlImpl10V2;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.validation.ApiValidationResult;
-import org.raml.v2.api.RamlModelBuilder;
-import org.raml.v2.api.RamlModelResult;
-import org.raml.v2.api.loader.ResourceLoader;
-import org.raml.v2.api.model.v10.system.types.AnnotableSimpleType;
-import org.raml.v2.internal.impl.RamlBuilder;
-import org.raml.v2.internal.impl.commons.nodes.LibraryNodeProvider;
-import org.raml.v2.internal.impl.v10.nodes.LibraryLinkNode;
-import org.raml.yagi.framework.nodes.Node;
-import org.raml.yagi.framework.nodes.snakeyaml.SYIncludeNode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,9 +24,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
+import org.apache.commons.io.IOUtils;
+import org.raml.v2.api.RamlModelBuilder;
+import org.raml.v2.api.RamlModelResult;
+import org.raml.v2.api.loader.ResourceLoader;
+import org.raml.v2.api.model.v10.system.types.AnnotableSimpleType;
+import org.raml.v2.internal.impl.RamlBuilder;
+import org.raml.v2.internal.impl.commons.nodes.LibraryNodeProvider;
+import org.raml.v2.internal.impl.v10.nodes.LibraryLinkNode;
+import org.raml.yagi.framework.nodes.Node;
+import org.raml.yagi.framework.nodes.snakeyaml.SYIncludeNode;
 
 public class ParserV2Utils {
 

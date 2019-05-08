@@ -6,8 +6,9 @@
  */
 package org.mule.apikit.common;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mule.apikit.model.ActionType;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class RamlUtils {
 

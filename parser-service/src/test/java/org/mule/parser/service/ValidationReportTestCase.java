@@ -6,20 +6,20 @@
  */
 package org.mule.parser.service;
 
-import org.junit.Test;
-import org.mule.apikit.ApiParser;
-import org.mule.apikit.model.api.ApiRef;
-
 import static org.junit.Assert.assertTrue;
+
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
+
+import org.junit.Test;
 
 public class ValidationReportTestCase {
 
   @Test
   public void oasValidationReport() {
-    final String api = resource("/validation-level-result.json");
-
-    final ApiParser wrapper = new ParserService().getParser(ApiRef.create(api), ParserConfiguration.AUTO);
-    assertTrue(wrapper.validate().conforms());
+    String api = resource("/validation-level-result.json");
+    ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AUTO);
+    assertTrue(wrapper.success());
   }
 
   private static String resource(final String path) {

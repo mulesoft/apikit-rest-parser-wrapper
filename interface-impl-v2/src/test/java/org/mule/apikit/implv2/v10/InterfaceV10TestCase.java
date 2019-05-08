@@ -6,25 +6,26 @@
  */
 package org.mule.apikit.implv2.v10;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
+import static java.util.Objects.requireNonNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.implv2.ParserWrapperV2;
 import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
 import org.mule.apikit.model.ApiSpecification;
-import org.raml.v2.api.loader.CompositeResourceLoader;
-import org.raml.v2.api.loader.DefaultResourceLoader;
-import org.raml.v2.api.loader.ResourceLoader;
 
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
+import org.raml.v2.api.loader.CompositeResourceLoader;
+import org.raml.v2.api.loader.DefaultResourceLoader;
+import org.raml.v2.api.loader.ResourceLoader;
 
 public class InterfaceV10TestCase {
 

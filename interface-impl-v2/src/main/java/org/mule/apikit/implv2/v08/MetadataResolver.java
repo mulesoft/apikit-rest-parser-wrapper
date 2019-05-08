@@ -9,9 +9,10 @@ package org.mule.apikit.implv2.v08;
 import org.mule.metadata.api.builder.BaseTypeBuilder;
 import org.mule.metadata.api.model.MetadataFormat;
 import org.mule.metadata.api.model.MetadataType;
-import org.raml.v2.api.model.v08.parameters.Parameter;
 
 import java.util.Optional;
+
+import org.raml.v2.api.model.v08.parameters.Parameter;
 
 public class MetadataResolver {
 

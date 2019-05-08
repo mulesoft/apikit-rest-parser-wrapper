@@ -4,9 +4,17 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.apikit;
+package org.mule.parser.service.result;
 
-public enum ParserType {
-  AMF,
-  RAML
+/**
+ * Represents an error occurred when parsing the input files
+ */
+public interface ParsingIssue {
+
+  /**
+   * Detailed cause of the error
+   *
+   * @return a details cause of the error.
+   */
+  String cause();
 }

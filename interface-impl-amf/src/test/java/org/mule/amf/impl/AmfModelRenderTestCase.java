@@ -6,18 +6,17 @@
  */
 package org.mule.amf.impl;
 
-import org.junit.Test;
+import static java.nio.file.Files.readAllBytes;
+import static org.junit.Assert.assertEquals;
 
 import org.mule.amf.impl.model.AMFImpl;
-import org.mule.apikit.implv1.model.RamlImplV1;
-import org.mule.apikit.model.api.ApiRef;
+import org.mule.apikit.model.api.ApiReference;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-import static java.nio.file.Files.readAllBytes;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class AmfModelRenderTestCase {
 
@@ -28,8 +27,8 @@ public class AmfModelRenderTestCase {
     byte[] expected = readAllBytes(Paths.get(new URI(folderLocation + "golden-amf-model.json")));
     String goldenAmfModel = new String(expected, StandardCharsets.UTF_8);
 
-    ApiRef apiRef = ApiRef.create(apiLocation);
-    String amfModel = ((AMFImpl) AMFParser.create(apiRef, true).parse()).dumpAmf();
+    ApiReference apiRef = ApiReference.create(apiLocation);
+    String amfModel = ((AMFImpl) new AMFParser(apiRef, true).parse()).dumpAmf();
     assertEquals(goldenAmfModel, amfModel);
   }
 }

@@ -6,13 +6,28 @@
  */
 package org.mule.apikit.implv1.model;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static org.mule.apikit.ApiType.RAML;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+
+import org.mule.apikit.ApiType;
 import org.mule.apikit.implv1.ParserV1Utils;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.raml.emitter.RamlEmitter;
@@ -21,14 +36,6 @@ import org.raml.model.parameter.UriParameter;
 import org.raml.parser.loader.ResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.*;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 
 public class RamlImplV1 implements ApiSpecification {
 
@@ -169,8 +176,18 @@ public class RamlImplV1 implements ApiSpecification {
     return emitter.dump(raml);
   }
 
+  @Override
+  public ApiVendor getApiVendor() {
+    return RAML_08;
+  }
+
   private URI getPathAsUri(String path) {
     final String normalizedPath = path.replace(File.separator, "/");
     return URI.create(normalizedPath);
+  }
+
+  @Override
+  public ApiType getType() {
+    return RAML;
   }
 }

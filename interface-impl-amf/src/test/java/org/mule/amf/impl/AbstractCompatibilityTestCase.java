@@ -6,6 +6,15 @@
  */
 package org.mule.amf.impl;
 
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertNotNull;
+
+import org.mule.apikit.ApiParser;
+import org.mule.apikit.implv1.ParserWrapperV1;
+import org.mule.apikit.implv2.ParserWrapperV2;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.api.ApiReference;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -19,15 +28,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.junit.Assert;
-import org.mule.apikit.implv1.ParserWrapperV1;
-import org.mule.apikit.implv2.ParserWrapperV2;
-import org.mule.apikit.ApiParser;
-import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.model.api.ApiRef;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Assert;
 
 abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
 
@@ -55,7 +57,7 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
 
     // Create AMF Wrapper
     try {
-      amfWrapper = AMFParser.create(ApiRef.create(uri), true);
+      amfWrapper = new AMFParser(ApiReference.create(uri), true);
       amf = amfWrapper.parse();
       assertNotNull(amf);
     } catch (Exception e) {

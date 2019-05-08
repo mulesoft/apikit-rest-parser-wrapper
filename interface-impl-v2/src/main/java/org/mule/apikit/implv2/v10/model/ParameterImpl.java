@@ -6,8 +6,24 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import org.mule.metadata.api.model.MetadataType;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Optional.ofNullable;
+import static org.mule.apikit.implv2.v10.MetadataResolver.anyType;
+import static org.mule.apikit.implv2.v10.MetadataResolver.resolve;
+import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
+import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
+
 import org.mule.apikit.model.parameter.Parameter;
+import org.mule.metadata.api.model.MetadataType;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import org.raml.v2.api.model.common.ValidationResult;
 import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
@@ -17,21 +33,6 @@ import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.api.model.v10.system.types.AnnotableStringType;
 import org.raml.v2.api.model.v10.system.types.MarkdownString;
 import org.raml.v2.internal.impl.v10.type.TypeId;
-
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Optional.ofNullable;
-import static org.mule.apikit.implv2.v10.MetadataResolver.anyType;
-import static org.mule.apikit.implv2.v10.MetadataResolver.resolve;
-import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
-import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
 
 public class ParameterImpl implements Parameter {
 

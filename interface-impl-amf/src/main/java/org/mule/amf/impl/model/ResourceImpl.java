@@ -6,7 +6,9 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.EndPoint;
+import static java.util.stream.Collectors.toMap;
+import static org.mule.apikit.ParserUtils.resolveVersion;
+
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.Resource;
@@ -16,8 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toMap;
-import static org.mule.apikit.ParserUtils.resolveVersion;
+import amf.client.model.domain.EndPoint;
 
 public class ResourceImpl implements Resource {
 

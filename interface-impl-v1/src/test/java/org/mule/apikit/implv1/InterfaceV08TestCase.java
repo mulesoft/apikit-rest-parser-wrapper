@@ -6,18 +6,19 @@
  */
 package org.mule.apikit.implv1;
 
-import org.junit.Test;
+import static java.util.Objects.requireNonNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mule.apikit.implv1.ParserWrapperV1.DEFAULT_RESOURCE_LOADER;
+
 import org.mule.apikit.model.ApiSpecification;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mule.apikit.implv1.ParserWrapperV1.DEFAULT_RESOURCE_LOADER;
+import org.junit.Test;
 
 public class InterfaceV08TestCase {
 

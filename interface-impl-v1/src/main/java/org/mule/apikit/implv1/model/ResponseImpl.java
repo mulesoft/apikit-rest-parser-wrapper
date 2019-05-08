@@ -6,14 +6,14 @@
  */
 package org.mule.apikit.implv1.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.raml.model.parameter.Header;
 

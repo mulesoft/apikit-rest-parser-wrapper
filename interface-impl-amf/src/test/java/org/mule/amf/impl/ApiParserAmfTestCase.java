@@ -10,9 +10,11 @@ import static java.util.Objects.requireNonNull;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.mule.apikit.model.api.ApiReference;
+
 import java.util.List;
+
 import org.junit.Test;
-import org.mule.apikit.model.api.ApiRef;
 
 public class ApiParserAmfTestCase {
 
@@ -21,7 +23,7 @@ public class ApiParserAmfTestCase {
     String pathAsUri =
         requireNonNull(getClass().getClassLoader().getResource("org/mule/amf/impl/ref-json-schema/input.raml")).toString();
 
-    List<String> references = AMFParser.create(ApiRef.create(pathAsUri), true).parse().getAllReferences();
+    List<String> references = new AMFParser(ApiReference.create(pathAsUri), true).parse().getAllReferences();
 
     assertThat(references.size(), is(2));
     assertThat(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/ref-json-schema/car-schema.json")), is(true));

@@ -4,10 +4,9 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.parser.service;
+package org.mule.apikit;
 
-public enum ParserConfiguration {
+public enum ApiType {
   AMF,
-  RAML,
-  AUTO
+  RAML
 }

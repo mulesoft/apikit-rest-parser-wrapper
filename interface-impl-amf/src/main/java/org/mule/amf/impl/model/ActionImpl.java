@@ -6,10 +6,9 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.Operation;
-import amf.client.model.domain.Request;
-import amf.client.model.domain.Shape;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
+
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.MimeType;
@@ -24,8 +23,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toMap;
+import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.Operation;
+import amf.client.model.domain.Request;
+import amf.client.model.domain.Shape;
 
 public class ActionImpl implements Action {
 

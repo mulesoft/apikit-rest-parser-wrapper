@@ -6,6 +6,11 @@
  */
 package org.mule.apikit.model.api;
 
+import static org.mule.apikit.common.ApiVendorUtils.deduceApiVendor;
+import static org.mule.apikit.common.ApiVendorUtils.getRamlVendor;
+import static org.mule.apikit.model.ApiVendor.OAS_20;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
+
 import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.ApiVendor;
@@ -15,14 +20,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-import static org.mule.apikit.common.ApiVendorUtils.deduceApiVendor;
-import static org.mule.apikit.common.ApiVendorUtils.getRamlVendor;
-import static org.mule.apikit.model.ApiVendor.OAS_20;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
+public interface ApiReference {
 
-public interface ApiRef {
-
-  static ApiRef create(final String location, final ResourceLoader resourceLoader) {
+  static ApiReference create(final String location, final ResourceLoader resourceLoader) {
     if (ApiSyncUtils.isSyncProtocol(location))
       return resourceLoader != null ? new ApiSyncApiRef(location, resourceLoader) : new ApiSyncApiRef(location);
 
@@ -37,11 +37,11 @@ public interface ApiRef {
     return new DefaultApiRef(location, resourceLoader);
   }
 
-  static ApiRef create(final String location) {
+  static ApiReference create(final String location) {
     return create(location, null);
   }
 
-  static ApiRef create(final URI uri) {
+  static ApiReference create(final URI uri) {
     return new URIApiRef(uri);
   }
 

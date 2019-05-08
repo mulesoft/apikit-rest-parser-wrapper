@@ -6,12 +6,12 @@
  */
 package org.mule.apikit.model;
 
-import java.util.HashMap;
-
-import org.apache.commons.lang3.StringUtils;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 public interface Response {
 

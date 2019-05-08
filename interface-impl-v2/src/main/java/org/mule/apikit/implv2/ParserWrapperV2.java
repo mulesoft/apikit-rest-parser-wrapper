@@ -6,28 +6,26 @@
  */
 package org.mule.apikit.implv2;
 
+import static java.util.Optional.ofNullable;
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
+
+import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv2.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
-import org.mule.apikit.ParserType;
-import org.mule.apikit.ApiParser;
-import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.validation.DefaultApiValidationReport;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
-import org.raml.v2.api.loader.CompositeResourceLoader;
-import org.raml.v2.api.loader.DefaultResourceLoader;
-import org.raml.v2.api.loader.FileResourceLoader;
-import org.raml.v2.api.loader.ResourceLoader;
-import org.raml.v2.api.loader.RootRamlFileResourceLoader;
+import org.mule.apikit.validation.DefaultApiValidationReport;
 
 import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-import static java.util.Optional.ofNullable;
-import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
+import org.raml.v2.api.loader.CompositeResourceLoader;
+import org.raml.v2.api.loader.DefaultResourceLoader;
+import org.raml.v2.api.loader.FileResourceLoader;
+import org.raml.v2.api.loader.ResourceLoader;
+import org.raml.v2.api.loader.RootRamlFileResourceLoader;
 
 public class ParserWrapperV2 implements ApiParser {
 
@@ -75,16 +73,6 @@ public class ParserWrapperV2 implements ApiParser {
 
   private static boolean isFile(URL url) {
     return "file".equals(url.getProtocol());
-  }
-
-  @Override
-  public ApiVendor getApiVendor() {
-    return RAML_10; // TODO Support both ApiVendor parsing RAML file
-  }
-
-  @Override
-  public ParserType getParserType() {
-    return ParserType.RAML;
   }
 
   @Override

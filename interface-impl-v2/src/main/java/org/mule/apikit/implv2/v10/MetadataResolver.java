@@ -6,16 +6,17 @@
  */
 package org.mule.apikit.implv2.v10;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Optional.of;
+
 import org.mule.metadata.api.builder.BaseTypeBuilder;
 import org.mule.metadata.api.model.MetadataFormat;
 import org.mule.metadata.api.model.MetadataType;
 import org.mule.metadata.json.api.JsonTypeLoader;
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 
 import java.util.Optional;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Optional.of;
+import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 
 public class MetadataResolver {
 

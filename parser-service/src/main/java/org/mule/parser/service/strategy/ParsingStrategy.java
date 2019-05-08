@@ -4,18 +4,13 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.parser.service;
+package org.mule.parser.service.strategy;
 
-/**
- * Represents an error occurred when parsing the input files
- */
-public interface ParsingError {
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
 
-  /**
-   * Detailed cause of the error
-   *
-   * @return a details cause of the error.
-   */
-  String cause();
+public interface ParsingStrategy {
+
+  ParseResult parse(ApiReference ref);
 
 }

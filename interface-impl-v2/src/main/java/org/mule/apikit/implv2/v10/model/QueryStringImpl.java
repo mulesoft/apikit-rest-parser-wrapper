@@ -6,14 +6,13 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
+import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
+
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
-
-import org.raml.v2.api.model.common.ValidationResult;
-import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
-import org.raml.v2.internal.impl.v10.type.TypeId;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,10 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
-import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
+import org.raml.v2.api.model.common.ValidationResult;
+import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.internal.impl.v10.type.TypeId;
 
 public class QueryStringImpl implements QueryString {
 

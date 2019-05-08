@@ -6,23 +6,23 @@
  */
 package org.mule.amf.impl;
 
-import org.mule.apikit.model.Action;
-import org.mule.apikit.model.ActionType;
-import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.model.Resource;
-import org.mule.apikit.model.api.ApiRef;
-import org.mule.apikit.model.parameter.Parameter;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.ActionType;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.apikit.model.parameter.Parameter;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 abstract class AbstractTestCase {
 
@@ -55,7 +55,7 @@ abstract class AbstractTestCase {
     // getUri()
   }
 
-  static void assertEqual(final List<ApiRef> actual, final List<ApiRef> expected) {
+  static void assertEqual(final List<ApiReference> actual, final List<ApiReference> expected) {
     assertThat(actual.size(), is(expected.size()));
   }
 

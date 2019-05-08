@@ -6,6 +6,8 @@
  */
 package org.mule.apikit.model.api;
 
+import static java.lang.String.format;
+
 import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.loader.ApiSyncResourceLoader;
 import org.mule.apikit.loader.ClassPathResourceLoader;
@@ -14,9 +16,7 @@ import org.mule.apikit.loader.ResourceLoader;
 import java.io.InputStream;
 import java.util.Optional;
 
-import static java.lang.String.format;
-
-class ApiSyncApiRef implements ApiRef {
+class ApiSyncApiRef implements ApiReference {
 
   private static final String RESOURCE_FORMAT = "resource::%s:%s:%s:%s:%s:%s";
 

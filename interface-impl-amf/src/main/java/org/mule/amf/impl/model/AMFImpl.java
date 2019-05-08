@@ -6,10 +6,21 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.document.Document;
-import amf.client.model.domain.EndPoint;
-import amf.client.model.domain.Server;
-import amf.client.model.domain.WebApi;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
+import static org.mule.apikit.ApiType.AMF;
+import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
+
+import org.mule.apikit.ApiType;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.ApiVendor;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.SecurityScheme;
+import org.mule.apikit.model.Template;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,14 +30,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.model.ApiVendor;
-import org.mule.apikit.model.Resource;
-import org.mule.apikit.model.SecurityScheme;
-import org.mule.apikit.model.Template;
-import org.mule.apikit.model.api.ApiRef;
-import org.mule.apikit.model.parameter.Parameter;
-
+import amf.client.model.document.Document;
+import amf.client.model.domain.EndPoint;
+import amf.client.model.domain.Server;
+import amf.client.model.domain.WebApi;
 import amf.client.render.AmfGraphRenderer;
 import amf.client.render.Oas20Renderer;
 import amf.client.render.Raml08Renderer;
@@ -36,12 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toMap;
-import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
-
 public class AMFImpl implements ApiSpecification {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AMFImpl.class);
@@ -50,9 +51,9 @@ public class AMFImpl implements ApiSpecification {
   private final List<String> references;
   private final ApiVendor apiVendor;
   private final Document consoleModel;
-  private final ApiRef apiRef;
+  private final ApiReference apiRef;
 
-  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, Document console, ApiRef apiRef) {
+  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, Document console, ApiReference apiRef) {
     this.webApi = webApi;
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
@@ -107,7 +108,7 @@ public class AMFImpl implements ApiSpecification {
 
   @Override
   public Map<String, Resource> getResources() {
-    return resources.containsKey("") ? resources.get("") : emptyMap();
+    return resources.getOrDefault("", emptyMap());
   }
 
   Map<String, Resource> getResources(final Resource resource) {
@@ -150,6 +151,16 @@ public class AMFImpl implements ApiSpecification {
       dump = replaceBaseUri(dump, newBaseUri);
     }
     return dump;
+  }
+
+  @Override
+  public ApiVendor getApiVendor() {
+    return apiVendor;
+  }
+
+  @Override
+  public ApiType getType() {
+    return AMF;
   }
 
   private String renderApi() {

@@ -6,14 +6,14 @@
  */
 package org.mule.apikit.implv2.loader;
 
-import org.raml.v2.api.loader.DefaultResourceLoader;
-import org.raml.v2.api.loader.ResourceLoader;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
+import org.raml.v2.api.loader.DefaultResourceLoader;
+import org.raml.v2.api.loader.ResourceLoader;
 
 public class ExchangeDependencyResourceLoader implements ResourceLoader {
 

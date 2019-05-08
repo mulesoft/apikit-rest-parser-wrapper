@@ -6,9 +6,10 @@
  */
 package org.mule.apikit.common.test;
 
+import org.mule.apikit.common.ApiSyncUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
-import org.mule.apikit.common.ApiSyncUtils;
 
 public class APISyncUtilsTest {
 

@@ -6,14 +6,15 @@
  */
 package org.mule.amf.impl.loader;
 
-import amf.client.remote.Content;
-import org.apache.commons.io.IOUtils;
 import org.mule.apikit.loader.ResourceLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+
+import amf.client.remote.Content;
+import org.apache.commons.io.IOUtils;
 
 public class ProvidedResourceLoader implements amf.client.resource.ResourceLoader {
 

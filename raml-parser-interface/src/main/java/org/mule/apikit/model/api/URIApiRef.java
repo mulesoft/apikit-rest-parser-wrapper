@@ -6,7 +6,6 @@
  */
 package org.mule.apikit.model.api;
 
-import org.apache.commons.io.FilenameUtils;
 import org.mule.apikit.loader.ResourceLoader;
 
 import java.io.BufferedInputStream;
@@ -15,7 +14,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Optional;
 
-class URIApiRef implements ApiRef {
+import org.apache.commons.io.FilenameUtils;
+
+class URIApiRef implements ApiReference {
 
   private URI uri;
   private Optional<ResourceLoader> resourceLoader;

@@ -11,12 +11,12 @@ import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.apikit.validation.ApiValidationResult;
 
-import org.raml.model.parameter.FormParameter;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.raml.model.parameter.FormParameter;
 
 public class MimeTypeImpl implements MimeType {
 

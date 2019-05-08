@@ -6,6 +6,8 @@
  */
 package org.mule.apikit.implv1.parser.visitor;
 
+import static org.mule.apikit.implv1.ParserWrapperV1.DEFAULT_RESOURCE_LOADER;
+
 import org.mule.apikit.implv1.model.RamlImplV1;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.visitor.ApiDocumentBuilder;
@@ -14,8 +16,6 @@ import org.raml.parser.loader.CompositeResourceLoader;
 import org.raml.parser.loader.FileResourceLoader;
 import org.raml.parser.loader.ResourceLoader;
 import org.raml.parser.visitor.RamlDocumentBuilder;
-
-import static org.mule.apikit.implv1.ParserWrapperV1.DEFAULT_RESOURCE_LOADER;
 
 public class RamlDocumentBuilderImpl implements ApiDocumentBuilder {
 

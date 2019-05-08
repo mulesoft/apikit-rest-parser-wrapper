@@ -6,15 +6,16 @@
  */
 package org.mule.apikit.implv2.v08;
 
-import org.junit.Test;
-import org.mule.apikit.implv2.ParserV2Utils;
-import org.mule.apikit.model.ApiSpecification;
-import org.raml.v2.api.loader.DefaultResourceLoader;
-import org.raml.v2.api.loader.ResourceLoader;
-
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.mule.apikit.implv2.ParserV2Utils;
+import org.mule.apikit.model.ApiSpecification;
+
+import org.junit.Test;
+import org.raml.v2.api.loader.DefaultResourceLoader;
+import org.raml.v2.api.loader.ResourceLoader;
 
 public class InterfaceV08TestCase {
 

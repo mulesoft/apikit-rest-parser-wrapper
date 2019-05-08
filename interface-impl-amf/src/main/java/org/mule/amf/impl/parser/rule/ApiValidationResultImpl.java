@@ -6,7 +6,11 @@
  */
 package org.mule.amf.impl.parser.rule;
 
-import amf.core.parser.Position;
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static org.mule.apikit.validation.Severity.ERROR;
+
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.Severity;
 
@@ -14,10 +18,7 @@ import java.net.URLDecoder;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
-import static org.mule.apikit.validation.Severity.ERROR;
+import amf.core.parser.Position;
 
 public class ApiValidationResultImpl implements ApiValidationResult {
 

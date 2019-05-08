@@ -6,6 +6,7 @@
  */
 package org.mule.apikit.model;
 
+import org.mule.apikit.ApiType;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.io.Serializable;
@@ -39,4 +40,9 @@ public interface ApiSpecification extends Serializable {
   List<String> getAllReferences();
 
   String dump(String newBaseUri);
+
+  ApiVendor getApiVendor();
+
+  ApiType getType();
+
 }

@@ -7,14 +7,16 @@
 package org.mule.apikit.implv1.parser.visitor;
 
 import static java.util.stream.Collectors.toList;
-import static org.raml.parser.rule.ValidationResult.*;
-
-import java.util.List;
+import static org.raml.parser.rule.ValidationResult.Level;
+import static org.raml.parser.rule.ValidationResult.getLevel;
 
 import org.mule.apikit.implv1.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.visitor.ApiDocumentBuilder;
 import org.mule.apikit.visitor.ApiValidationService;
+
+import java.util.List;
+
 import org.raml.parser.loader.ResourceLoader;
 import org.raml.parser.visitor.RamlValidationService;
 

@@ -4,15 +4,20 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.apikit;
+package org.mule.parser.service.result;
 
 import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.validation.ApiValidationReport;
 
-public interface ApiParser {
+import java.util.List;
 
-  ApiValidationReport validate();
+public interface ParseResult {
 
-  ApiSpecification parse();
+  ApiSpecification get();
+
+  boolean success();
+
+  List<ParsingIssue> getErrors();
+
+  List<ParsingIssue> getWarnings();
 
 }

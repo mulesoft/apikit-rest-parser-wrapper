@@ -6,13 +6,10 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.Shape;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import static java.util.Arrays.asList;
+import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
+import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
@@ -25,9 +22,13 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.ArrayShape;
+import amf.client.model.domain.NodeShape;
+import amf.client.model.domain.PropertyShape;
+import amf.client.model.domain.Shape;
+import amf.client.validate.PayloadValidator;
+import amf.client.validate.ValidationReport;
 
 public class QueryStringImpl implements QueryString {
 

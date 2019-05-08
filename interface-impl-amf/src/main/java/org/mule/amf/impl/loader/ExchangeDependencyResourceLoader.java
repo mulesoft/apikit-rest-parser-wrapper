@@ -6,15 +6,15 @@
  */
 package org.mule.amf.impl.loader;
 
-import amf.client.remote.Content;
-import amf.client.resource.FileResourceLoader;
-import amf.client.resource.ResourceLoader;
-
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import amf.client.remote.Content;
+import amf.client.resource.FileResourceLoader;
+import amf.client.resource.ResourceLoader;
 
 public class ExchangeDependencyResourceLoader implements ResourceLoader {
 

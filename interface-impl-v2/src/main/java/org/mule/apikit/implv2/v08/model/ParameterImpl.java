@@ -6,14 +6,14 @@
  */
 package org.mule.apikit.implv2.v08.model;
 
+import static org.mule.apikit.implv2.v08.MetadataResolver.resolve;
+import static org.mule.apikit.implv2.v08.MetadataResolver.stringType;
+
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.mule.apikit.implv2.v08.MetadataResolver.resolve;
-import static org.mule.apikit.implv2.v08.MetadataResolver.stringType;
 
 public class ParameterImpl implements Parameter {
 

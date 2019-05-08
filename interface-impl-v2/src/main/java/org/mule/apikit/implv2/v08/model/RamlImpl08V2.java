@@ -6,7 +6,13 @@
  */
 package org.mule.apikit.implv2.v08.model;
 
+import static java.util.Collections.emptyMap;
+import static org.mule.apikit.ApiType.RAML;
+import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
+
+import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
@@ -23,9 +29,6 @@ import org.raml.v2.api.loader.ResourceLoader;
 import org.raml.v2.api.model.v08.api.Api;
 import org.raml.v2.api.model.v08.api.GlobalSchema;
 import org.raml.v2.internal.utils.StreamUtils;
-
-import static java.util.Collections.emptyMap;
-import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
 public class RamlImpl08V2 implements ApiSpecification {
 
@@ -112,6 +115,16 @@ public class RamlImpl08V2 implements ApiSpecification {
     List<Map<String, String>> result = new ArrayList<>();
     result.add(map);
     return result;
+  }
+
+  @Override
+  public ApiVendor getApiVendor() {
+    return ApiVendor.RAML_10;
+  }
+
+  @Override
+  public ApiType getType() {
+    return RAML;
   }
 
   @Override

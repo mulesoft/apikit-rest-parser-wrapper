@@ -6,15 +6,16 @@
  */
 package org.mule.apikit.implv1.model.parameter;
 
-import org.mule.metadata.api.model.MetadataType;
+import static org.mule.apikit.implv1.MetadataResolver.resolve;
+import static org.mule.apikit.implv1.MetadataResolver.stringType;
+
 import org.mule.apikit.model.parameter.Parameter;
-import org.raml.model.parameter.AbstractParam;
+import org.mule.metadata.api.model.MetadataType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mule.apikit.implv1.MetadataResolver.stringType;
-import static org.mule.apikit.implv1.MetadataResolver.resolve;
+import org.raml.model.parameter.AbstractParam;
 
 public class ParameterImpl implements Parameter {
 

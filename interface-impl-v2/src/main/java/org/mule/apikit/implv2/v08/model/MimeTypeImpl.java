@@ -9,12 +9,13 @@ package org.mule.apikit.implv2.v08.model;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.apikit.validation.ApiValidationResult;
-import org.raml.v2.api.model.v08.bodies.BodyLike;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.raml.v2.api.model.v08.bodies.BodyLike;
 
 public class MimeTypeImpl implements MimeType {
 

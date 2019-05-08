@@ -4,17 +4,16 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.parser.service;
-
+package org.mule.parser.service.result;
 
 /**
  * Represents a simple parsing error with cause message
  */
-public class DefaultParsingError implements ParsingError {
+public class DefaultParsingIssue implements ParsingIssue {
 
   private final String cause;
 
-  public DefaultParsingError(String cause) {
+  public DefaultParsingIssue(String cause) {
     this.cause = cause;
   }
 

@@ -6,20 +6,20 @@
  */
 package org.mule.apikit.implv1.model;
 
+import static org.mule.apikit.ParserUtils.resolveVersion;
+
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.parameter.Parameter;
 
-import org.raml.model.parameter.UriParameter;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.mule.apikit.ParserUtils.resolveVersion;
+import org.raml.model.parameter.UriParameter;
 
 public class ResourceImpl implements Resource {
 

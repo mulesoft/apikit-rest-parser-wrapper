@@ -6,6 +6,8 @@
  */
 package org.mule.apikit.implv2.v08.model;
 
+import static java.util.Optional.ofNullable;
+
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
@@ -14,8 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.raml.v2.api.model.v08.bodies.BodyLike;
-
-import static java.util.Optional.ofNullable;
 
 public class ResponseImpl implements Response {
 
