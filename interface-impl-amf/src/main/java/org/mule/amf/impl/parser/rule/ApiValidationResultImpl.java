@@ -52,9 +52,7 @@ public class ApiValidationResultImpl implements ApiValidationResult {
 
   @Override
   public Severity getSeverity() {
-    if (!severities.contains(validationResult.level()))
-      return ERROR;
-    return Severity.fromString(validationResult.level());
+    return !severities.contains(validationResult.level()) ? ERROR : Severity.fromString(validationResult.level());
   }
 
   private static String buildErrorMessage(String message, String location, Position startPosition) {
@@ -63,5 +61,10 @@ public class ApiValidationResultImpl implements ApiValidationResult {
 
   private static String getPositionMessage(Position startPosition) {
     return format(POSITION_FORMAT, startPosition.line(), startPosition.column());
+  }
+
+  @Override
+  public String toString() {
+    return getMessage();
   }
 }

@@ -38,4 +38,9 @@ public class ApiValidationResultImpl implements ApiValidationResult {
   public Severity getSeverity() {
     return Severity.ERROR;
   }
+
+  @Override
+  public String toString() {
+    return validationResult.toString();
+  }
 }

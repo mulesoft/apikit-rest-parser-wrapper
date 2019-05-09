@@ -46,4 +46,9 @@ public class ApiValidationResultImpl implements ApiValidationResult {
     }
     return Severity.fromString(validationResult.getLevel().name());
   }
+
+  @Override
+  public String toString() {
+    return validationResult.toString();
+  }
 }

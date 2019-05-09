@@ -27,7 +27,7 @@ public class RamlParsingStrategy implements ParsingStrategy {
     try {
       ApiParser parser = create(ref);
       ApiValidationReport report = parser.validate();
-      return new DefaultParseResult(parser.parse(), errors(report), warnings(report));
+      return new DefaultParseResult(report.conforms() ? parser.parse() : null, errors(report), warnings(report));
     } catch (Exception e) {
       return new ExceptionParseResult(e);
     }

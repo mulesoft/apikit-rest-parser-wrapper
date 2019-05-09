@@ -104,7 +104,7 @@ public class ParserServiceTestCase {
     assertThat(warnings.size(), is(1));
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
     assertThat(errors.size(), is(1));
-    assertThat(errors.get(0).cause(), containsString("Error while parsing API: Invalid RAML descriptor."));
+    assertThat(errors.get(0).cause(), containsString("Invalid element resource for /pet"));
   }
 
   private static String resource(final String path) {

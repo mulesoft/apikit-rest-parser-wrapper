@@ -31,9 +31,6 @@ public class ValidationReportHelper {
     return report.getResults()
       .stream()
       .filter(result -> severity.equals(result.getSeverity()))
-      .map(result -> {
-      String lineError = result.getLine().map(line -> "error in line [" + line + "]: ").orElse("");
-      return new DefaultParsingIssue(lineError + result.getMessage());
-    }).collect(toList());
+      .map(result -> new DefaultParsingIssue(result.toString())).collect(toList());
   }
 }
