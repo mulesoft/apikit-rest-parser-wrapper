@@ -6,17 +6,13 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.Parameter;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.Shape;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import static java.util.Arrays.asList;
+import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
+import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
-import org.mule.raml.interfaces.model.IQueryString;
-import org.mule.raml.interfaces.model.parameter.IParameter;
+import org.mule.apikit.model.QueryString;
+import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,11 +22,15 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.ArrayShape;
+import amf.client.model.domain.NodeShape;
+import amf.client.model.domain.PropertyShape;
+import amf.client.model.domain.Shape;
+import amf.client.validate.PayloadValidator;
+import amf.client.validate.ValidationReport;
 
-public class QueryStringImpl implements IQueryString {
+public class QueryStringImpl implements QueryString {
 
   private AnyShape schema;
   private boolean required;
@@ -48,7 +48,7 @@ public class QueryStringImpl implements IQueryString {
     this.scalarTypes = typeIds.stream().map(ScalarType::getName).collect(Collectors.toList());
   }
 
-  private static AnyShape getSchema(final Parameter parameter) {
+  private static AnyShape getSchema(final amf.client.model.domain.Parameter parameter) {
     final Shape shape = parameter.schema();
     return castToAnyShape(shape);
   }
@@ -119,8 +119,8 @@ public class QueryStringImpl implements IQueryString {
   }
 
   @Override
-  public Map<String, IParameter> facets() {
-    HashMap<String, IParameter> result = new HashMap<>();
+  public Map<String, Parameter> facets() {
+    HashMap<String, Parameter> result = new HashMap<>();
 
     if (schema instanceof NodeShape) {
       for (PropertyShape type : ((NodeShape) schema).properties())

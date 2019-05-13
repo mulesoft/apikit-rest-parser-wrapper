@@ -6,6 +6,24 @@
  */
 package org.mule.amf.impl.model;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+
+import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
+import org.mule.apikit.model.MimeType;
+import org.mule.apikit.model.parameter.Parameter;
+import org.mule.apikit.validation.ApiValidationResult;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.Example;
 import amf.client.model.domain.NodeShape;
@@ -15,25 +33,8 @@ import amf.client.model.domain.Shape;
 import amf.client.model.domain.UnionShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
-import org.mule.amf.impl.parser.rule.ValidationResultImpl;
-import org.mule.raml.interfaces.model.IMimeType;
-import org.mule.raml.interfaces.model.parameter.IParameter;
-import org.mule.raml.interfaces.parser.rule.IValidationResult;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
-
-public class MimeTypeImpl implements IMimeType {
+public class MimeTypeImpl implements MimeType {
 
   private final Payload payload;
   private final Shape shape;
@@ -63,7 +64,7 @@ public class MimeTypeImpl implements IMimeType {
   }
 
   @Override
-  public Map<String, List<IParameter>> getFormParameters() {
+  public Map<String, List<Parameter>> getFormParameters() {
     final String mediaType = payload.mediaType().value();
 
     if (mediaType.startsWith("multipart/") || mediaType.equals("application/x-www-form-urlencoded")) {
@@ -75,7 +76,7 @@ public class MimeTypeImpl implements IMimeType {
 
       final NodeShape nodeShape = (NodeShape) shape;
 
-      final Map<String, List<IParameter>> parameters = new LinkedHashMap<>();
+      final Map<String, List<Parameter>> parameters = new LinkedHashMap<>();
 
       for (PropertyShape propertyShape : nodeShape.properties()) {
         parameters.put(propertyShape.name().value(), singletonList(new ParameterImpl(propertyShape)));
@@ -133,7 +134,7 @@ public class MimeTypeImpl implements IMimeType {
   }
 
   @Override
-  public List<IValidationResult> validate(String payload) {
+  public List<ApiValidationResult> validate(String payload) {
     final String mimeType = getMimeTypeForValue(payload);
 
     Optional<PayloadValidator> payloadValidator;
@@ -166,10 +167,10 @@ public class MimeTypeImpl implements IMimeType {
     return ((AnyShape) shape).payloadValidator(mediaType);
   }
 
-  private static List<IValidationResult> mapToValidationResult(ValidationReport validationReport) {
+  private static List<ApiValidationResult> mapToValidationResult(ValidationReport validationReport) {
     if (validationReport.conforms())
       return emptyList();
     else
-      return validationReport.results().stream().map(ValidationResultImpl::new).collect(toList());
+      return validationReport.results().stream().map(ApiValidationResultImpl::new).collect(toList());
   }
 }

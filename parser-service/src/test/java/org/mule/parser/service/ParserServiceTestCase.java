@@ -6,22 +6,24 @@
  */
 package org.mule.parser.service;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mule.apikit.model.ApiVendor.OAS_20;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
+
+import org.mule.apikit.ApiType;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.result.ParsingIssue;
+
+import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import org.mule.raml.interfaces.ParserType;
-import org.mule.raml.interfaces.ParserWrapper;
-import org.mule.raml.interfaces.model.api.ApiRef;
-
-import java.net.URISyntaxException;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mule.raml.interfaces.model.ApiVendor.OAS_20;
-import static org.mule.raml.interfaces.model.ApiVendor.RAML_08;
-import static org.mule.raml.interfaces.model.ApiVendor.RAML_10;
 
 public class ParserServiceTestCase {
 
@@ -29,88 +31,80 @@ public class ParserServiceTestCase {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void raml08Wrapper() throws URISyntaxException {
-
-    final String api = resource("/api-08.raml");
+  public void raml08Wrapper() {
+    String api = resource("/api-08.raml");
 
     ParserService parserService = new ParserService();
-    final ParserWrapper wrapper = parserService.getParser(ApiRef.create(api), ParserType.RAML);
+    ParseResult wrapper = parserService.parse(ApiReference.create(api), ParserMode.RAML);
     assertNotNull(wrapper);
-    assertThat(wrapper.getParserType(), is(ParserType.RAML));
-    assertThat(wrapper.getApiVendor(), is(RAML_08));
-    assertThat(parserService.getParsingErrors().size(), is(0));
+    assertThat(wrapper.get().getType(), is(ApiType.RAML));
+    assertThat(wrapper.get().getApiVendor(), is(RAML_08));
+    assertThat(wrapper.success(), is(true));
+    assertThat(wrapper.getErrors().size(), is(0));
   }
 
   @Test
-  public void raml10Wrapper() throws URISyntaxException {
+  public void raml10Wrapper() {
+    String api = resource("/api-10.raml");
 
-    final String api = resource("/api-10.raml");
-
-    final ParserWrapper wrapper = new ParserService().getParser(ApiRef.create(api), ParserType.RAML);
+    ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.RAML);
     assertNotNull(wrapper);
-    assertThat(wrapper.getParserType(), is(ParserType.RAML));
-    assertThat(wrapper.getApiVendor(), is(RAML_10));
+    assertThat(wrapper.get().getType(), is(ApiType.RAML));
+    assertThat(wrapper.get().getApiVendor(), is(RAML_10));
   }
 
   @Test
-  public void raml10AmfWrapper() throws URISyntaxException {
+  public void raml10AmfWrapper() {
+    String api = resource("/example-with-include/example-with-include.raml");
 
-    final String api = resource("/example-with-include/example-with-include.raml");
-
-    final ParserWrapper wrapper = new ParserService().getParser(ApiRef.create(api), ParserType.AMF);
+    ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
     assertNotNull(wrapper);
-    assertThat(wrapper.getParserType(), is(ParserType.AMF));
-    assertThat(wrapper.getApiVendor(), is(RAML_10));
+    assertThat(wrapper.get().getType(), is(ApiType.AMF));
+    assertThat(wrapper.get().getApiVendor(), is(RAML_10));
   }
 
   @Test
-  public void oasJson20Wrapper() throws URISyntaxException {
+  public void oasJson20Wrapper() {
+    String api = resource("/petstore.json");
 
-    final String api = resource("/petstore.json");
-
-    final ParserWrapper wrapper = new ParserService().getParser(ApiRef.create(api), ParserType.AMF);
+    ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
     assertNotNull(wrapper);
-    assertThat(wrapper.getParserType(), is(ParserType.AMF));
-    assertThat(wrapper.getApiVendor(), is(OAS_20));
+    assertThat(wrapper.get().getType(), is(ApiType.AMF));
+    assertThat(wrapper.get().getApiVendor(), is(OAS_20));
   }
 
   @Test
-  public void oasYaml20Wrapper() throws URISyntaxException {
+  public void oasYaml20Wrapper() {
+    String api = resource("/petstore.yaml");
 
-    final String api = resource("/petstore.yaml");
-
-    final ParserWrapper wrapper = new ParserService().getParser(ApiRef.create(api), ParserType.AMF);
+    ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
     assertNotNull(wrapper);
-    assertThat(wrapper.getParserType(), is(ParserType.AMF));
-    assertThat(wrapper.getApiVendor(), is(OAS_20));
+    assertThat(wrapper.get().getType(), is(ApiType.AMF));
+    assertThat(wrapper.get().getApiVendor(), is(OAS_20));
   }
 
   @Test
   public void fallbackParser() {
     ParserService parserService = new ParserService();
-    ParserWrapper wrapper = parserService.getParser(ApiRef.create(resource("/api-with-fallback-parser.raml")));
+    ParseResult wrapper = parserService.parse(ApiReference.create(resource("/api-with-fallback-parser.raml")));
 
     assertNotNull(wrapper);
-    assertThat(parserService.getParsingErrors().size(), is(1));
-    assertThat(parserService.getParsingErrors().get(0).cause().contains("Validation failed using parser type : AMF, in file :"),
-               is(true));
+    List<ParsingIssue> warnings = wrapper.getWarnings();
+    assertThat(warnings.size(), is(1));
+    assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
   }
 
   @Test
   public void invalidRAML() {
-    expectedException.expect(ParserServiceException.class);
     ParserService parserService = new ParserService();
-    try {
-      parserService.getParser(ApiRef.create(resource("/with-invalid-errors.raml")));
-    } finally {
-      assertThat(parserService.getParsingErrors().size(), is(2));
-      assertThat(parserService.getParsingErrors().get(0).cause().contains("Validation failed using parser type : AMF, in file :"),
-                 is(true));
-      assertThat(parserService.getParsingErrors().get(1).cause()
-          .contains("Validation failed using fallback parser type : RAML, in file :"),
-                 is(true));
+    ParseResult result = parserService.parse(ApiReference.create(resource("/with-invalid-errors.raml")));
+    List<ParsingIssue> errors = result.getErrors();
+    List<ParsingIssue> warnings = result.getWarnings();
 
-    }
+    assertThat(warnings.size(), is(1));
+    assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
+    assertThat(errors.size(), is(1));
+    assertThat(errors.get(0).cause(), containsString("Invalid element resource for /pet"));
   }
 
   private static String resource(final String path) {

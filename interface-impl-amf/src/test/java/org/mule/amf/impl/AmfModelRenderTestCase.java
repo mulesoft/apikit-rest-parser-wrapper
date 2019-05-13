@@ -6,15 +6,17 @@
  */
 package org.mule.amf.impl;
 
-import org.junit.Test;
-import org.mule.raml.interfaces.model.api.ApiRef;
+import static java.nio.file.Files.readAllBytes;
+import static org.junit.Assert.assertEquals;
+
+import org.mule.amf.impl.model.AMFImpl;
+import org.mule.apikit.model.api.ApiReference;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-import static java.nio.file.Files.readAllBytes;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class AmfModelRenderTestCase {
 
@@ -22,12 +24,11 @@ public class AmfModelRenderTestCase {
   public void renderTestCase() throws Exception {
     String folderLocation = AmfModelRenderTestCase.class.getResource("").toURI() + "amf-model-render/";
     String apiLocation = folderLocation + "api-to-render.raml";
-    String goldenAmfModel =
-        new String(readAllBytes(Paths.get(new URI(folderLocation + "golden-amf-model.json"))), StandardCharsets.UTF_8);
+    byte[] expected = readAllBytes(Paths.get(new URI(folderLocation + "golden-amf-model.json")));
+    String goldenAmfModel = new String(expected, StandardCharsets.UTF_8);
 
-    ApiRef apiRef = ApiRef.create(apiLocation);
-    String amfModel = ParserWrapperAmf.create(apiRef, true).getAmfModel();
-
+    ApiReference apiRef = ApiReference.create(apiLocation);
+    String amfModel = ((AMFImpl) new AMFParser(apiRef, true).parse()).dumpAmf();
     assertEquals(goldenAmfModel, amfModel);
   }
 }
