@@ -101,6 +101,11 @@ public class AMFImpl implements ApiSpecification {
     return getServer().map(server -> server.url().value()).orElse(null);
   }
 
+  @Override
+  public String getLocation() {
+    return apiRef.getLocation();
+  }
+
   private Optional<Server> getServer() {
     return webApi.servers().stream().findFirst();
   }

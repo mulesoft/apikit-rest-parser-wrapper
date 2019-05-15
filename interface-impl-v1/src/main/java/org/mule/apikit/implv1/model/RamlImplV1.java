@@ -79,6 +79,11 @@ public class RamlImplV1 implements ApiSpecification {
     return raml.getBaseUri();
   }
 
+  @Override
+  public String getLocation() {
+    return ramlPath;
+  }
+
   public Map<String, Resource> getResources() {
     if (raml.getResources() == null) {
       return null;

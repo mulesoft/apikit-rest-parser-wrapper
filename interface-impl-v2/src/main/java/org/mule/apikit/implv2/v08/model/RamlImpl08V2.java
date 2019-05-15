@@ -82,6 +82,11 @@ public class RamlImpl08V2 implements ApiSpecification {
   }
 
   @Override
+  public String getLocation() {
+    return ramlPath;
+  }
+
+  @Override
   public Map<String, Parameter> getBaseUriParameters() {
     final Map<String, Parameter> baseUriParameters = new LinkedHashMap<>();
 
