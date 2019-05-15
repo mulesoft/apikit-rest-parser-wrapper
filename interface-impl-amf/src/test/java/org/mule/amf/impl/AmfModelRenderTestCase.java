@@ -31,4 +31,14 @@ public class AmfModelRenderTestCase {
     String amfModel = ((AMFImpl) new AMFParser(apiRef, true).parse()).dumpAmf();
     assertEquals(goldenAmfModel, amfModel);
   }
+
+  @Test
+  public void amfGetLocationReturnsApiRefLocation() throws Exception {
+    String folderLocation = AmfModelRenderTestCase.class.getResource("").toURI() + "amf-model-render/";
+    String apiLocation = folderLocation + "api-to-render.raml";
+    ApiReference apiRef = ApiReference.create(apiLocation);
+
+    AMFImpl amfObj = (AMFImpl) new AMFParser(apiRef, true).parse();
+    assertEquals(amfObj.getLocation(), apiRef.getLocation());
+  }
 }

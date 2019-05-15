@@ -23,6 +23,8 @@ public interface ApiSpecification extends Serializable {
 
   String getBaseUri();
 
+  String getLocation();
+
   Map<String, Resource> getResources();
 
   String getVersion();

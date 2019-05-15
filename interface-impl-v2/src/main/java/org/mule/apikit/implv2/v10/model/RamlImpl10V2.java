@@ -66,6 +66,11 @@ public class RamlImpl10V2 implements ApiSpecification {
   }
 
   @Override
+  public String getLocation() {
+    return ramlPath;
+  }
+
+  @Override
   public String getVersion() {
     return nullSafe(api.version());
   }
@@ -92,7 +97,7 @@ public class RamlImpl10V2 implements ApiSpecification {
     if (typeDeclaration instanceof AnyTypeDeclaration) {
       return null;
     }
-    //return non-null value in order to detect that a schema was defined
+    // return non-null value in order to detect that a schema was defined
     return typeDeclaration.toJsonSchema();
   }
 
