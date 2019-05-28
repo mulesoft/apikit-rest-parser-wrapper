@@ -16,8 +16,7 @@
         <licensePath>../LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.skip>true</sonar.skip>
-
-        <commons.io.version>2.4</commons.io.version>
+        <commons.io.version>2.6</commons.io.version>
     </properties>
 
     <dependencies>
