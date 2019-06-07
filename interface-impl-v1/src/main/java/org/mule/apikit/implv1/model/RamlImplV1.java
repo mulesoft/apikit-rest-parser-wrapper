@@ -23,7 +23,9 @@ import org.mule.apikit.model.parameter.Parameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -159,7 +161,7 @@ public class RamlImplV1 implements ApiSpecification {
   @Override
   public List<String> getAllReferences() {
     try {
-      return ParserV1Utils.detectIncludes(getPathAsUri(ramlPath), resourceLoader);
+      return ParserV1Utils.detectIncludes(ramlPath, resourceLoader);
     } catch (IOException e) {
       logger.error(e.getMessage());
     }
@@ -184,11 +186,6 @@ public class RamlImplV1 implements ApiSpecification {
   @Override
   public ApiVendor getApiVendor() {
     return RAML_08;
-  }
-
-  private URI getPathAsUri(String path) {
-    final String normalizedPath = path.replace(File.separator, "/");
-    return URI.create(normalizedPath);
   }
 
   @Override

@@ -88,11 +88,10 @@ public class ParserV1Utils {
     return ramlDocumentBuilder;
   }
 
-  public static List<String> detectIncludes(URI ramlUri, ResourceLoader resourceLoader) throws IOException {
+  public static List<String> detectIncludes(String ramlPath, ResourceLoader resourceLoader) throws IOException {
     try {
-      final String ramlUriAsString = ramlUri.toString();
-      final String content = IOUtils.toString(resourceLoader.fetchResource(ramlUriAsString));
-      final String rootFilePath = ramlUriAsString.substring(0, ramlUriAsString.lastIndexOf("/"));
+      final String content = IOUtils.toString(resourceLoader.fetchResource(ramlPath));
+      final String rootFilePath = ramlPath.substring(0, ramlPath.lastIndexOf("/"));
 
       final Node rootNode = YAML_PARSER.compose(new StringReader(content));
       if (rootNode == null) {
@@ -113,11 +112,9 @@ public class ParserV1Utils {
       final Tag nodeTag = includedNode.getTag();
       if (nodeTag != null && nodeTag.toString().equals(INCLUDE_KEYWORD)) {
         final String includedNodeValue = includedNode.getValue();
-        final String includeUriAsString = rootFileUri + "/" + includedNodeValue;
-
-        final URI includeUri = URI.create(includeUriAsString);
-        if (resourceLoader.fetchResource(includeUriAsString) != null) {
-          includedFiles.add(includeUriAsString);
+        final String includeUri = rootFileUri + "/" + includedNodeValue;
+        if (resourceLoader.fetchResource(includeUri) != null) {
+          includedFiles.add(includeUri);
           includedFiles.addAll(detectIncludes(includeUri, resourceLoader));
         }
       }
