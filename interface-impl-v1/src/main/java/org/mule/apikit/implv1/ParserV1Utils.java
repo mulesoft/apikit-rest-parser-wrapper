@@ -13,6 +13,7 @@ import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.visitor.ApiDocumentBuilder;
 import org.mule.apikit.visitor.ApiValidationService;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -111,11 +112,12 @@ public class ParserV1Utils {
       final ScalarNode includedNode = (ScalarNode) rootNode;
       final Tag nodeTag = includedNode.getTag();
       if (nodeTag != null && nodeTag.toString().equals(INCLUDE_KEYWORD)) {
-        final String includedNodeValue = includedNode.getValue();
-        final String includeUri = rootFileUri + "/" + includedNodeValue;
-        if (resourceLoader.fetchResource(includeUri) != null) {
-          includedFiles.add(includeUri);
-          includedFiles.addAll(detectIncludes(includeUri, resourceLoader));
+        String includedNodeValue = includedNode.getValue();
+        String includeUri = rootFileUri + "/" + includedNodeValue;
+        String normalized = includeUri.replace("/", File.separator);
+        if (resourceLoader.fetchResource(normalized) != null) {
+          includedFiles.add(normalized);
+          includedFiles.addAll(detectIncludes(normalized, resourceLoader));
         }
       }
     } else if (rootNode.getNodeId() == NodeId.mapping) {
