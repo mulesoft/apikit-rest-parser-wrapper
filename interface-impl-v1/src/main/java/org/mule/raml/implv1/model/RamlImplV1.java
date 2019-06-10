@@ -6,7 +6,6 @@
  */
 package org.mule.raml.implv1.model;
 
-import org.apache.commons.io.IOUtils;
 import org.mule.raml.implv1.ParserV1Utils;
 import org.mule.raml.implv1.model.parameter.ParameterImpl;
 import org.mule.raml.interfaces.model.IRaml;
@@ -157,18 +156,12 @@ public class RamlImplV1 implements IRaml {
   @Override
   public List<String> getAllReferences() {
     try {
-      return ParserV1Utils.detectIncludes(getPathAsUri(ramlPath), resourceLoader);
+      return ParserV1Utils.detectIncludes(ramlPath.replace("/", File.separator), resourceLoader);
     } catch (IOException e) {
       logger.error(e.getMessage());
     }
     return emptyList();
   }
-
-  private URI getPathAsUri(String path) {
-    final String normalizedPath = path.replace(File.separator, "/");
-    return URI.create(normalizedPath);
-  }
-
 
   public void injectTrait(String name) {
     Map<String, ITemplate> traitDef = new HashMap<String, ITemplate>();
