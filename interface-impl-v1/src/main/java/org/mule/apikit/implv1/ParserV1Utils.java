@@ -13,6 +13,7 @@ import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.visitor.ApiDocumentBuilder;
 import org.mule.apikit.visitor.ApiValidationService;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -88,11 +89,10 @@ public class ParserV1Utils {
     return ramlDocumentBuilder;
   }
 
-  public static List<String> detectIncludes(URI ramlUri, ResourceLoader resourceLoader) throws IOException {
+  public static List<String> detectIncludes(String ramlPath, ResourceLoader resourceLoader) throws IOException {
     try {
-      final String ramlUriAsString = ramlUri.toString();
-      final String content = IOUtils.toString(resourceLoader.fetchResource(ramlUriAsString));
-      final String rootFilePath = ramlUriAsString.substring(0, ramlUriAsString.lastIndexOf("/"));
+      final String content = IOUtils.toString(resourceLoader.fetchResource(ramlPath));
+      final String rootFilePath = ramlPath.substring(0, ramlPath.lastIndexOf("/"));
 
       final Node rootNode = YAML_PARSER.compose(new StringReader(content));
       if (rootNode == null) {
@@ -112,13 +112,12 @@ public class ParserV1Utils {
       final ScalarNode includedNode = (ScalarNode) rootNode;
       final Tag nodeTag = includedNode.getTag();
       if (nodeTag != null && nodeTag.toString().equals(INCLUDE_KEYWORD)) {
-        final String includedNodeValue = includedNode.getValue();
-        final String includeUriAsString = rootFileUri + "/" + includedNodeValue;
-
-        final URI includeUri = URI.create(includeUriAsString);
-        if (resourceLoader.fetchResource(includeUriAsString) != null) {
-          includedFiles.add(includeUriAsString);
-          includedFiles.addAll(detectIncludes(includeUri, resourceLoader));
+        String includedNodeValue = includedNode.getValue();
+        String includeUri = rootFileUri + "/" + includedNodeValue;
+        String normalized = includeUri.replace("/", File.separator);
+        if (resourceLoader.fetchResource(normalized) != null) {
+          includedFiles.add(normalized);
+          includedFiles.addAll(detectIncludes(normalized, resourceLoader));
         }
       }
     } else if (rootNode.getNodeId() == NodeId.mapping) {
