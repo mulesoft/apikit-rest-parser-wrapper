@@ -16,6 +16,7 @@ import org.raml.v2.api.loader.CompositeResourceLoader;
 import org.raml.v2.api.loader.DefaultResourceLoader;
 import org.raml.v2.api.loader.ResourceLoader;
 
+import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -78,9 +79,10 @@ public class InterfaceV10TestCase {
   @Test
   public void referencesWithExchangeModule() {
     final String ramlPath = "org/mule/raml/implv2/v10/exchange/api.raml";
+    File ramlFile = new File(Thread.currentThread().getContextClassLoader().getResource(ramlPath).getFile());
     final CompositeResourceLoader resourceLoader =
-        new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader());
-    List<String> allReferences = new ParserWrapperV2(ramlPath).build().getAllReferences();
+        new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader(ramlFile.getParentFile()));
+    List<String> allReferences = new ParserWrapperV2(ramlFile.getAbsolutePath()).build().getAllReferences();
     assertEquals(3, allReferences.size());
 
     assertThat(allReferences.stream()

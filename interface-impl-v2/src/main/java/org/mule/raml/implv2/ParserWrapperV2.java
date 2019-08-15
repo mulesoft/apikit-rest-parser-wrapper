@@ -66,7 +66,7 @@ public class ParserWrapperV2 implements ParserWrapper {
       return new CompositeResourceLoader(new RootRamlFileResourceLoader(ramlFolder),
                                          DEFAULT_RESOURCE_LOADER,
                                          new FileResourceLoader(ramlFolder.getAbsolutePath()),
-                                         new ExchangeDependencyResourceLoader());
+                                         new ExchangeDependencyResourceLoader(ramlFolder));
     } else if (isSyncProtocol(ramlPath)) {
       return new ApiSyncResourceLoader(ramlPath);
     }
@@ -75,11 +75,13 @@ public class ParserWrapperV2 implements ParserWrapper {
   }
 
   private static File fetchRamlFile(String ramlPath) {
-    return ofNullable(ramlPath)
-        .map(p -> Thread.currentThread().getContextClassLoader().getResource(p))
-        .filter(ParserWrapperV2::isFile)
-        .map(resource -> new File(resource.getFile()))
-        .orElse(null);
+    File ramlFile = new File(ramlPath);
+
+    if(ramlFile.exists()){
+      return ramlFile;
+    }
+
+    return null;
   }
 
   private static boolean isFile(URL url) {
