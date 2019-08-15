@@ -18,8 +18,8 @@
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
-        <amf.version>3.2.0</amf.version>
-        <amf.xml.extension.version>1.2.1</amf.xml.extension.version>
+        <amf.version>3.3.0</amf.version>
+        <amf.xml.extension.version>1.4.0-SNAPSHOT</amf.xml.extension.version>
     </properties>
 
     <dependencies>
