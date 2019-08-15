@@ -59,10 +59,9 @@ public class ParserWrapperV2 implements ParserWrapper {
   }
 
   public static ResourceLoader getResourceLoaderForPath(String ramlPath) {
-    final File ramlFile = fetchRamlFile(ramlPath);
+    final File ramlFolder = fetchRamlFolder(ramlPath);
 
-    if (ramlFile != null && ramlFile.getParent() != null) {
-      final File ramlFolder = ramlFile.getParentFile();
+    if (ramlFolder != null) {
       return new CompositeResourceLoader(new RootRamlFileResourceLoader(ramlFolder),
                                          DEFAULT_RESOURCE_LOADER,
                                          new FileResourceLoader(ramlFolder.getAbsolutePath()),
@@ -74,11 +73,11 @@ public class ParserWrapperV2 implements ParserWrapper {
     return new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader());
   }
 
-  private static File fetchRamlFile(String ramlPath) {
+  private static File fetchRamlFolder(String ramlPath) {
     File ramlFile = new File(ramlPath);
 
-    if(ramlFile.exists()){
-      return ramlFile;
+    if(ramlFile.exists() && ramlFile.getParent() != null){
+      return ramlFile.getParentFile();
     }
 
     return null;
