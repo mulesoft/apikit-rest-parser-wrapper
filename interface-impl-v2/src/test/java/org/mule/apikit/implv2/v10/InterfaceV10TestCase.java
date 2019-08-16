@@ -27,6 +27,16 @@ import org.raml.v2.api.loader.CompositeResourceLoader;
 import org.raml.v2.api.loader.DefaultResourceLoader;
 import org.raml.v2.api.loader.ResourceLoader;
 
+import java.io.File;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 public class InterfaceV10TestCase {
 
   private static final DefaultResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
@@ -77,9 +87,10 @@ public class InterfaceV10TestCase {
   @Test
   public void referencesWithExchangeModule() {
     final String ramlPath = "org/mule/apikit/implv2/v10/exchange/api.raml";
+    File ramlFile = new File(Thread.currentThread().getContextClassLoader().getResource(ramlPath).getFile());
     final CompositeResourceLoader resourceLoader =
-        new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader());
-    List<String> allReferences = new ParserWrapperV2(ramlPath).parse().getAllReferences();
+        new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader(ramlFile.getParentFile()));
+    List<String> allReferences = new ParserWrapperV2(ramlFile.getAbsolutePath()).parse().getAllReferences();
     assertEquals(3, allReferences.size());
 
     assertThat(allReferences.stream()
