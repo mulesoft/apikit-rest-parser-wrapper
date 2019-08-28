@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.mule.raml.implv2.parser.rule.ValidationResultImpl;
 import org.mule.raml.implv2.v08.model.RamlImpl08V2;
 import org.mule.raml.implv2.v10.model.RamlImpl10V2;
+import org.mule.raml.interfaces.common.APISyncUtils;
 import org.mule.raml.interfaces.model.IRaml;
 import org.mule.raml.interfaces.parser.rule.IValidationResult;
 import org.raml.v2.api.RamlModelBuilder;
@@ -147,6 +148,9 @@ public class ParserV2Utils {
   }
 
   private static String getParent(URI uri) {
+    if(APISyncUtils.isSyncProtocol(uri.toString())){
+      return "";
+    }
     final URI parentUri = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
     final String parentUriAsString = parentUri.toString();
     return parentUriAsString.endsWith("/") ? parentUriAsString.substring(0, parentUriAsString.length() - 1) : parentUriAsString;
