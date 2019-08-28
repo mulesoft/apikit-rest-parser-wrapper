@@ -10,6 +10,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
 
+import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.implv2.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.implv2.v08.model.RamlImpl08V2;
 import org.mule.apikit.implv2.v10.model.RamlImpl10V2;
@@ -147,6 +148,9 @@ public class ParserV2Utils {
   }
 
   private static String getParent(URI uri) {
+    if(ApiSyncUtils.isSyncProtocol(uri.toString())){
+      return "";
+    }
     final URI parentUri = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
     final String parentUriAsString = parentUri.toString();
     return parentUriAsString.endsWith("/") ? parentUriAsString.substring(0, parentUriAsString.length() - 1) : parentUriAsString;
