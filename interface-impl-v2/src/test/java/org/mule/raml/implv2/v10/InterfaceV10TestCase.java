@@ -47,7 +47,7 @@ public class InterfaceV10TestCase {
     final String pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath)).toString();
     final String absoulutPath = pathAsUri.substring(5);
     final String pathAsRemoteUrl =
-        "https://raw.githubusercontent.com/mulesoft/apikit/M4-1.2.x/parser-wrapper/interface-impl-v2/src/test/resources/org/mule/raml/implv2/v10/references/api.raml";
+        "https://raw.githubusercontent.com/mulesoft/apikit-rest-parser-wrapper/1.3.x/interface-impl-v2/src/test/resources/org/mule/raml/implv2/v10/references/api.raml";
 
     final List<String> paths = Arrays.asList(relativePath, pathAsUri, absoulutPath, pathAsRemoteUrl);
     paths.forEach(p -> checkReferences(p, DEFAULT_RESOURCE_LOADER));
