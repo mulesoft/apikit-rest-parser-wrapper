@@ -140,6 +140,11 @@
 ]
 }
 ],
+"http://a.ml/vocabularies/document#version": [
+{
+"@value": "1.0.0"
+}
+],
 "http://a.ml/vocabularies/document#references": [
 {
 "@id": "amf://id#1",
@@ -368,6 +373,11 @@
 ]
 }
 ]
+],
+"http://a.ml/vocabularies/document#version": [
+{
+"@value": "1.0.0"
+}
 ],
 "http://a.ml/vocabularies/document#usage": [
 {
