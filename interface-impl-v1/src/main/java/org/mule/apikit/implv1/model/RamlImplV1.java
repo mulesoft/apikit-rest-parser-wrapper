@@ -161,11 +161,16 @@ public class RamlImplV1 implements ApiSpecification {
   @Override
   public List<String> getAllReferences() {
     try {
-      return ParserV1Utils.detectIncludes(ramlPath.replace("/", File.separator), resourceLoader);
+      return ParserV1Utils.detectIncludes(getPathAsUri(ramlPath), resourceLoader);
     } catch (IOException e) {
       logger.error(e.getMessage());
     }
     return emptyList();
+  }
+
+  private URI getPathAsUri(String path) {
+    final String normalizedPath = path.replace(File.separator, "/");
+    return URI.create(normalizedPath);
   }
 
   @Override
