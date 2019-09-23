@@ -9,6 +9,7 @@ package org.mule.raml.implv1;
 import org.apache.commons.io.IOUtils;
 import org.mule.raml.implv1.parser.visitor.RamlDocumentBuilderImpl;
 import org.mule.raml.implv1.parser.visitor.RamlValidationServiceImpl;
+import org.mule.raml.interfaces.common.APISyncUtils;
 import org.mule.raml.interfaces.model.IRaml;
 import org.mule.raml.interfaces.parser.rule.IValidationResult;
 import org.mule.raml.interfaces.parser.visitor.IRamlDocumentBuilder;
@@ -92,17 +93,25 @@ public class ParserV1Utils {
     try {
       final String ramlUriAsString = ramlUri.toString();
       final String content = IOUtils.toString(resourceLoader.fetchResource(ramlUriAsString));
-      final String rootFilePath = ramlUriAsString.substring(0, ramlUriAsString.lastIndexOf("/"));
+      final String rootFilePath = getRootFilePath(ramlUriAsString);
 
       final Node rootNode = YAML_PARSER.compose(new StringReader(content));
       if (rootNode == null) {
         return Collections.emptyList();
       } else {
         return new ArrayList<>(includedFilesIn(rootFilePath, rootNode, resourceLoader));
-      }
+        }
     } catch (final MarkedYAMLException e) {
       return Collections.emptyList();
     }
+  }
+
+  private static String getRootFilePath(String ramlPath) {
+    if(APISyncUtils.isSyncProtocol(ramlPath)){
+      return "";
+    }
+
+    return ramlPath.substring(0, ramlPath.lastIndexOf(File.separator));
   }
 
   private static Set<String> includedFilesIn(final String rootFileUri, final Node rootNode, ResourceLoader resourceLoader)
@@ -113,7 +122,7 @@ public class ParserV1Utils {
       final Tag nodeTag = includedNode.getTag();
       if (nodeTag != null && nodeTag.toString().equals(INCLUDE_KEYWORD)) {
         final String includedNodeValue = includedNode.getValue();
-        final String includeUriAsString = rootFileUri + "/" + includedNodeValue;
+        final String includeUriAsString = includedNodeValue.startsWith("/") ? rootFileUri + includedNodeValue : rootFileUri + "/" + includedNodeValue;
         final URI includeUri = URI.create(includeUriAsString);
         if (resourceLoader.fetchResource(includeUriAsString) != null) {
           includedFiles.add(includeUriAsString);

@@ -7,8 +7,13 @@
 package org.mule.raml.implv1;
 
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mule.raml.implv1.loader.ApiSyncResourceLoader;
 import org.mule.raml.interfaces.model.IRaml;
+import org.raml.parser.loader.ResourceLoader;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -61,5 +66,33 @@ public class InterfaceV08TestCase {
 
   private boolean endWithAndExists(String reference, String goldenFile) {
     return reference.endsWith(goldenFile) && DEFAULT_RESOURCE_LOADER.fetchResource(reference) != null;
+  }
+
+  @Test
+  public void findIncludesWithApiSyncAPI() throws Exception {
+    List<String> includes = ParserV1Utils.detectIncludes(new URI("resource::org.mule.raml.implv1:references:1.0.0:api.raml"),
+            new ApiSyncResourceLoader("resource::org.mule.raml.implv1:references:1.0.0:api.raml",mockApiSyncResources()));
+    assertEquals(9,includes.size());
+  }
+
+  private static ResourceLoader mockApiSyncResources() throws Exception {
+    ResourceLoader resourceLoaderMock = Mockito.mock(ResourceLoader.class);
+    List<String> relativePaths = Arrays.asList("api.raml","traits/versioned.raml", "resourceTypes/base.raml", "traits/collection.raml", "resourceTypes/../examples/generic_error.xml", "schemas/atom.xsd", "resourceTypes/emailed.raml", "securitySchemes/oauth_2_0.raml", "securitySchemes/oauth_1_0.raml", "traits/override-checked.raml");
+
+    for (String relativePath : relativePaths) {
+      mockResourceLoader("resource::org.mule.raml.implv1:references:1.0.0:" + relativePath,
+              "/org/mule/raml/implv1/" + relativePath, resourceLoaderMock);
+    }
+
+    return resourceLoaderMock;
+  }
+
+  private static void mockResourceLoader(String resourceURL, String resourcePath, ResourceLoader resourceLoaderMock) throws Exception {
+    Mockito.doReturn(getInputStream(resourcePath)).when(resourceLoaderMock)
+            .fetchResource(resourceURL);
+  }
+
+  private static InputStream getInputStream(String resourcePath) throws IOException {
+    return Thread.currentThread().getClass().getResource(resourcePath).openStream();
   }
 }
