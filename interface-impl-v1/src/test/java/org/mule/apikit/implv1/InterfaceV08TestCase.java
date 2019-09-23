@@ -12,13 +12,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mule.apikit.implv1.ParserWrapperV1.DEFAULT_RESOURCE_LOADER;
 
+import org.mockito.Mockito;
+import org.mule.apikit.implv1.loader.ApiSyncResourceLoader;
 import org.mule.apikit.model.ApiSpecification;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
+import org.raml.parser.loader.ResourceLoader;
 
 public class InterfaceV08TestCase {
 
@@ -56,5 +63,33 @@ public class InterfaceV08TestCase {
 
   private boolean endWithAndExists(String reference, String goldenFile) {
     return reference.endsWith(goldenFile) && DEFAULT_RESOURCE_LOADER.fetchResource(reference) != null;
+  }
+
+  @Test
+  public void findIncludesWithApiSyncAPI() throws Exception {
+    List<String> includes = ParserV1Utils.detectIncludes(new URI("resource::org.mule.apikit.implv1:references:1.0.0:api.raml"),
+            new ApiSyncResourceLoader("resource::org.mule.apikit.implv1:references:1.0.0:api.raml",mockApiSyncResources()));
+    assertEquals(9,includes.size());
+  }
+
+  private static ResourceLoader mockApiSyncResources() throws Exception {
+    ResourceLoader resourceLoaderMock = Mockito.mock(ResourceLoader.class);
+    List<String> relativePaths = Arrays.asList("api.raml","traits/versioned.raml", "resourceTypes/base.raml", "traits/collection.raml", "resourceTypes/../examples/generic_error.xml", "schemas/atom.xsd", "resourceTypes/emailed.raml", "securitySchemes/oauth_2_0.raml", "securitySchemes/oauth_1_0.raml", "traits/override-checked.raml");
+
+    for (String relativePath : relativePaths) {
+      mockResourceLoader("resource::org.mule.apikit.implv1:references:1.0.0:" + relativePath,
+              "/org/mule/apikit/implv1/" + relativePath, resourceLoaderMock);
+    }
+
+    return resourceLoaderMock;
+  }
+
+  private static void mockResourceLoader(String resourceURL, String resourcePath, ResourceLoader resourceLoaderMock) throws Exception {
+    Mockito.doReturn(getInputStream(resourcePath)).when(resourceLoaderMock)
+            .fetchResource(resourceURL);
+  }
+
+  private static InputStream getInputStream(String resourcePath) throws IOException {
+    return Thread.currentThread().getClass().getResource(resourcePath).openStream();
   }
 }
