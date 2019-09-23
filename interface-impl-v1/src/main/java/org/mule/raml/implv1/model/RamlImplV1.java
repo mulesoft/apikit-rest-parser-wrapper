@@ -153,14 +153,27 @@ public class RamlImplV1 implements IRaml {
     raml.getBaseUriParameters().clear();
   }
 
+  /**
+   * This method returns a list of String with all the references from the api.
+   * Note that the list returned by this method is based on the ramlPath, so if
+   * for e.g: the path described at ramlPath is relative the list returned will
+   * be of relatives path too, same if it absolute path or uri.
+   *
+   * @return list of String with all the references from the api
+   */
   @Override
   public List<String> getAllReferences() {
     try {
-      return ParserV1Utils.detectIncludes(ramlPath.replace("/", File.separator), resourceLoader);
+      return ParserV1Utils.detectIncludes(getPathAsUri(ramlPath), resourceLoader);
     } catch (IOException e) {
       logger.error(e.getMessage());
     }
     return emptyList();
+  }
+
+  private URI getPathAsUri(String path) {
+    final String normalizedPath = path.replace(File.separator, "/");
+    return URI.create(normalizedPath);
   }
 
   public void injectTrait(String name) {

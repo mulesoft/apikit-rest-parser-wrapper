@@ -10,6 +10,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import org.mule.amf.impl.ParserWrapperAmf;
+import org.mule.raml.implv1.ParserWrapperV1;
+import org.mule.raml.implv2.ParserWrapperV2;
 import org.mule.raml.interfaces.ParserType;
 import org.mule.raml.interfaces.ParserWrapper;
 import org.mule.raml.interfaces.model.api.ApiRef;
@@ -17,8 +20,10 @@ import org.mule.raml.interfaces.model.api.ApiRef;
 import java.net.URISyntaxException;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mule.raml.interfaces.model.ApiVendor.OAS_20;
 import static org.mule.raml.interfaces.model.ApiVendor.RAML_08;
 import static org.mule.raml.interfaces.model.ApiVendor.RAML_10;
@@ -111,6 +116,36 @@ public class ParserServiceTestCase {
                  is(true));
 
     }
+  }
+
+  @Test
+  public void getAllReferences(){
+    String expected = resource("/example-with-include/schemas/team.raml");
+    String api = resource("/example-with-include/example-with-include.raml");
+
+    //AMF
+    ParserWrapper wrapperAMF = new ParserService().getParser(ApiRef.create(api), ParserType.AMF);
+    assertNotNull(wrapperAMF);
+    assertTrue(wrapperAMF instanceof ParserWrapperAmf);
+    assertEquals(1,wrapperAMF.build().getAllReferences().size());
+    assertEquals(expected.replaceFirst("file:","file://"), wrapperAMF.build().getAllReferences().get(0));
+
+    //RAMLv2
+    ParserWrapper wrapperRAMLv2 = new ParserService().getParser(ApiRef.create(api), ParserType.RAML);
+    assertTrue(wrapperRAMLv2 instanceof ParserWrapperV2);
+    assertNotNull(wrapperRAMLv2);
+    assertEquals(1,wrapperRAMLv2.build().getAllReferences().size());
+    assertEquals(expected, wrapperRAMLv2.build().getAllReferences().get(0));
+
+    //RAMLv1
+    String expectedFor08 = resource("/example-with-include/schemas/atom.xsd");
+    String api08 = resource("/example-with-include/api-08-with-include.raml");
+    ParserWrapper wrapperRAML08 = new ParserService().getParser(ApiRef.create(api08), ParserType.RAML);
+    assertTrue(wrapperRAML08 instanceof ParserWrapperV1);
+    assertNotNull(wrapperRAML08);
+    assertEquals(1,wrapperRAML08.build().getAllReferences().size());
+    assertEquals(expectedFor08, wrapperRAML08.build().getAllReferences().get(0));
+
   }
 
   private static String resource(final String path) {

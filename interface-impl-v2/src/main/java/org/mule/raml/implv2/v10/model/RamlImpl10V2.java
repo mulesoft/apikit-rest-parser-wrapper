@@ -133,6 +133,14 @@ public class RamlImpl10V2 implements IRaml {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * This method returns a list of String with all the references from the api.
+   * Note that the list returned by this method is based on the ramlPath, so if
+   * for e.g: the path described at ramlPath is relative the list returned will
+   * be of relatives path too, same if it absolute path or uri.
+   *
+   * @return list of String with all the references from the api
+   */
   @Override
   public Object getInstance() {
     throw new UnsupportedOperationException();
