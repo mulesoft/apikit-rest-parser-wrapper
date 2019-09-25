@@ -8,6 +8,7 @@ package org.mule.apikit.implv2;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.mule.apikit.common.ApiSyncUtils.*;
 import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
 
 import org.mule.apikit.common.ApiSyncUtils;
@@ -98,7 +99,7 @@ public class ParserV2Utils {
   }
 
   public static List<String> findIncludeNodes(String rootPath, URI ramlURI, ResourceLoader resourceLoader) throws IOException {
-    final InputStream is = resourceLoader.fetchResource(ramlURI.toString());
+    InputStream is = resourceLoader.fetchResource(isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : ramlURI.getPath());
 
     if (is == null) {
       return emptyList();
@@ -115,8 +116,8 @@ public class ParserV2Utils {
     return new ArrayList<>(includePaths);
   }
 
-  private static void findIncludeNodes(String rootPath, final String pathRelativeToRoot, final Set<String> includePaths,
-                                       final List<Node> currents, ResourceLoader resourceLoader)
+  private static void findIncludeNodes(String rootPath, String pathRelativeToRoot, Set<String> includePaths,
+                                       List<Node> currents, ResourceLoader resourceLoader)
       throws IOException {
 
     for (final Node current : currents) {
@@ -132,12 +133,12 @@ public class ParserV2Utils {
         }
 
         if (includePath != null) {
-          final String absolutIncludePath = computeIncludePath(rootPath, pathRelativeToRoot, includePath);
-          final URI includedFileAsUri = URI.create(absolutIncludePath).normalize();
-          includePaths.add(includedFileAsUri.toString());
+          String sanitize = includePath.replace(" ", "%20");
+          String includeAbsolutePath = computeIncludePath(rootPath, pathRelativeToRoot, sanitize);
+          URI includedFileAsUri = URI.create(includeAbsolutePath).normalize();
+          includePaths.add(includedFileAsUri.getPath());
           includePaths.addAll(findIncludeNodes(rootPath, includedFileAsUri, resourceLoader));
-          pathRelativeToRootCurrent = calculateNextRootRelative(pathRelativeToRootCurrent,
-                                                                includePath);
+          pathRelativeToRootCurrent = calculateNextRootRelative(pathRelativeToRootCurrent, sanitize);
         }
 
         possibleInclude = possibleInclude.getSource();
@@ -148,7 +149,7 @@ public class ParserV2Utils {
   }
 
   private static String getParent(URI uri) {
-    if(ApiSyncUtils.isSyncProtocol(uri.toString())){
+    if(isSyncProtocol(uri.toString())){
       return "";
     }
     final URI parentUri = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
@@ -161,6 +162,7 @@ public class ParserV2Utils {
   }
 
   private static String calculateNextRootRelative(String pathRelativeToRootCurrent, String includePath) {
+
     String newRelativeSubPath = getParent(URI.create(includePath));
     newRelativeSubPath = newRelativeSubPath == null ? "" : newRelativeSubPath;
     return pathRelativeToRootCurrent + newRelativeSubPath;

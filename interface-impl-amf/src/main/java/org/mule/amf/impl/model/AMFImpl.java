@@ -9,6 +9,7 @@ package org.mule.amf.impl.model;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.mule.apikit.ApiType.AMF;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
@@ -22,13 +23,16 @@ import org.mule.apikit.model.Template;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import amf.client.model.document.Document;
 import amf.client.model.domain.EndPoint;
@@ -129,8 +133,8 @@ public class AMFImpl implements ApiSpecification {
   @Override
   public Map<String, Parameter> getBaseUriParameters() {
     return getServer().<Map<String, Parameter>>map(server -> server.variables().stream()
-        .collect(toMap(p -> p.name().value(), ParameterImpl::new)))
-        .orElseGet(Collections::emptyMap);
+      .collect(toMap(p -> p.name().value(), ParameterImpl::new)))
+      .orElseGet(Collections::emptyMap);
   }
 
   @Override
@@ -196,7 +200,17 @@ public class AMFImpl implements ApiSpecification {
 
   @Override
   public List<String> getAllReferences() {
-    return references;
+    return references.stream()
+      .map(f -> {
+        try {
+          return new URI(f);
+        } catch (Exception e) {
+          return null;
+        }
+      })
+      .filter(Objects::nonNull)
+      .map(URI::getPath)
+      .collect(toList());
   }
 
   // This method should only be used by API Console... /shrug

@@ -32,7 +32,7 @@ class URIApiRef implements ApiReference {
 
   @Override
   public String getLocation() {
-    return uri.toString();
+    return uri.getPath();
   }
 
   @Override
