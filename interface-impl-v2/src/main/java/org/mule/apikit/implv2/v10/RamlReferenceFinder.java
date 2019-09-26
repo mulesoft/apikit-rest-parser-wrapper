@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * The software in this package is published under the terms of the CPAL v1.0
+ * license, a copy of which has been included with this distribution in the
+ * LICENSE.txt file.
+ */
 package org.mule.apikit.implv2.v10;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
+
+import org.mule.apikit.common.ApiSyncUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +38,7 @@ public class RamlReferenceFinder {
   }
 
   public List<String> getReferences(URI ramlURI) throws IOException {
-    return findIncludeNodes(getParent(ramlURI), ramlURI);
+    return findIncludeNodes(isSyncProtocol(ramlURI.toString()) ? "" : getParent(ramlURI), ramlURI);
   }
 
   private List<String> findIncludeNodes(String rootPath, URI ramlURI) throws IOException {
