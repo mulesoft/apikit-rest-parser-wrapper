@@ -12,8 +12,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.mockito.Mockito;
 import org.mule.apikit.implv2.loader.ApiSyncResourceLoader;
+import org.mule.apikit.implv2.v10.RamlReferenceFinder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -56,8 +56,9 @@ public class ParserV2UtilsTestCase {
   @Test
   public void findIncludesWithApiSyncAPI() throws Exception {
     System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "non-boolean-value");
-    List<String> includes = ParserV2Utils.findIncludeNodes(new URI("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml"),
-                                   new ApiSyncResourceLoader("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml",mockApiSyncResources()));
+    RamlReferenceFinder finder = new RamlReferenceFinder(
+      new ApiSyncResourceLoader("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml", mockApiSyncResources()));
+    List<String> includes = finder.getReferences(new URI("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml"));
     assertEquals(6,includes.size());
   }
 

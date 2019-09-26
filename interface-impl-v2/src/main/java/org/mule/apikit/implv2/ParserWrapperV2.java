@@ -20,6 +20,7 @@ import org.mule.apikit.validation.DefaultApiValidationReport;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 import org.raml.v2.api.loader.CompositeResourceLoader;
 import org.raml.v2.api.loader.DefaultResourceLoader;
@@ -35,7 +36,7 @@ public class ParserWrapperV2 implements ApiParser {
   private final ResourceLoader resourceLoader;
 
   public ParserWrapperV2(String ramlPath) {
-    this(ramlPath, getResourceLoaderForPath(ramlPath));
+    this(fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath), getResourceLoaderForPath(ramlPath));
   }
 
   public ParserWrapperV2(String ramlPath, ResourceLoader resourceLoader) {
@@ -63,27 +64,17 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   private static File fetchRamlFolder(String ramlPath) {
-    File ramlFile;
-
-    ramlFile= fetchRamlFile(ramlPath);
-
-    if(ramlFile == null) {
-      ramlFile = new File(ramlPath);
-    }
-
-    if(ramlFile.exists() && ramlFile.getParent() != null){
-      return ramlFile.getParentFile();
-    }
-
-    return null;
+    return fetchRamlResource(ramlPath).orElseGet(() -> {
+      File file = new File(ramlPath);
+      return file.exists() && file.getParent() != null ? file.getParentFile() : null;
+    });
   }
 
-  private static File fetchRamlFile(String ramlPath) {
+  private static Optional<File> fetchRamlResource(String ramlPath) {
     return ofNullable(ramlPath)
-        .map(p -> Thread.currentThread().getContextClassLoader().getResource(p))
-        .filter(ParserWrapperV2::isFile)
-        .map(resource -> new File(resource.getFile()))
-        .orElse(null);
+      .map(p -> Thread.currentThread().getContextClassLoader().getResource(p))
+      .filter(ParserWrapperV2::isFile)
+      .map(resource -> new File(resource.getFile()));
   }
 
   private static boolean isFile(URL url) {

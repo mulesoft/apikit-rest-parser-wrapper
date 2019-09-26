@@ -10,14 +10,18 @@ import static java.util.Collections.*;
 
 import org.mule.apikit.model.ApiSpecification;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 public class ExceptionParseResult implements ParseResult {
 
-  private final DefaultParsingIssue error;
+  private final ParsingIssue error;
 
   public ExceptionParseResult(Exception e) {
-    this.error = new DefaultParsingIssue("Error while parsing API: " + e.getMessage());
+    StringWriter writer = new StringWriter();
+    e.printStackTrace(new PrintWriter(writer));
+    this.error = new ExceptionParsingIssue("Error while parsing API: " + e.getMessage(), writer.toString());
   }
 
   @Override

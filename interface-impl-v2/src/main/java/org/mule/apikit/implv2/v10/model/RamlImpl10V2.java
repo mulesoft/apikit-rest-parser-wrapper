@@ -9,12 +9,14 @@ package org.mule.apikit.implv2.v10.model;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.mule.apikit.ApiType.RAML;
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
-import static org.mule.apikit.implv2.ParserV2Utils.findIncludeNodes;
 import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 import org.mule.apikit.ApiType;
+import org.mule.apikit.implv2.v10.APISyncRamlReferenceFinder;
+import org.mule.apikit.implv2.v10.RamlReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
@@ -40,7 +42,8 @@ import org.raml.v2.internal.utils.StreamUtils;
 
 public class RamlImpl10V2 implements ApiSpecification {
 
-  private Api api;
+  private final Api api;
+  private final RamlReferenceFinder referenceFinder;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
 
@@ -48,6 +51,9 @@ public class RamlImpl10V2 implements ApiSpecification {
     this.api = api;
     this.ramlPath = ramlPath;
     this.resourceLoader = resourceLoader;
+    this.referenceFinder = isSyncProtocol(ramlPath) ?
+      new APISyncRamlReferenceFinder(resourceLoader):
+      new RamlReferenceFinder(resourceLoader);
   }
 
   @Override
@@ -151,7 +157,10 @@ public class RamlImpl10V2 implements ApiSpecification {
   @Override
   public List<String> getAllReferences() {
     try {
-      return findIncludeNodes(getPathAsUri(ramlPath), resourceLoader);
+      if (isSyncProtocol(ramlPath)) {
+        return emptyList();
+      }
+      return referenceFinder.getReferences(getPathAsUri(ramlPath));
     } catch (IOException e) {
       e.printStackTrace();
     }
