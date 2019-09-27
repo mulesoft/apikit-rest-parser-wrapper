@@ -44,8 +44,14 @@ public class RamlReferenceFinder {
   private List<String> findIncludeNodes(String rootPath, URI ramlURI) throws IOException {
     InputStream is = resourceLoader.fetchResource(isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : ramlURI.getPath());
     if (is != null) {
-      final Node raml = new RamlBuilder().build(IOUtils.toString(is, "UTF-8"));
-      return findIncludeNodes(rootPath, raml);
+      try {
+        Node raml = new RamlBuilder().build(IOUtils.toString(is, "UTF-8"));
+        return findIncludeNodes(rootPath, raml);
+      } catch (Exception e) {
+        // When the raml fails to parse we return an empty list, this means that when for example a NamedExampled fails
+        // to parse, we don't screw the whole process but avoid some include from the failing element
+        return emptyList();
+      }
     }
     return emptyList();
   }
