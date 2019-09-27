@@ -46,11 +46,10 @@ public class Raml08ReferenceFinder {
 
   public List<String> detectIncludes(URI ramlURI) throws IOException {
     try {
-      final String ramlPath = isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : Paths.get(ramlURI).toString();
-      final String content = IOUtils.toString(resourceLoader.fetchResource(ramlPath), "UTF-8");
-      final String rootFilePath = getRootFilePath(ramlPath);
-
-      final Node rootNode = YAML_PARSER.compose(new StringReader(content));
+      String ramlPath = isSyncProtocol(ramlURI.toString()) ? ramlURI.toString().replace(" ", "%20") : ramlURI.getPath();
+      String content = IOUtils.toString(resourceLoader.fetchResource(ramlPath), "UTF-8");
+      String rootFilePath = getRootFilePath(ramlPath);
+      Node rootNode = YAML_PARSER.compose(new StringReader(content));
       if (rootNode == null) {
         return Collections.emptyList();
       } else {
