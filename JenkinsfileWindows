@@ -23,6 +23,7 @@ Map pipelineParams = [
         "agentLabel"                 : "windows2019-heavy",
         "mavenCompileGoal"           : mavenCompileGoal,
         "mavenTestGoal"              : mavenTestGoal,
+        "devBranchesRegex"           : ".*",
         "enableAllureTestReportStage": false
 ]
 
