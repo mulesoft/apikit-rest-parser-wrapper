@@ -1,0 +1,29 @@
+def mavenCompileGoal = "clean install" +
+        " -Drevapi.skip" +
+        " -Darchetype.test.skip" +
+        " -DskipTests" +
+        " -DskipITs" +
+        " -Puber" +
+        " -Pci-environment" +
+        " -Pextensions"
+
+def mavenTestGoal = "verify -Drevapi.skip" +
+        " -DmuleExtensionsMavenPluginIntegration" +
+        " -Djava.net.preferIPv4Stack=true" +
+        " -DdomainNameResolver.test.host=microsoft.com" +
+        " -nsu" +
+        " -Puber" +
+        " -Pci-environment" +
+        " -DskipFunctionalTests=false" +
+        " -DskipIntegrationTests=false" +
+        " -DskipSystemTests=false" +
+        " -DskipQAIntegrationTests=false"
+
+Map pipelineParams = [
+        "agentLabel"                 : "windows2019-heavy",
+        "mavenCompileGoal"           : mavenCompileGoal,
+        "mavenTestGoal"              : mavenTestGoal,
+        "enableAllureTestReportStage": false
+]
+
+runtimeUberBuild(pipelineParams)
