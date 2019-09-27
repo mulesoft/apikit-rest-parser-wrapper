@@ -6,6 +6,9 @@
  */
 package org.mule.apikit.implv1;
 
+import static com.google.common.collect.ImmutableList.builder;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toList;
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 
@@ -19,7 +22,10 @@ import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 import org.raml.model.Raml;
 import org.raml.parser.loader.CompositeResourceLoader;
@@ -37,16 +43,14 @@ public class ParserWrapperV1 implements ApiParser {
   private final ResourceLoader resourceLoader;
 
   public ParserWrapperV1(String ramlPath) {
-    this(ramlPath, getResourceLoaderForPath(ramlPath));
+    this(ramlPath, emptyList());
   }
 
-  public ParserWrapperV1(String ramlPath, ResourceLoader... resourceLoader) {
-    this(ramlPath, new CompositeResourceLoader(resourceLoader));
-  }
-
-  private ParserWrapperV1(String ramlPath, ResourceLoader resourceLoader) {
-    this.ramlPath = ramlPath;
-    this.resourceLoader = resourceLoader;
+  public ParserWrapperV1(String ramlPath, List<ResourceLoader> loaders) {
+    this.ramlPath = findRamlPath(ramlPath).orElse(ramlPath);
+    this.resourceLoader = new CompositeResourceLoader(builder().addAll(loaders)
+                                                        .add(getResourceLoaderForPath(ramlPath))
+                                                        .build().toArray(new ResourceLoader[0]));
   }
 
   public static ResourceLoader getResourceLoaderForPath(String ramlPath) {
@@ -69,5 +73,17 @@ public class ParserWrapperV1 implements ApiParser {
     RamlDocumentBuilder builder = new RamlDocumentBuilder(resourceLoader);
     Raml api = builder.build(ramlPath);
     return new RamlImplV1(api, resourceLoader, ramlPath);
+  }
+
+  private static Optional<String> findRamlPath(String ramlPath) {
+    try {
+      URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
+      if (url != null && "file".equals(url.getProtocol())) {
+        return Optional.of(url.toURI().getPath());
+      }
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+    return empty();
   }
 }

@@ -6,6 +6,7 @@
  */
 package org.mule.parser.service.strategy;
 
+import static java.util.Collections.singletonList;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
@@ -19,6 +20,8 @@ import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.parser.service.result.DefaultParseResult;
 import org.mule.parser.service.result.ExceptionParseResult;
 import org.mule.parser.service.result.ParseResult;
+
+import java.util.Collections;
 
 public class RamlParsingStrategy implements ParsingStrategy {
 
@@ -45,15 +48,11 @@ public class RamlParsingStrategy implements ParsingStrategy {
     }
   }
 
-  private ParserWrapperV1 createRamlParserWrapperV1(String path, ResourceLoader apiLoader) {
-    return apiLoader != null
-      ? new ParserWrapperV1(path, ParserWrapperV1.getResourceLoaderForPath(path), apiLoader::getResourceAsStream)
-      : new ParserWrapperV1(path);
+  private ParserWrapperV1 createRamlParserWrapperV1(String path, ResourceLoader loader) {
+    return loader != null ? new ParserWrapperV1(path, singletonList(loader::getResourceAsStream)) : new ParserWrapperV1(path);
   }
 
-  private ParserWrapperV2 createRamlParserWrapperV2(String path, ResourceLoader apiLoader) {
-    return apiLoader != null
-      ? new ParserWrapperV2(path, ParserWrapperV2.getResourceLoaderForPath(path), apiLoader::getResourceAsStream)
-      : new ParserWrapperV2(path);
+  private ParserWrapperV2 createRamlParserWrapperV2(String path, ResourceLoader loader) {
+    return loader != null ? new ParserWrapperV2(path, singletonList(loader::getResourceAsStream)) : new ParserWrapperV2(path);
   }
 }
