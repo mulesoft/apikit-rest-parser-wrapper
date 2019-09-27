@@ -17,7 +17,9 @@ import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
 import org.mule.apikit.model.ApiSpecification;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,9 +55,9 @@ public class InterfaceV10TestCase {
   }
 
   @Test
-  public void references() {
+  public void references() throws URISyntaxException {
     final String relativePath = "org/mule/apikit/implv2/v10/references/api.raml";
-    final String pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath)).toString();
+    final String pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath).toURI()).toString();
     final String absoulutPath = pathAsUri.substring(5);
     final List<String> paths = Arrays.asList(relativePath, pathAsUri, absoulutPath);
     paths.forEach(p -> checkReferences(p, DEFAULT_RESOURCE_LOADER));
@@ -85,29 +87,29 @@ public class InterfaceV10TestCase {
   }
 
   @Test
-  public void referencesWithExchangeModule() {
+  public void referencesWithExchangeModule() throws URISyntaxException {
     final String ramlPath = "org/mule/apikit/implv2/v10/exchange/api.raml";
-    File ramlFile = new File(Thread.currentThread().getContextClassLoader().getResource(ramlPath).getFile());
-    final CompositeResourceLoader resourceLoader =
-        new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader(ramlFile.getParentFile()));
+    File ramlFile = Paths.get(Thread.currentThread().getContextClassLoader().getResource(ramlPath).toURI()).toFile();
+    CompositeResourceLoader loader = new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER,
+            new ExchangeDependencyResourceLoader(ramlFile.getParentFile()));
     List<String> allReferences = new ParserWrapperV2(ramlFile.getAbsolutePath()).parse().getAllReferences();
     assertEquals(3, allReferences.size());
 
-    assertThat(allReferences.stream()
-        .anyMatch(r -> endWithAndExists(r, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library1.raml", resourceLoader)),
-               is(true));
-    assertThat(allReferences.stream()
-        .anyMatch(r -> endWithAndExists(r, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library2.raml", resourceLoader)),
-               is(true));
-    assertThat(allReferences.stream()
-        .anyMatch(r -> endWithAndExists(r, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library3.raml", resourceLoader)),
-               is(true));
+    anyEndsWithAndExists(loader, allReferences, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library1.raml");
+    anyEndsWithAndExists(loader, allReferences, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library2.raml");
+    anyEndsWithAndExists(loader, allReferences, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library3.raml");
+  }
+
+  private void anyEndsWithAndExists(CompositeResourceLoader resourceLoader, List<String> allReferences, String end) {
+    boolean match = allReferences.stream()
+            .anyMatch(r -> endWithAndExists(r, end.replace("/", File.separator), resourceLoader));
+    assertThat(match, is(true));
   }
 
   @Test
-  public void absoluteIncludes() {
+  public void absoluteIncludes() throws URISyntaxException {
     URL resource = getClass().getClassLoader().getResource("org/mule/apikit/implv2/v10/library-references-absolute/input.raml");
-    ApiSpecification raml = ParserV2Utils.build(DEFAULT_RESOURCE_LOADER, resource.toString());
+    ApiSpecification raml = ParserV2Utils.build(DEFAULT_RESOURCE_LOADER, Paths.get(resource.toURI()).toString());
 
     List<String> references = raml.getAllReferences();
     assertReference(references, "org/mule/apikit/implv2/v10/library-references-absolute/libraries/resourceTypeLibrary.raml");
@@ -117,8 +119,8 @@ public class InterfaceV10TestCase {
     assertThat(raml.getAllReferences().size(), is(4));
   }
 
-  private void assertReference(List<String> references, String s) {
-    assertThat(references.stream().anyMatch(ref -> ref.endsWith(s)), is(true));
+  private void assertReference(List<String> references, String end) {
+    assertThat(references.stream().anyMatch(ref -> ref.endsWith(end.replace("/", File.separator))), is(true));
   }
 
   private void assertReference(List<String> references, String assertingRef, String goldenFile, ResourceLoader loader) {

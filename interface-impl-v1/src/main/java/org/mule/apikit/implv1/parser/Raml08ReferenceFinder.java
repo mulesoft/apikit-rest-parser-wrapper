@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,7 +46,7 @@ public class Raml08ReferenceFinder {
 
   public List<String> detectIncludes(URI ramlURI) throws IOException {
     try {
-      final String ramlPath = isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : ramlURI.getPath();
+      final String ramlPath = isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : Paths.get(ramlURI).toString();
       final String content = IOUtils.toString(resourceLoader.fetchResource(ramlPath), "UTF-8");
       final String rootFilePath = getRootFilePath(ramlPath);
 
@@ -64,20 +65,20 @@ public class Raml08ReferenceFinder {
     if(ApiSyncUtils.isSyncProtocol(ramlPath)){
       return "";
     }
-    return ramlPath.substring(0, ramlPath.lastIndexOf(File.separator));
+    return Paths.get(ramlPath).getParent().toString();
   }
 
-  private Set<String> includedFilesIn(String rootFileUri, Node rootNode) throws IOException {
+  private Set<String> includedFilesIn(String rootFilePath, Node rootNode) throws IOException {
     final Set<String> includedFiles = new HashSet<>();
     if (rootNode.getNodeId() == NodeId.scalar) {
       ScalarNode includedNode = (ScalarNode) rootNode;
       Tag nodeTag = includedNode.getTag();
       if (nodeTag != null && nodeTag.toString().equals(INCLUDE_KEYWORD)) {
         String includedNodeValue = includedNode.getValue();
-        String includeUriAsString = includedNodeValue.startsWith("/") ? rootFileUri + includedNodeValue : rootFileUri + "/" + includedNodeValue;
-        URI includeUri = URI.create(includeUriAsString.replace(" ", "%20"));
+        String includeUriAsString = includedNodeValue.startsWith("/") ? rootFilePath + includedNodeValue : Paths.get(rootFilePath, includedNodeValue).toString();
+        URI includeUri = Paths.get(includeUriAsString).toUri();
         if (resourceLoader.fetchResource(includeUriAsString) != null) {
-          includedFiles.add(includeUri.getPath());
+          includedFiles.add(Paths.get(includeUri).toString());
           includedFiles.addAll(detectIncludes(includeUri));
         }
       }
@@ -86,13 +87,13 @@ public class Raml08ReferenceFinder {
       final List<NodeTuple> children = mappingNode.getValue();
       for (final NodeTuple childNode : children) {
         final Node valueNode = childNode.getValueNode();
-        includedFiles.addAll(includedFilesIn(rootFileUri, valueNode));
+        includedFiles.addAll(includedFilesIn(rootFilePath, valueNode));
       }
     } else if (rootNode.getNodeId() == NodeId.sequence) {
       final SequenceNode sequenceNode = (SequenceNode) rootNode;
       final List<Node> children = sequenceNode.getValue();
       for (final Node childNode : children) {
-        includedFiles.addAll(includedFilesIn(rootFileUri, childNode));
+        includedFiles.addAll(includedFilesIn(rootFilePath, childNode));
       }
     }
     return includedFiles;
