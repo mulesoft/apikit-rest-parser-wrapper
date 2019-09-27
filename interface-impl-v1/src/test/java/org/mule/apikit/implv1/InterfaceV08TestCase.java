@@ -18,9 +18,12 @@ import org.mule.apikit.implv1.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv1.parser.Raml08ReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,11 +33,11 @@ import org.raml.parser.loader.ResourceLoader;
 public class InterfaceV08TestCase {
 
   @Test
-  public void references() {
+  public void references() throws URISyntaxException {
     final String relativePath = "org/mule/apikit/implv1/api.raml";
-    final String pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath)).toString();
-    final String absoulutPath = pathAsUri.substring(5);
-    final List<String> paths = Arrays.asList(relativePath, pathAsUri, absoulutPath);
+    final URI pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath).toURI());
+    final String absolutePath = Paths.get(pathAsUri).toString();
+    final List<String> paths = Arrays.asList(relativePath, pathAsUri.toString(), absolutePath);
     paths.forEach(this::checkReferences);
   }
 
@@ -43,7 +46,7 @@ public class InterfaceV08TestCase {
     ApiSpecification raml = new ParserWrapperV1(path).parse();
 
     List<String> allReferences = raml.getAllReferences();
-    allReferences.forEach(ref -> assertThat("Invalid URI", URI.create(ref).toString(), is(ref)));
+    allReferences.forEach(ref -> assertThat("Invalid URI", Paths.get(ref).toString(), is(ref)));
     assertEquals(9, allReferences.size());
 
     assertThat(anyMatch(allReferences, "org/mule/apikit/implv1/traits/versioned.raml"), is(true));
@@ -57,8 +60,8 @@ public class InterfaceV08TestCase {
     assertThat(anyMatch(allReferences, "org/mule/apikit/implv1/traits/override-checked.raml"), is(true));
   }
 
-  private boolean anyMatch(List<String> allReferences, String s) {
-    return allReferences.stream().anyMatch(p -> endWithAndExists(p, s));
+  private boolean anyMatch(List<String> allReferences, String end) {
+    return allReferences.stream().anyMatch(p -> endWithAndExists(p, end.replace("/", File.separator)));
   }
 
   private boolean endWithAndExists(String reference, String goldenFile) {

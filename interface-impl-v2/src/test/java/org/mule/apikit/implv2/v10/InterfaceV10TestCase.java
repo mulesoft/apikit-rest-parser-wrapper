@@ -55,9 +55,9 @@ public class InterfaceV10TestCase {
   }
 
   @Test
-  public void references() {
+  public void references() throws URISyntaxException {
     final String relativePath = "org/mule/apikit/implv2/v10/references/api.raml";
-    final String pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath)).toString();
+    final String pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath).toURI()).toString();
     final String absoulutPath = pathAsUri.substring(5);
     final List<String> paths = Arrays.asList(relativePath, pathAsUri, absoulutPath);
     paths.forEach(p -> checkReferences(p, DEFAULT_RESOURCE_LOADER));
@@ -107,9 +107,9 @@ public class InterfaceV10TestCase {
   }
 
   @Test
-  public void absoluteIncludes() {
+  public void absoluteIncludes() throws URISyntaxException {
     URL resource = getClass().getClassLoader().getResource("org/mule/apikit/implv2/v10/library-references-absolute/input.raml");
-    ApiSpecification raml = ParserV2Utils.build(DEFAULT_RESOURCE_LOADER, resource.toString());
+    ApiSpecification raml = ParserV2Utils.build(DEFAULT_RESOURCE_LOADER, Paths.get(resource.toURI()).toString());
 
     List<String> references = raml.getAllReferences();
     assertReference(references, "org/mule/apikit/implv2/v10/library-references-absolute/libraries/resourceTypeLibrary.raml");
@@ -119,8 +119,8 @@ public class InterfaceV10TestCase {
     assertThat(raml.getAllReferences().size(), is(4));
   }
 
-  private void assertReference(List<String> references, String s) {
-    assertThat(references.stream().anyMatch(ref -> ref.endsWith(s)), is(true));
+  private void assertReference(List<String> references, String end) {
+    assertThat(references.stream().anyMatch(ref -> ref.endsWith(end.replace("/", File.separator))), is(true));
   }
 
   private void assertReference(List<String> references, String assertingRef, String goldenFile, ResourceLoader loader) {
