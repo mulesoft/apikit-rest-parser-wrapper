@@ -17,7 +17,9 @@ import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
 import org.mule.apikit.model.ApiSpecification;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -85,23 +87,23 @@ public class InterfaceV10TestCase {
   }
 
   @Test
-  public void referencesWithExchangeModule() {
+  public void referencesWithExchangeModule() throws URISyntaxException {
     final String ramlPath = "org/mule/apikit/implv2/v10/exchange/api.raml";
-    File ramlFile = new File(Thread.currentThread().getContextClassLoader().getResource(ramlPath).getFile());
-    final CompositeResourceLoader resourceLoader =
-        new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader(ramlFile.getParentFile()));
+    File ramlFile = Paths.get(Thread.currentThread().getContextClassLoader().getResource(ramlPath).toURI()).toFile();
+    CompositeResourceLoader loader = new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER,
+            new ExchangeDependencyResourceLoader(ramlFile.getParentFile()));
     List<String> allReferences = new ParserWrapperV2(ramlFile.getAbsolutePath()).parse().getAllReferences();
     assertEquals(3, allReferences.size());
 
-    assertThat(allReferences.stream()
-        .anyMatch(r -> endWithAndExists(r, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library1.raml", resourceLoader)),
-               is(true));
-    assertThat(allReferences.stream()
-        .anyMatch(r -> endWithAndExists(r, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library2.raml", resourceLoader)),
-               is(true));
-    assertThat(allReferences.stream()
-        .anyMatch(r -> endWithAndExists(r, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library3.raml", resourceLoader)),
-               is(true));
+    anyEndsWithAndExists(loader, allReferences, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library1.raml");
+    anyEndsWithAndExists(loader, allReferences, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library2.raml");
+    anyEndsWithAndExists(loader, allReferences, "org/mule/apikit/implv2/v10/exchange/exchange_modules/library3.raml");
+  }
+
+  private void anyEndsWithAndExists(CompositeResourceLoader resourceLoader, List<String> allReferences, String end) {
+    boolean match = allReferences.stream()
+            .anyMatch(r -> endWithAndExists(r, end.replace("/", File.separator), resourceLoader));
+    assertThat(match, is(true));
   }
 
   @Test
