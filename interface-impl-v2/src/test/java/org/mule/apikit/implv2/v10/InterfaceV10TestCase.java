@@ -56,8 +56,7 @@ public class InterfaceV10TestCase {
   public void references() {
     final String relativePath = "org/mule/apikit/implv2/v10/references/api.raml";
     final String pathAsUri = requireNonNull(getClass().getClassLoader().getResource(relativePath)).toString();
-    final String absoulutPath = pathAsUri.substring(5);
-    final List<String> paths = Arrays.asList(relativePath, pathAsUri, absoulutPath);
+    final List<String> paths = Arrays.asList(relativePath, pathAsUri);
     paths.forEach(p -> checkReferences(p, DEFAULT_RESOURCE_LOADER));
   }
 
