@@ -43,13 +43,11 @@ public class RamlReferenceFinder {
 
   private List<String> findIncludeNodes(String rootPath, URI ramlURI) throws IOException {
     InputStream is = resourceLoader.fetchResource(isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : ramlURI.getPath());
-
-    if (is == null) {
-      return emptyList();
+    if (is != null) {
+      final Node raml = new RamlBuilder().build(IOUtils.toString(is, "UTF-8"));
+      return findIncludeNodes(rootPath, raml);
     }
-
-    final Node raml = new RamlBuilder().build(IOUtils.toString(is));
-    return findIncludeNodes(rootPath, raml);
+    return emptyList();
   }
 
   private List<String> findIncludeNodes(String rootPath, final Node raml)
@@ -59,10 +57,8 @@ public class RamlReferenceFinder {
     return new ArrayList<>(includePaths);
   }
 
-  private void findIncludeNodes(String rootPath, String pathRelativeToRoot, Set<String> includePaths,
-                                       List<Node> currents)
+  private void findIncludeNodes(String rootPath, String pathRelativeToRoot, Set<String> includePaths, List<Node> currents)
     throws IOException {
-
     for (final Node current : currents) {
       // search for include in sources of the current node
       Node possibleInclude = current;

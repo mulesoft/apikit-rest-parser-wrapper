@@ -41,9 +41,9 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class GetAllReferencesTestCase {
 
-  private static final String API_FOLDER_NAME = "api-with-references";
+  private static final String API_FOLDER_NAME = "api-with-references/10/";
   private static final String MAIN_API_FILE_NAME = "api.raml";
-  private static final String API_RELATIVE_PATH = API_FOLDER_NAME + "/" + MAIN_API_FILE_NAME;
+  private static final String API_RELATIVE_PATH = API_FOLDER_NAME + MAIN_API_FILE_NAME;
   private static final String APISYNC_NOTATION = "resource::org.mule.parser:references:1.0.0:raml:zip:";
   private static final String ROOT_APISYNC_RAML = APISYNC_NOTATION + MAIN_API_FILE_NAME;
 
@@ -84,7 +84,7 @@ public class GetAllReferencesTestCase {
   }
 
   private void assertReferences(ApiReference api) {
-    String apiFolder = new File(getResource("api-with-references/api.raml").getFile()).getParent();
+    String apiFolder = new File(getResource(API_RELATIVE_PATH).getFile()).getParent();
     ParseResult parse = mode.getStrategy().parse(api);
     if (!parse.success()) {
       throw new RuntimeException("Test failed: " + parse.getErrors().stream().map(ParsingIssue::toString).collect(joining("\n")));
@@ -111,7 +111,7 @@ public class GetAllReferencesTestCase {
     ClassLoader CLL = currentThread().getContextClassLoader();
     try {
       for (String relativePath : relativePaths) {
-        String apisyncResource = API_FOLDER_NAME + "/" + relativePath;
+        String apisyncResource = API_FOLDER_NAME + relativePath;
         String apisyncRelativePath = APISYNC_NOTATION + relativePath;
         doReturn(CLL.getResourceAsStream(apisyncResource)).when(resourceLoaderMock).getResourceAsStream(apisyncRelativePath);
         doReturn(getResource(apisyncResource).toURI()).when(resourceLoaderMock).getResource(apisyncRelativePath);

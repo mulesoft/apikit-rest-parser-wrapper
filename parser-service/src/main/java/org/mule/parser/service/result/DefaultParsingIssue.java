@@ -22,4 +22,8 @@ public class DefaultParsingIssue implements ParsingIssue {
     return cause;
   }
 
+  @Override
+  public String toString() {
+    return cause;
+  }
 }

@@ -162,7 +162,7 @@ public class RamlImpl10V2 implements ApiSpecification {
   }
 
   private URI getPathAsUri(String path) {
-    final String normalizedPath = path.replace(File.separator, "/");
+    final String normalizedPath = path.replace(File.separator, "/").replace(" ", "%20");
     return URI.create(normalizedPath);
   }
 

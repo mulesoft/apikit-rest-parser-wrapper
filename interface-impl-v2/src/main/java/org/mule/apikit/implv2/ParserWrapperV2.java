@@ -6,7 +6,8 @@
  */
 package org.mule.apikit.implv2;
 
-import static java.util.Optional.ofNullable;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 
 import org.mule.apikit.ApiParser;
@@ -18,10 +19,12 @@ import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableList;
 import org.raml.v2.api.loader.CompositeResourceLoader;
 import org.raml.v2.api.loader.DefaultResourceLoader;
 import org.raml.v2.api.loader.FileResourceLoader;
@@ -36,16 +39,16 @@ public class ParserWrapperV2 implements ApiParser {
   private final ResourceLoader resourceLoader;
 
   public ParserWrapperV2(String ramlPath) {
-    this(fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath), getResourceLoaderForPath(ramlPath));
+    this(ramlPath, emptyList());
   }
 
-  public ParserWrapperV2(String ramlPath, ResourceLoader resourceLoader) {
-    this.ramlPath = ramlPath;
-    this.resourceLoader = resourceLoader;
-  }
-
-  public ParserWrapperV2(String ramlPath, ResourceLoader... resourceLoader) {
-    this(ramlPath, new CompositeResourceLoader(resourceLoader));
+  public ParserWrapperV2(String ramlPath, List<ResourceLoader> resourceLoader) {
+    this.ramlPath = fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath);
+    List<ResourceLoader> loaders = ImmutableList.<ResourceLoader>builder()
+      .add(getResourceLoaderForPath(ramlPath))
+      .addAll(resourceLoader)
+      .build();
+    this.resourceLoader = new CompositeResourceLoader(loaders.toArray(new ResourceLoader[0]));
   }
 
   public static ResourceLoader getResourceLoaderForPath(String ramlPath) {
@@ -71,14 +74,15 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   private static Optional<File> fetchRamlResource(String ramlPath) {
-    return ofNullable(ramlPath)
-      .map(p -> Thread.currentThread().getContextClassLoader().getResource(p))
-      .filter(ParserWrapperV2::isFile)
-      .map(resource -> new File(resource.getFile()));
-  }
-
-  private static boolean isFile(URL url) {
-    return "file".equals(url.getProtocol());
+    try {
+      URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
+      if (url != null && "file".equals(url.getProtocol())) {
+        return Optional.of(new File(url.toURI().getPath()));
+      }
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+    return empty();
   }
 
   @Override

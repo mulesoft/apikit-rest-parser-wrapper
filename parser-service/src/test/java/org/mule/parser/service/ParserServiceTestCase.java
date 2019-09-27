@@ -64,7 +64,7 @@ public class ParserServiceTestCase {
 
   @Test
   public void oasJson20Wrapper() {
-    String api = resource("/petstore.json");
+    String api = resource("/oas/petstore.json");
 
     ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
     assertNotNull(wrapper);
@@ -74,7 +74,7 @@ public class ParserServiceTestCase {
 
   @Test
   public void oasYaml20Wrapper() {
-    String api = resource("/petstore.yaml");
+    String api = resource("/oas/petstore.yaml");
 
     ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
     assertNotNull(wrapper);
