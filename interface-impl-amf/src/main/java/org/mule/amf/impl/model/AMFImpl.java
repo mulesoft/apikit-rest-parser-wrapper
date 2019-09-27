@@ -14,6 +14,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.mule.apikit.ApiType.AMF;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
+import javafx.scene.shape.Path;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -24,6 +25,7 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -203,13 +205,12 @@ public class AMFImpl implements ApiSpecification {
     return references.stream()
       .map(f -> {
         try {
-          return new URI(f);
+          return Paths.get(new URI(f)).toString();
         } catch (Exception e) {
           return null;
         }
       })
       .filter(Objects::nonNull)
-      .map(URI::getPath)
       .collect(toList());
   }
 

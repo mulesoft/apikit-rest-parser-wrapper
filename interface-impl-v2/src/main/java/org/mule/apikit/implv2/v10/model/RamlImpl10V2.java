@@ -13,7 +13,9 @@ import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
+import com.sun.jndi.toolkit.url.Uri;
 import org.mule.apikit.ApiType;
+import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.implv2.v10.RamlReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -162,8 +165,7 @@ public class RamlImpl10V2 implements ApiSpecification {
   }
 
   private URI getPathAsUri(String path) {
-    final String normalizedPath = path.replace(File.separator, "/").replace(" ", "%20");
-    return URI.create(normalizedPath);
+    return ApiSyncUtils.isSyncProtocol(path) ? URI.create(path) : Paths.get(path).toUri();
   }
 
   @Override

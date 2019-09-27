@@ -21,6 +21,7 @@ import org.mule.apikit.validation.DefaultApiValidationReport;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +78,7 @@ public class ParserWrapperV2 implements ApiParser {
     try {
       URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
       if (url != null && "file".equals(url.getProtocol())) {
-        return Optional.of(new File(url.toURI().getPath()));
+        return Optional.of(Paths.get(url.toURI()).toFile());
       }
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);

@@ -21,6 +21,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.junit.Test;
@@ -43,8 +44,8 @@ public class GetAllReferences08TestCase {
   }
 
   @Test
-  public void getAllReferencesWithAbsolutePathRoot() {
-    String path = getResource(API_RELATIVE_PATH).getFile();
+  public void getAllReferencesWithAbsolutePathRoot() throws URISyntaxException {
+    String path = Paths.get(getResource(API_RELATIVE_PATH).toURI()).toString();
     assertReferences(ApiReference.create(path));
   }
 
@@ -56,7 +57,8 @@ public class GetAllReferences08TestCase {
     }
     List<String> refs = parse.get().getAllReferences();
     assertThat(refs, hasSize(2));
-    assertThat(refs, hasItems(apiFolder + "/include documentation.raml", apiFolder + "/resource-type.yaml"));
+    assertThat(refs, hasItems(Paths.get(apiFolder, "include documentation.raml").toString(),
+            Paths.get(apiFolder, "resource-type.yaml").toString()));
   }
 
   private URL getResource(String res) {

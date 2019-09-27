@@ -59,7 +59,7 @@ public class ParserV2UtilsTestCase {
     RamlReferenceFinder finder = new RamlReferenceFinder(
       new ApiSyncResourceLoader("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml", mockApiSyncResources()));
     List<String> includes = finder.getReferences(new URI("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml"));
-    assertEquals(6,includes.size());
+    assertEquals(6, includes.size());
   }
 
   private static ResourceLoader mockApiSyncResources() throws Exception {

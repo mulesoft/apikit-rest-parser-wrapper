@@ -16,6 +16,7 @@ import org.mule.apikit.common.ApiSyncUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +43,8 @@ public class RamlReferenceFinder {
   }
 
   private List<String> findIncludeNodes(String rootPath, URI ramlURI) throws IOException {
-    InputStream is = resourceLoader.fetchResource(isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : ramlURI.getPath());
+    String resource = isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : Paths.get(ramlURI).toString();
+    InputStream is = resourceLoader.fetchResource(resource);
     if (is != null) {
       try {
         Node raml = new RamlBuilder().build(IOUtils.toString(is, "UTF-8"));
@@ -81,7 +83,7 @@ public class RamlReferenceFinder {
           String sanitize = includePath.replace(" ", "%20");
           String includeAbsolutePath = computeIncludePath(rootPath, pathRelativeToRoot, sanitize);
           URI includedFileAsUri = URI.create(includeAbsolutePath).normalize();
-          includePaths.add(includedFileAsUri.getPath());
+          includePaths.add(Paths.get(includedFileAsUri).toString());
           includePaths.addAll(findIncludeNodes(rootPath, includedFileAsUri));
           pathRelativeToRootCurrent = calculateNextRootRelative(pathRelativeToRootCurrent, sanitize);
         }

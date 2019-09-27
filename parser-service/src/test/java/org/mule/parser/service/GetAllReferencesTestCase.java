@@ -29,6 +29,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,10 +66,14 @@ public class GetAllReferencesTestCase {
 
   @Test
   public void getAllReferencesWithAPISync() {
-    // THIS REFERENCES WONT WORK FOR RAML PARSER, RAML PARSER WITH APISYNC DOES NOT RESOLVE FULL PATHS /shrug
-    assumeThat(mode, is(AMF));
     ResourceLoader resourceLoader = new ApiSyncResourceLoader(ROOT_APISYNC_RAML, resourceLoaderMock());
-    assertReferences(ApiReference.create(ROOT_APISYNC_RAML, resourceLoader));
+    // THIS REFERENCES WONT WORK FOR RAML PARSER, RAML PARSER WITH APISYNC DOES NOT RESOLVE FULL PATHS /shrug
+    ApiReference api = ApiReference.create(ROOT_APISYNC_RAML, resourceLoader);
+    if (mode.equals(AMF)) {
+      assertReferences(api);
+    } else {
+      assertThat(mode.getStrategy().parse(api).success(), is(true));
+    }
   }
 
   @Test
@@ -78,8 +83,8 @@ public class GetAllReferencesTestCase {
   }
 
   @Test
-  public void getAllReferencesWithAbsolutePathRoot() {
-    String path = getResource(API_RELATIVE_PATH).getFile();
+  public void getAllReferencesWithAbsolutePathRoot() throws URISyntaxException {
+    String path = Paths.get(getResource(API_RELATIVE_PATH).toURI()).toString();
     assertReferences(ApiReference.create(path));
   }
 
@@ -91,12 +96,12 @@ public class GetAllReferencesTestCase {
     }
     List<String> refs = parse.get().getAllReferences();
     assertThat(refs, hasSize(6));
-    assertThat(refs, hasItems(apiFolder + "/partner with spaces.raml",
-                              apiFolder + "/data-type.raml",
-                              apiFolder + "/library.raml",
-                              apiFolder + "/company.raml",
-                              apiFolder + "/address.raml",
-                              apiFolder + "/company-example.json"));
+    assertThat(refs, hasItems(apiFolder + File.separator + "partner with spaces.raml",
+                              apiFolder + File.separator + "data-type.raml",
+                              apiFolder + File.separator + "library.raml",
+                              apiFolder + File.separator + "company.raml",
+                              apiFolder + File.separator + "address.raml",
+                              apiFolder + File.separator + "company-example.json"));
   }
 
   private ResourceLoader resourceLoaderMock() {
