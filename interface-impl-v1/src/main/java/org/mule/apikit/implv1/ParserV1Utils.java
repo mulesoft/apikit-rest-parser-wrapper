@@ -112,7 +112,7 @@ public class ParserV1Utils {
       return "";
     }
 
-    return ramlPath.substring(0, ramlPath.lastIndexOf(File.separator));
+    return ramlPath.substring(0, ramlPath.lastIndexOf("/"));
   }
 
   private static Set<String> includedFilesIn(final String rootFileUri, final Node rootNode, ResourceLoader resourceLoader)
