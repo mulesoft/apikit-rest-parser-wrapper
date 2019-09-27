@@ -1,4 +1,12 @@
+/*
+ * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * The software in this package is published under the terms of the CPAL v1.0
+ * license, a copy of which has been included with this distribution in the
+ * LICENSE.txt file.
+ */
 package org.mule.apikit.implv1.parser;
+
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 
 import org.mule.apikit.common.ApiSyncUtils;
 
@@ -35,9 +43,9 @@ public class Raml08ReferenceFinder {
     this.resourceLoader = resourceLoader;
   }
 
-  public List<String> detectIncludes(URI ramlUri) throws IOException {
+  public List<String> detectIncludes(URI ramlURI) throws IOException {
     try {
-      final String ramlPath = ramlUri.getPath();
+      final String ramlPath = isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : ramlURI.getPath();
       final String content = IOUtils.toString(resourceLoader.fetchResource(ramlPath), "UTF-8");
       final String rootFilePath = getRootFilePath(ramlPath);
 
