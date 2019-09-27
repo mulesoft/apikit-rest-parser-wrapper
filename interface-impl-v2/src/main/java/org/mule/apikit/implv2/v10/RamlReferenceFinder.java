@@ -11,9 +11,6 @@ import static java.util.Collections.singletonList;
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
 
-import org.mule.apikit.common.ApiSyncUtils;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Paths;
@@ -38,13 +35,12 @@ public class RamlReferenceFinder {
     this.resourceLoader = resourceLoader;
   }
 
-  public List<String> getReferences(URI ramlURI) throws IOException {
+  public List<String> getReferences(URI ramlURI) {
     return findIncludeNodes(isSyncProtocol(ramlURI.toString()) ? "" : getParent(ramlURI), ramlURI);
   }
 
-  private List<String> findIncludeNodes(String rootPath, URI ramlURI) throws IOException {
-    String resource = isSyncProtocol(ramlURI.toString()) ? ramlURI.toString() : Paths.get(ramlURI).toString();
-    InputStream is = resourceLoader.fetchResource(resource);
+  private List<String> findIncludeNodes(String rootPath, URI ramlURI) {
+    InputStream is = resourceLoader.fetchResource(isSyncProtocol(ramlURI.toString()) ? ramlURI.toString().replace(" ", "%20") : ramlURI.getPath());
     if (is != null) {
       try {
         Node raml = new RamlBuilder().build(IOUtils.toString(is, "UTF-8"));
@@ -58,15 +54,13 @@ public class RamlReferenceFinder {
     return emptyList();
   }
 
-  private List<String> findIncludeNodes(String rootPath, final Node raml)
-    throws IOException {
+  private List<String> findIncludeNodes(String rootPath, final Node raml) {
     final Set<String> includePaths = new HashSet<>();
     findIncludeNodes(rootPath, "", includePaths, singletonList(raml));
     return new ArrayList<>(includePaths);
   }
 
-  private void findIncludeNodes(String rootPath, String pathRelativeToRoot, Set<String> includePaths, List<Node> currents)
-    throws IOException {
+  private void findIncludeNodes(String rootPath, String pathRelativeToRoot, Set<String> includePaths, List<Node> currents) {
     for (final Node current : currents) {
       // search for include in sources of the current node
       Node possibleInclude = current;
