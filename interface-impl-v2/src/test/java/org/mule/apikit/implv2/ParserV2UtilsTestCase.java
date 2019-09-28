@@ -56,11 +56,10 @@ public class ParserV2UtilsTestCase {
   @Test
   public void findIncludesWithApiSyncAPI() throws Exception {
     System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "non-boolean-value");
-    String ramlResourceApiSync = "resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml";
-    ApiSyncResourceLoader loader = new ApiSyncResourceLoader(ramlResourceApiSync, mockApiSyncResources());
-    RamlReferenceFinder finder = new RamlReferenceFinder(loader);
-    List<String> includes = finder.getReferences(new URI(ramlResourceApiSync));
-    assertEquals(6, includes.size());
+    RamlReferenceFinder finder = new RamlReferenceFinder(
+      new ApiSyncResourceLoader("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml", mockApiSyncResources()));
+    List<String> includes = finder.getReferences(new URI("resource::org.mule.apikit.implv2.v10:references:1.0.0:api.raml"));
+    assertEquals(6,includes.size());
   }
 
   private static ResourceLoader mockApiSyncResources() throws Exception {
@@ -82,8 +81,9 @@ public class ParserV2UtilsTestCase {
     return resourceLoaderMock;
   }
 
-  private static void mockResourceLoader(String url, String path, ResourceLoader loaderMock) throws Exception {
-    Mockito.doReturn(getInputStream(path)).when(loaderMock).fetchResource(url);
+  private static void mockResourceLoader(String resourceURL, String resourcePath, ResourceLoader resourceLoaderMock) throws Exception {
+    Mockito.doReturn(getInputStream(resourcePath)).when(resourceLoaderMock)
+            .fetchResource(resourceURL);
   }
 
   private static InputStream getInputStream(String resourcePath) throws IOException {
