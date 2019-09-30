@@ -35,15 +35,13 @@ public class RamlImpl08V2 implements ApiSpecification {
   private Api api;
   private final ResourceLoader resourceLoader;
   private final String ramlPath;
+  private List<String> references;
 
-  public RamlImpl08V2(Api api) {
-    this(api, null, null);
-  }
-
-  public RamlImpl08V2(Api api, ResourceLoader resourceLoader, String ramlPath) {
+  public RamlImpl08V2(Api api, ResourceLoader resourceLoader, String ramlPath, List<String> references) {
     this.api = api;
     this.resourceLoader = resourceLoader;
     this.ramlPath = ramlPath;
+    this.references = references;
   }
 
   @Override
@@ -134,7 +132,7 @@ public class RamlImpl08V2 implements ApiSpecification {
 
   @Override
   public List<String> getAllReferences() {
-    return Collections.emptyList();
+    return references;
   }
 
   @Override
