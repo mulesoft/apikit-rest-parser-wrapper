@@ -48,7 +48,7 @@ public class ParserWrapperV2 implements ApiParser {
     this.ramlPath = fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath);
     this.references = references;
     List<ResourceLoader> loaders = ImmutableList.<ResourceLoader>builder()
-      .add(getResourceLoaderForPath(ramlPath))
+      .add(getResourceLoaderForPath(this.ramlPath))
       .addAll(resourceLoader)
       .build();
     this.resourceLoader = new CompositeResourceLoader(loaders.toArray(new ResourceLoader[0]));
@@ -77,13 +77,15 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   private static Optional<File> fetchRamlResource(String ramlPath) {
-    try {
-      URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
-      if (url != null && "file".equals(url.getProtocol())) {
-        return Optional.of(Paths.get(url.toURI()).toFile());
+    if (!isSyncProtocol(ramlPath)) {
+      try {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
+        if (url != null && "file".equals(url.getProtocol())) {
+          return Optional.of(Paths.get(url.toURI()).toFile());
+        }
+      } catch (URISyntaxException e) {
+        throw new RuntimeException(e);
       }
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
     }
     return empty();
   }
