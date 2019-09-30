@@ -9,14 +9,11 @@ package org.mule.apikit.implv1;
 import static com.google.common.collect.ImmutableList.builder;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
-import static org.mule.apikit.common.ReferencesUtils.toURI;
 
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.loader.ApiSyncResourceLoader;
-import org.mule.apikit.implv1.loader.SnifferResourceLoader;
 import org.mule.apikit.implv1.model.RamlImplV1;
 import org.mule.apikit.implv1.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.ApiSpecification;
@@ -25,7 +22,6 @@ import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
 
 import java.io.File;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -45,7 +41,7 @@ public class ParserWrapperV1 implements ApiParser {
   public static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
 
   private final String ramlPath;
-  private final SnifferResourceLoader resourceLoader;
+  private final ResourceLoader resourceLoader;
 
   public ParserWrapperV1(String ramlPath) {
     this(ramlPath, emptyList());
@@ -53,10 +49,9 @@ public class ParserWrapperV1 implements ApiParser {
 
   public ParserWrapperV1(String ramlPath, List<ResourceLoader> loaders) {
     this.ramlPath = findRamlPath(ramlPath).orElse(ramlPath);
-    ResourceLoader loader = new CompositeResourceLoader(builder().addAll(loaders)
-        .add(getResourceLoaderForPath(this.ramlPath))
-        .build().toArray(new ResourceLoader[0]));
-    this.resourceLoader = new SnifferResourceLoader(loader, ramlPath);
+    this.resourceLoader = new CompositeResourceLoader(builder().addAll(loaders)
+                                                        .add(getResourceLoaderForPath(this.ramlPath))
+                                                        .build().toArray(new ResourceLoader[0]));
   }
 
   public static ResourceLoader getResourceLoaderForPath(String ramlPath) {
@@ -83,9 +78,6 @@ public class ParserWrapperV1 implements ApiParser {
 
   private static Optional<String> findRamlPath(String ramlPath) {
     try {
-      if (isSyncProtocol(ramlPath)) {
-        return empty();
-      }
       URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
       if (url != null && "file".equals(url.getProtocol())) {
         return Optional.of(Paths.get(url.toURI()).toString());
@@ -93,7 +85,6 @@ public class ParserWrapperV1 implements ApiParser {
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
-    URI ramlURI = toURI(ramlPath);
-    return ofNullable("file".equalsIgnoreCase(ramlURI.getScheme()) ? Paths.get(ramlURI).normalize().toString() : null);
+    return empty();
   }
 }

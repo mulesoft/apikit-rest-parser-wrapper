@@ -12,6 +12,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
@@ -32,7 +33,7 @@ class URIApiRef implements ApiReference {
 
   @Override
   public String getLocation() {
-    return uri.getPath();
+    return Paths.get(uri).toString();
   }
 
   @Override

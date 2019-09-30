@@ -6,6 +6,9 @@
  */
 package org.mule.apikit.implv1.loader;
 
+import static org.mule.apikit.common.ApiSyncUtils.isExchangeModules;
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
+
 import org.mule.apikit.common.ApiSyncUtils;
 
 import javax.annotation.Nullable;
@@ -13,9 +16,6 @@ import java.io.InputStream;
 
 import org.raml.parser.loader.DefaultResourceLoader;
 import org.raml.parser.loader.ResourceLoader;
-
-import static org.apache.logging.log4j.util.Strings.isNotBlank;
-import static org.mule.apikit.common.ApiSyncUtils.*;
 
 public class ApiSyncResourceLoader implements ResourceLoader {
 
@@ -53,7 +53,7 @@ public class ApiSyncResourceLoader implements ResourceLoader {
       return stream;
 
     if (isSyncProtocol(s))
-      return resourceLoader.fetchResource(sanitize(s));
+      return resourceLoader.fetchResource(s);
 
     return resourceLoader.fetchResource(rootRamlResource + s);
   }
@@ -61,15 +61,7 @@ public class ApiSyncResourceLoader implements ResourceLoader {
   private InputStream getApiSyncResource(String s) {
     String apiSyncResource = ApiSyncUtils.toApiSyncResource(s);
     if (apiSyncResource != null)
-      return resourceLoader.fetchResource(sanitize(apiSyncResource));
+      return resourceLoader.fetchResource(apiSyncResource);
     return null;
-  }
-
-  private String sanitize(String apiSyncResource) {
-    String innerResource = getFileName(apiSyncResource);
-    if (isNotBlank(innerResource) && innerResource.startsWith("/")) {
-      return apiSyncResource.substring(0, apiSyncResource.length() - innerResource.length()) + innerResource.substring(1);
-    }
-    return apiSyncResource;
   }
 }

@@ -21,7 +21,6 @@ public class ApiSyncUtils {
   public static final String EXCHANGE_MODULE_REGEX = "exchange_modules/([^/]+)/([^/]+)/([^/]+)/(.*)";
   public static final String API_SYNC_REGEX = "resource::([^:]+):([^:]+):([^:]+):(.*):(.*):(.*)";
   private static final Pattern EXCHANGE_PATTERN = Pattern.compile(EXCHANGE_MODULE_REGEX);
-  private static final Pattern API_SYNC_PATTERN = Pattern.compile(API_SYNC_REGEX);
 
 
   private ApiSyncUtils() {}
