@@ -29,7 +29,7 @@ public class AmfModelRenderTestCase {
 
     ApiReference apiRef = ApiReference.create(apiLocation);
     String amfModel = ((AMFImpl) new AMFParser(apiRef, true).parse()).dumpAmf();
-    assertEquals(goldenAmfModel, amfModel);
+    assertEquals(sanitize(goldenAmfModel), sanitize(amfModel));
   }
 
   @Test
@@ -40,5 +40,10 @@ public class AmfModelRenderTestCase {
 
     AMFImpl amfObj = (AMFImpl) new AMFParser(apiRef, true).parse();
     assertEquals(amfObj.getLocation(), apiRef.getLocation());
+  }
+
+  private String sanitize(String model) {
+    return model.replace("\\r", "").replace("\\n", "")
+        .replaceAll("\\r", "").replaceAll("\\n", "");
   }
 }
