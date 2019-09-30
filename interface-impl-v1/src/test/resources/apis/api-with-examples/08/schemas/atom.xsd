@@ -3,7 +3,7 @@
 	attributeFormDefault="unqualified"
 	xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd" />
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="namespace.xsd" />
 	<xs:element name="feed" type="atom:feedType"/>
 	<xs:element name="entry" type="atom:entryType"/>
 	<xs:complexType name="textType" mixed="true">

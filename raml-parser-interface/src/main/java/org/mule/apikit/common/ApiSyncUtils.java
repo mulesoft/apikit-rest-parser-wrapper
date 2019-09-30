@@ -19,7 +19,9 @@ public class ApiSyncUtils {
   public static final String EXCHANGE_MODULES = "exchange_modules";
   final static String EXCHANGE_ROOT_RAML_TAG = "\"main\":\"";
   public static final String EXCHANGE_MODULE_REGEX = "exchange_modules/([^/]+)/([^/]+)/([^/]+)/(.*)";
+  public static final String API_SYNC_REGEX = "resource::([^:]+):([^:]+):([^:]+):(.*):(.*):(.*)";
   private static final Pattern EXCHANGE_PATTERN = Pattern.compile(EXCHANGE_MODULE_REGEX);
+  private static final Pattern API_SYNC_PATTERN = Pattern.compile(API_SYNC_REGEX);
 
 
   private ApiSyncUtils() {}
@@ -30,6 +32,10 @@ public class ApiSyncUtils {
 
   public static String getFileName(final String apiSyncResource) {
     return apiSyncResource.substring(apiSyncResource.lastIndexOf(":") + 1);
+  }
+
+  public static String getApi(final String apiSyncResource) {
+    return apiSyncResource.substring(0, apiSyncResource.lastIndexOf(":") + 1);
   }
 
   public static boolean isExchangeModules(final String path) {

@@ -36,8 +36,7 @@ public class ApiSyncResourceLoader implements ResourceLoader {
 
     if (isExchangeModules(resourcePath)) {
       return resourceLoader.getResource(toApiSyncResource(resourcePath));
-    }
-    else if (isSyncProtocol(path)) {
+    } else if (isSyncProtocol(path)) {
       return resourceLoader.getResource(resourcePath);
     }
     else {
