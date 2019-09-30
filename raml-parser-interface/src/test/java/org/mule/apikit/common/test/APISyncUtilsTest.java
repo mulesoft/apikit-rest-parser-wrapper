@@ -6,6 +6,9 @@
  */
 package org.mule.apikit.common.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.mule.apikit.common.ApiSyncUtils.toApiSyncResource;
+
 import org.mule.apikit.common.ApiSyncUtils;
 
 import org.junit.Assert;
@@ -41,34 +44,40 @@ public class APISyncUtilsTest {
 
   @Test
   public void testAPISyncResourceStringWithIncludesInsideSubfolders() {
-    String apiSyncResourceString = ApiSyncUtils.toApiSyncResource(TEST_RESOURCE_WITH_FOLDER);
-    Assert.assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
+    String apiSyncResourceString = toApiSyncResource(TEST_RESOURCE_WITH_FOLDER);
+    assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
                         RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_FOLDER_FILE_RAML, apiSyncResourceString);
   }
 
   @Test
+  public void nestedExchangeModulesToApiSyncResource() {
+    String result = toApiSyncResource("exchange_modules/org.custom.api.another/dependencies/1.0.0/exchange_modules/org.custom.api/dependencies/2.0.0/library3.raml");
+    assertEquals("resource::org.custom.api:dependencies:2.0.0:raml-fragment:zip:library3.raml", result);
+  }
+
+  @Test
   public void testAPISyncResourceStringWithIncludesInsideSubfoldersInsideSubfolder() {
-    String apiSyncResourceString = ApiSyncUtils.toApiSyncResource(TEST_RESOURCE_WITH_FOLDER_TWICE);
-    Assert.assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
+    String apiSyncResourceString = toApiSyncResource(TEST_RESOURCE_WITH_FOLDER_TWICE);
+    assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
                         RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_FOLDER_TWICE_FILE_RAML, apiSyncResourceString);
   }
 
   @Test
   public void testAPISyncResourceStringWithoutFolders() {
-    String apiSyncResourceString = ApiSyncUtils.toApiSyncResource(TEST_RESOURCE_WITHOUT_FOLDER);
-    Assert.assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
+    String apiSyncResourceString = toApiSyncResource(TEST_RESOURCE_WITHOUT_FOLDER);
+    assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
                         RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_WITHOUT_FILE_RAMLL, apiSyncResourceString);
   }
 
   @Test
   public void testApiSyncResourceWithoutPathAtTheEndShouldNotMatch() {
-    String apiSyncResourceString = ApiSyncUtils.toApiSyncResource(EXCHANGE_MODULES_GAV);
+    String apiSyncResourceString = toApiSyncResource(EXCHANGE_MODULES_GAV);
     Assert.assertNull(RESOURCE_STRING_WITHOUT_FILE_PATH_SHOULD_NOT_MATCH, apiSyncResourceString);
   }
 
   @Test
   public void testApiSyncResourceWithoutExchangeModulesAtTheStartShouldNotMatch() {
-    String apiSyncResourceString = ApiSyncUtils.toApiSyncResource(NOT_EXCHANGE_MODULES + GAV);
+    String apiSyncResourceString = toApiSyncResource(NOT_EXCHANGE_MODULES + GAV);
     Assert.assertNull(RESOURCE_STRING_WITHOUT_EXCHANGE_MODULES_SHOULD_NOT_MATCH, apiSyncResourceString);
   }
 

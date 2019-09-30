@@ -39,7 +39,7 @@ public class ApiSyncTestClassLoader extends URLClassLoader {
       name = Paths.get(resource[2], resource[3], resource[4], resource[7]).toString();
     }
     if (name.startsWith("org.custom.api")) {
-      name = Paths.get("api-with-exchange/10/exchange_modules", name).toString();
+      name = Paths.get("apis-with-references/api-with-exchange/10/exchange_modules", name).toString();
     }
     return name;
   }
