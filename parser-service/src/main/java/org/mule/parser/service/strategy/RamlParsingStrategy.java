@@ -6,12 +6,16 @@
  */
 package org.mule.parser.service.strategy;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -21,8 +25,12 @@ import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.parser.service.result.DefaultParseResult;
 import org.mule.parser.service.result.ExceptionParseResult;
 import org.mule.parser.service.result.ParseResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RamlParsingStrategy implements ParsingStrategy {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RamlParsingStrategy.class.getName());
   private final AMFParsingStrategy parsingStrategy = new AMFParsingStrategy();
 
   @Override
@@ -38,6 +46,11 @@ public class RamlParsingStrategy implements ParsingStrategy {
 
   private List<String> getReferences(ApiReference ref) {
     ParseResult result = parsingStrategy.parse(ref);
+    if (!result.success()) {
+      String message = result.getErrors().stream().map(e -> e.toString()).collect(joining("\n"));
+      LOGGER.error(message);
+      return emptyList();
+    }
     return result.get().getAllReferences();
   }
 

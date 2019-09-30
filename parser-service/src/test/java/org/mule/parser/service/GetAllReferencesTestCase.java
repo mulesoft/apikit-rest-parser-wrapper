@@ -11,9 +11,11 @@ import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mule.parser.service.ParserMode.AUTO;
 
-import org.mule.parser.service.util.ApiSyncTestClassLoader;
+import java.io.InputStream;
+import org.mule.apikit.loader.ClassPathResourceLoader;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
@@ -28,8 +30,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mule.apikit.common.ReferencesUtils;
+import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.util.ApiSyncTestClassLoader;
+import org.mule.parser.service.util.ApiSyncTestResourceLoader;
 
 @RunWith(Parameterized.class)
 public class GetAllReferencesTestCase {
@@ -85,9 +90,14 @@ public class GetAllReferencesTestCase {
   }
 
   private void assertReferences(String apiLocation) throws Exception {
+//    CompositeResourceLoader composite = new CompositeResourceLoader(new ApiSyncTestResourceLoader(),
+//        new ClassPathResourceLoader());
+//    ParseResult raml = mode.getStrategy().parse(ApiReference.create(apiLocation, new ApiSyncTestResourceLoader()));
     ParseResult raml = mode.getStrategy().parse(ApiReference.create(apiLocation));
     if (!raml.success()) {
-      System.out.println(raml.getErrors().stream().map(e -> e.toString()).collect(Collectors.joining("\n")));
+      String message = raml.getErrors().stream().map(e -> e.toString())
+          .collect(Collectors.joining("\n"));
+      fail(message);
     }
     List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).collect(toList());
     List<URI> expected = getAllReferencesExpected(apiPath);
@@ -112,5 +122,48 @@ public class GetAllReferencesTestCase {
         .filter(file -> !file.getFileName().toString().endsWith("generic_error.xml"))
         .map(file -> file.toUri())
         .collect(toList());
+  }
+
+  public class CompositeResourceLoader implements ResourceLoader {
+
+    private ResourceLoader[] resourceLoaders;
+
+    public CompositeResourceLoader(ResourceLoader... resourceLoaders) {
+      this.resourceLoaders = resourceLoaders;
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String res) {
+      InputStream result = null;
+      ResourceLoader[] var3 = this.resourceLoaders;
+      int var4 = var3.length;
+
+      for(int var5 = 0; var5 < var4; ++var5) {
+        ResourceLoader loader = var3[var5];
+        result = loader.getResourceAsStream(res);
+        if (result != null) {
+          break;
+        }
+      }
+
+      return result;
+    }
+
+    @Override
+    public URI getResource(String resourceName) {
+      URI result = null;
+      ResourceLoader[] var3 = this.resourceLoaders;
+      int var4 = var3.length;
+
+      for(int var5 = 0; var5 < var4; ++var5) {
+        ResourceLoader loader = var3[var5];
+        result = loader.getResource(resourceName);
+        if (result != null) {
+          break;
+        }
+      }
+
+      return result;
+    }
   }
 }
