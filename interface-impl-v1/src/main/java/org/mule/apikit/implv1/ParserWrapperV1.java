@@ -81,6 +81,9 @@ public class ParserWrapperV1 implements ApiParser {
 
   private static Optional<String> findRamlPath(String ramlPath) {
     try {
+      if (isSyncProtocol(ramlPath)) {
+        return empty();
+      }
       URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
       if (url != null && "file".equals(url.getProtocol())) {
         return Optional.of(Paths.get(url.toURI()).toString());
