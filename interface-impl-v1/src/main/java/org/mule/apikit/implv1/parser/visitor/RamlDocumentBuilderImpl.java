@@ -6,13 +6,13 @@
  */
 package org.mule.apikit.implv1.parser.visitor;
 
-import static org.mule.apikit.implv1.ParserWrapperV1.DEFAULT_RESOURCE_LOADER;
-
+import org.mule.apikit.implv1.loader.SnifferResourceLoader;
 import org.mule.apikit.implv1.model.RamlImplV1;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.visitor.ApiDocumentBuilder;
 
 import org.raml.parser.loader.CompositeResourceLoader;
+import org.raml.parser.loader.DefaultResourceLoader;
 import org.raml.parser.loader.FileResourceLoader;
 import org.raml.parser.loader.ResourceLoader;
 import org.raml.parser.visitor.RamlDocumentBuilder;
@@ -20,21 +20,24 @@ import org.raml.parser.visitor.RamlDocumentBuilder;
 public class RamlDocumentBuilderImpl implements ApiDocumentBuilder {
 
   private RamlDocumentBuilder ramlDocumentBuilder;
+  private SnifferResourceLoader snifferResourceLoader;
 
-  public RamlDocumentBuilderImpl(ResourceLoader resourceLoader) {
-    ramlDocumentBuilder = new RamlDocumentBuilder(resourceLoader);
+  public RamlDocumentBuilderImpl(String resource, ResourceLoader resourceLoader) {
+    snifferResourceLoader = new SnifferResourceLoader(resourceLoader, resource);
+    ramlDocumentBuilder = new RamlDocumentBuilder(snifferResourceLoader);
   }
 
   public RamlDocumentBuilderImpl() {
-    ramlDocumentBuilder = new RamlDocumentBuilder();
+    snifferResourceLoader = new SnifferResourceLoader(new DefaultResourceLoader(), null);
+    ramlDocumentBuilder = new RamlDocumentBuilder(snifferResourceLoader);
   }
 
   public ApiSpecification build(String content, String resourceLocation) {
-    return new RamlImplV1(ramlDocumentBuilder.build(content, resourceLocation), DEFAULT_RESOURCE_LOADER, resourceLocation);
+    return new RamlImplV1(ramlDocumentBuilder.build(content, resourceLocation), snifferResourceLoader, resourceLocation);
   }
 
   public ApiSpecification build(String resourceLocation) {
-    return new RamlImplV1(ramlDocumentBuilder.build(resourceLocation), DEFAULT_RESOURCE_LOADER, resourceLocation);
+    return new RamlImplV1(ramlDocumentBuilder.build(resourceLocation), snifferResourceLoader, resourceLocation);
   }
 
   public ApiDocumentBuilder addPathLookupFirst(String path) {

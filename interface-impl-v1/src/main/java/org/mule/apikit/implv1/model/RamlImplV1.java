@@ -12,6 +12,7 @@ import static org.mule.apikit.ApiType.RAML;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 
 import org.mule.apikit.ApiType;
+import org.mule.apikit.implv1.loader.SnifferResourceLoader;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.implv1.parser.Raml08ReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
@@ -21,9 +22,7 @@ import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,10 +43,10 @@ public class RamlImplV1 implements ApiSpecification {
   private String ramlPath;
   private final Raml08ReferenceFinder referenceFinder;
 
-  public RamlImplV1(Raml raml, ResourceLoader resourceLoader, String ramlPath) {
+  public RamlImplV1(Raml raml, SnifferResourceLoader resourceLoader, String ramlPath) {
     this.raml = raml;
     this.ramlPath = ramlPath;
-    this.referenceFinder = new Raml08ReferenceFinder(resourceLoader);
+    this.referenceFinder = new Raml08ReferenceFinder(ramlPath, resourceLoader);
   }
 
   @Deprecated
@@ -168,16 +167,11 @@ public class RamlImplV1 implements ApiSpecification {
   @Override
   public List<String> getAllReferences() {
     try {
-      return referenceFinder.detectIncludes(getPathAsUri(ramlPath));
+      return referenceFinder.detectIncludes();
     } catch (IOException e) {
       LOGGER.error(e.getMessage());
     }
     return emptyList();
-  }
-
-  private URI getPathAsUri(String path) {
-    final String normalizedPath = path.replace(File.separator, "/").replace(" ", "%20");
-    return URI.create(normalizedPath);
   }
 
   @Override
