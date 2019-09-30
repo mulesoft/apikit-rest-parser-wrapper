@@ -12,8 +12,6 @@ import static org.junit.Assert.assertThat;
 
 import org.mule.apikit.model.api.ApiReference;
 
-import java.io.File;
-import java.net.URL;
 import java.util.List;
 
 import org.junit.Test;
@@ -22,18 +20,15 @@ public class ApiParserAmfTestCase {
 
   @Test
   public void testGetAllReferences() throws Exception {
-    URL resource = getClass().getClassLoader().getResource("org/mule/amf/impl/ref-json-schema/input.raml");
-    String pathAsUri = requireNonNull(resource).toString();
+    String pathAsUri =
+        requireNonNull(getClass().getClassLoader().getResource("org/mule/amf/impl/ref-json-schema/input.raml")).toString();
 
     List<String> references = new AMFParser(ApiReference.create(pathAsUri), true).parse().getAllReferences();
 
     assertThat(references.size(), is(2));
-    assertThat(anyEndsWith(references, "org/mule/amf/impl/ref-json-schema/car-schema.json"), is(true));
-    assertThat(anyEndsWith(references, "org/mule/amf/impl/ref-json-schema/car-properties-schema.json"), is(true));
-  }
-
-  private boolean anyEndsWith(List<String> references, String ending) {
-    return references.stream().anyMatch(ref -> ref.endsWith(ending.replace("/", File.separator)));
+    assertThat(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/ref-json-schema/car-schema.json")), is(true));
+    assertThat(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/ref-json-schema/car-properties-schema.json")),
+               is(true));
   }
 
 }
