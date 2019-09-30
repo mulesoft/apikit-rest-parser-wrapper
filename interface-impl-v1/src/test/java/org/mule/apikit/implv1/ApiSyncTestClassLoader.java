@@ -6,10 +6,12 @@
  */
 package org.mule.apikit.implv1;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
+import java.util.Enumeration;
 
 public class ApiSyncTestClassLoader  extends URLClassLoader {
   public ApiSyncTestClassLoader() {
@@ -18,19 +20,24 @@ public class ApiSyncTestClassLoader  extends URLClassLoader {
 
   @Override
   public InputStream getResourceAsStream(String name) {
-    if (name.startsWith("resource::")) {
-      String[] resource = name.split(":");
-      name = Paths.get(resource[2], resource[3], resource[4], resource[7]).toString();
-    }
-    return super.getResourceAsStream(name);
+    return super.getResourceAsStream(getResourceName(name));
+  }
+
+  @Override
+  public Enumeration<URL> getResources(String name) throws IOException {
+    return super.getResources(getResourceName(name));
   }
 
   @Override
   public URL getResource(String name) {
+    return super.getResource(getResourceName(name));
+  }
+
+  private String getResourceName(String name) {
     if (name.startsWith("resource::")) {
       String[] resource = name.split(":");
       name = Paths.get(resource[2], resource[3], resource[4], resource[7]).toString();
     }
-    return super.getResource(name);
+    return name;
   }
 }
