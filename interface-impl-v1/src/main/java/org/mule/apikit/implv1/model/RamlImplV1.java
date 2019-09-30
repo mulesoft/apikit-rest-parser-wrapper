@@ -6,7 +6,6 @@
  */
 package org.mule.apikit.implv1.model;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.mule.apikit.ApiType.RAML;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
@@ -22,8 +21,6 @@ import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,11 +42,13 @@ public class RamlImplV1 implements ApiSpecification {
   private Raml raml;
   private String ramlPath;
   private final Raml08ReferenceFinder referenceFinder;
+  private List<String> references;
 
-  public RamlImplV1(Raml raml, ResourceLoader resourceLoader, String ramlPath) {
+  public RamlImplV1(Raml raml, ResourceLoader resourceLoader, String ramlPath, List<String> references) {
     this.raml = raml;
     this.ramlPath = ramlPath;
     this.referenceFinder = new Raml08ReferenceFinder(resourceLoader);
+    this.references = references;
   }
 
   @Deprecated
@@ -169,12 +168,7 @@ public class RamlImplV1 implements ApiSpecification {
    */
   @Override
   public List<String> getAllReferences() {
-    try {
-      return referenceFinder.detectIncludes(getPathAsUri(ramlPath));
-    } catch (IOException e) {
-      LOGGER.error(e.getMessage());
-    }
-    return emptyList();
+    return references;
   }
 
   private URI getPathAsUri(String path) {

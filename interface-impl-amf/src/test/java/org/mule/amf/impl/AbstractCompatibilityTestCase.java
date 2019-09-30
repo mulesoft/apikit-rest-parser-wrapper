@@ -9,6 +9,7 @@ package org.mule.amf.impl;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collections;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -99,7 +100,7 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
 
   static ApiParser createJavaParserWrapper(final String apiPath, final boolean isRaml08) {
 
-    final ApiParser ramlWrapper = isRaml08 ? new ParserWrapperV1(apiPath) : new ParserWrapperV2(apiPath);
+    final ApiParser ramlWrapper = isRaml08 ? new ParserWrapperV1(apiPath, Collections.emptyList()) : new ParserWrapperV2(apiPath, Collections.emptyList());
     ramlWrapper.validate();
     return ramlWrapper;
   }

@@ -209,7 +209,7 @@ public class AMFImpl implements ApiSpecification {
         }
       })
       .filter(Objects::nonNull)
-      .map(URI::getPath)
+      .map(URI::toString)
       .collect(toList());
   }
 

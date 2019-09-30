@@ -6,14 +6,12 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.mule.apikit.ApiType.RAML;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
-import com.sun.jndi.toolkit.url.Uri;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.implv2.v10.RamlReferenceFinder;
@@ -24,8 +22,6 @@ import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Paths;
@@ -50,12 +46,14 @@ public class RamlImpl10V2 implements ApiSpecification {
   private final RamlReferenceFinder referenceFinder;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
+  private List<String> references;
 
-  public RamlImpl10V2(Api api, ResourceLoader resourceLoader, String ramlPath) {
+  public RamlImpl10V2(Api api, ResourceLoader resourceLoader, String ramlPath, List<String> references) {
     this.api = api;
     this.ramlPath = ramlPath;
     this.resourceLoader = resourceLoader;
     this.referenceFinder = new RamlReferenceFinder(resourceLoader);
+    this.references = references;
   }
 
   @Override
@@ -156,12 +154,7 @@ public class RamlImpl10V2 implements ApiSpecification {
    */
   @Override
   public List<String> getAllReferences() {
-    try {
-      return referenceFinder.getReferences(getPathAsUri(ramlPath));
-    } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
-    }
-    return emptyList();
+    return references;
   }
 
   private URI getPathAsUri(String path) {
