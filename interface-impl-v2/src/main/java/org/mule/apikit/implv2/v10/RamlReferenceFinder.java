@@ -13,6 +13,7 @@ import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeMo
 
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,7 +77,7 @@ public class RamlReferenceFinder {
           String sanitize = includePath.replace(" ", "%20");
           String includeAbsolutePath = computeIncludePath(rootPath, pathRelativeToRoot, sanitize);
           URI includedFileAsUri = URI.create(includeAbsolutePath).normalize();
-          includePaths.add(includedFileAsUri.getPath());
+          includePaths.add(Paths.get(includedFileAsUri).toString());
           includePaths.addAll(findIncludeNodes(rootPath, includedFileAsUri));
           pathRelativeToRootCurrent = calculateNextRootRelative(pathRelativeToRootCurrent, sanitize);
         }

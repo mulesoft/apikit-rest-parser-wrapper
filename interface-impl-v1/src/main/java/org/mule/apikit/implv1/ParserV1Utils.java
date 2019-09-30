@@ -60,7 +60,7 @@ public class ParserV1Utils {
     if (resourceLoader == null) {
       ramlDocumentBuilder = new RamlDocumentBuilderImpl();
     } else {
-      ramlDocumentBuilder = new RamlDocumentBuilderImpl(resourceFolder, resourceLoader);
+      ramlDocumentBuilder = new RamlDocumentBuilderImpl(resourceLoader);
     }
 
     if (resourceFolder != null) {

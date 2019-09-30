@@ -53,7 +53,7 @@ public class ParserV2Utils {
         result.add(new ApiValidationResultImpl(validationResult));
       }
     } catch (Exception e) {
-      throw new RuntimeException("Raml parser uncaught exception: " + e.getMessage());
+      throw new RuntimeException("Raml parser uncaught exception: " + e.getMessage(), e);
     }
     return result;
   }
