@@ -6,13 +6,33 @@
  */
 package org.mule.apikit.common;
 
-import java.io.File;
 import java.net.URI;
 
 public class ReferencesUtils {
+
+  private static String OS = null;
+
   private ReferencesUtils() {}
 
   public static URI toURI(String path) {
-    return URI.create(path.replaceAll("\\s+","%20").replaceAll(File.separator, "/"));
+    URI uri;
+    if (isWindows()) {
+      uri = URI.create(path.replaceAll("\\s+","%20").replaceAll("\\\\", "/"));
+    } else {
+      uri = URI.create(path.replaceAll("\\s+","%20"));
+    }
+    return uri;
   }
+
+  public static String getOsName() {
+    if(OS == null) {
+      OS = System.getProperty("os.name");
+    }
+    return OS;
+  }
+
+  private static boolean isWindows() {
+    return getOsName().startsWith("Windows");
+  }
+
 }
