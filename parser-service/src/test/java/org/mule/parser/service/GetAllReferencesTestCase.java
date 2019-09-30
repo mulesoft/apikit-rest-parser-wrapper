@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mule.parser.service.ParserMode.AUTO;
@@ -33,7 +34,6 @@ import org.mule.apikit.common.ReferencesUtils;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
-import org.mule.parser.service.util.ApiSyncTestClassLoader;
 import org.mule.parser.service.util.ApiSyncTestResourceLoader;
 
 @RunWith(Parameterized.class)
@@ -48,62 +48,60 @@ public class GetAllReferencesTestCase {
   @Parameters(name = "API = {0}")
   public static Iterable<Object[]> data() {
     return asList(new Object[][] {
-        {"apis-with-references/api-simple/08/api.raml"},
-        {"apis-with-references/api-simple/10/api.raml"},
-        {"apis-with-references/api-with-absolute-references/08/api.raml"},
-        {"apis-with-references/api-with-absolute-references/10/api.raml"},
-        {"apis-with-references/api-with-exchange/08/api.raml"},
-        {"apis-with-references/api-with-exchange/10/api.raml"},
-        {"apis-with-references/api-with-references/08/api.raml"},
-        {"apis-with-references/api-with-references/10/api.raml"},
-        {"apis-with-references/api-with-spaces/08/api spaces.raml"},
-        {"apis-with-references/api-with-spaces/10/api spaces.raml"}
+        {"apis/api-simple/08/api.raml"},
+        {"apis/api-simple/10/api.raml"},
+        {"apis/api-with-absolute-references/08/api.raml"},
+        {"apis/api-with-absolute-references/10/api.raml"},
+        {"apis/api-with-exchange/08/api.raml"},
+        {"apis/api-with-exchange/10/api.raml"},
+        {"apis/api-with-references/08/api.raml"},
+        {"apis/api-with-references/10/api.raml"},
+        {"apis/api-with-spaces/08/api spaces.raml"},
+        {"apis/api-with-spaces/10/api spaces.raml"}
     });
   }
 
   @Test
   public void getAllReferencesWithRelativePathRoot() throws Exception {
-    assertReferences(apiPath);
+    assertReferences(ApiReference.create(apiPath));
   }
 
   @Test
   public void getAllReferencesWithRamlFromUri() throws Exception {
     URI uri = getResource(apiPath).toURI();
-    assertReferences(uri.toString());
+    assertReferences(ApiReference.create(uri.toString()));
   }
 
   @Test
   public void getAllReferencesWithAbsolutePathRoot() throws Exception {
     String path = new File(getResource(apiPath).toURI().getPath()).getAbsolutePath();
-    assertReferences(path);
+    assertReferences(ApiReference.create(path));
   }
 
   @Test
   public void getAllReferencesWithAPISync() throws Exception {
     String[] groups = apiPath.split("/");
-    assertReferences(format("resource::%s:%s:%s:raml:zip:%s", groups[0], groups[1], groups[2], groups[3]));
+    CompositeResourceLoader composite = new CompositeResourceLoader(new ApiSyncTestResourceLoader(),
+        new ClassPathResourceLoader());
+    assertReferences(ApiReference.create(format("resource::%s:%s:%s:raml:zip:%s", groups[0], groups[1], groups[2], groups[3]), composite));
   }
 
-  @Before
-  public void setUp() {
-    Thread.currentThread().setContextClassLoader(new ApiSyncTestClassLoader());
-  }
-
-  private void assertReferences(String apiLocation) throws Exception {
-//    CompositeResourceLoader composite = new CompositeResourceLoader(new ApiSyncTestResourceLoader(),
-//        new ClassPathResourceLoader());
-//    ParseResult raml = mode.getStrategy().parse(ApiReference.create(apiLocation, new ApiSyncTestResourceLoader()));
-    ParseResult raml = mode.getStrategy().parse(ApiReference.create(apiLocation));
+  private void assertReferences(ApiReference apiReference) throws Exception {
+    ParseResult raml = mode.getStrategy().parse(apiReference);
     if (!raml.success()) {
       String message = raml.getErrors().stream().map(e -> e.toString())
           .collect(Collectors.joining("\n"));
       fail(message);
     }
-    List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).collect(toList());
+    List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).map(uri -> Paths.get(uri).toUri()).collect(toList());
     List<URI> expected = getAllReferencesExpected(apiPath);
     for (URI uri: expected) {
       assertTrue(uri.toString(), refs.contains(uri));
     }
+    for (URI uri: refs) {
+      assertTrue(uri.toString(), expected.contains(uri));
+    }
+    assertEquals(expected.size(), refs.size());
   }
 
   private URL getResource(String res) {
