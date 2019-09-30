@@ -6,14 +6,11 @@
  */
 package org.mule.parser.service.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.Enumeration;
 import org.mule.apikit.loader.ResourceLoader;
 
 public class ApiSyncTestResourceLoader implements ResourceLoader {
@@ -44,7 +41,7 @@ public class ApiSyncTestResourceLoader implements ResourceLoader {
       name = Paths.get(resource[2], resource[3], resource[4], resource[7]).toString();
     }
     if (name.startsWith("org.custom.api")) {
-      name = Paths.get("apis-with-references/api-with-exchange/10/exchange_modules", name).toString();
+      name = Paths.get("apis/api-with-exchange/10/exchange_modules", name).toString();
     }
     return name;
   }
