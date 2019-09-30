@@ -14,7 +14,6 @@ import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 import org.mule.apikit.ApiType;
 import org.mule.apikit.common.ApiSyncUtils;
-import org.mule.apikit.implv2.v10.RamlReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
@@ -36,14 +35,10 @@ import org.raml.v2.api.model.v10.datamodel.AnyTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExternalTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.internal.utils.StreamUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RamlImpl10V2 implements ApiSpecification {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RamlImpl10V2.class.getName());
   private final Api api;
-  private final RamlReferenceFinder referenceFinder;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
   private List<String> references;
@@ -52,7 +47,6 @@ public class RamlImpl10V2 implements ApiSpecification {
     this.api = api;
     this.ramlPath = ramlPath;
     this.resourceLoader = resourceLoader;
-    this.referenceFinder = new RamlReferenceFinder(resourceLoader);
     this.references = references;
   }
 
@@ -157,9 +151,6 @@ public class RamlImpl10V2 implements ApiSpecification {
     return references;
   }
 
-  private URI getPathAsUri(String path) {
-    return ApiSyncUtils.isSyncProtocol(path) ? URI.create(path) : Paths.get(path).toUri();
-  }
 
   @Override
   public String dump(String newBaseUri) {
