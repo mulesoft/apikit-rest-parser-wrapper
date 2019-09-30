@@ -12,8 +12,8 @@ import static org.mule.apikit.ApiType.RAML;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 
 import org.mule.apikit.ApiType;
+import org.mule.apikit.implv1.ParserV1Utils;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
-import org.mule.apikit.implv1.parser.Raml08ReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
@@ -23,7 +23,9 @@ import org.mule.apikit.model.parameter.Parameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,21 +41,20 @@ import org.slf4j.LoggerFactory;
 
 public class RamlImplV1 implements ApiSpecification {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RamlImplV1.class);
   private Raml raml;
+  private ResourceLoader resourceLoader;
   private String ramlPath;
-  private final Raml08ReferenceFinder referenceFinder;
+  private Logger logger;
 
   public RamlImplV1(Raml raml, ResourceLoader resourceLoader, String ramlPath) {
     this.raml = raml;
+    this.resourceLoader = resourceLoader;
     this.ramlPath = ramlPath;
-    this.referenceFinder = new Raml08ReferenceFinder(resourceLoader);
+    this.logger = LoggerFactory.getLogger(RamlImplV1.class);
   }
 
-  @Deprecated
-  public RamlImplV1(Raml raml, Raml08ReferenceFinder referenceFinder) {
+  public RamlImplV1(Raml raml) {
     this.raml = raml;
-    this.referenceFinder = referenceFinder;
   }
 
   public Raml getRaml() {
@@ -168,15 +169,15 @@ public class RamlImplV1 implements ApiSpecification {
   @Override
   public List<String> getAllReferences() {
     try {
-      return referenceFinder.detectIncludes(getPathAsUri(ramlPath));
+      return ParserV1Utils.detectIncludes(getPathAsUri(ramlPath), resourceLoader);
     } catch (IOException e) {
-      LOGGER.error(e.getMessage());
+      logger.error(e.getMessage());
     }
     return emptyList();
   }
 
   private URI getPathAsUri(String path) {
-    final String normalizedPath = path.replace(File.separator, "/").replace(" ", "%20");
+    final String normalizedPath = path.replace(File.separator, "/");
     return URI.create(normalizedPath);
   }
 

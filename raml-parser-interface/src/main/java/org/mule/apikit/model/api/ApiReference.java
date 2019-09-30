@@ -6,7 +6,6 @@
  */
 package org.mule.apikit.model.api;
 
-import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 import static org.mule.apikit.common.ApiVendorUtils.deduceApiVendor;
 import static org.mule.apikit.common.ApiVendorUtils.getRamlVendor;
 import static org.mule.apikit.model.ApiVendor.OAS_20;
@@ -24,18 +23,16 @@ import java.util.Optional;
 public interface ApiReference {
 
   static ApiReference create(final String location, final ResourceLoader resourceLoader) {
-    if (isSyncProtocol(location)) {
+    if (ApiSyncUtils.isSyncProtocol(location))
       return resourceLoader != null ? new ApiSyncApiRef(location, resourceLoader) : new ApiSyncApiRef(location);
-    }
 
     try {
-      URI uri = new URI(location);
-      if (uri.isAbsolute()) {
+      final URI uri = new URI(location);
+      if (uri.isAbsolute())
         return new URIApiRef(uri, resourceLoader);
-      }
     } catch (URISyntaxException ignored) {
-      // go for default
     }
+
     // File is the default implementation
     return new DefaultApiRef(location, resourceLoader);
   }

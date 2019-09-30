@@ -13,11 +13,15 @@ import static org.mule.apikit.model.ApiVendor.OAS_20;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
+import org.mule.amf.impl.model.AMFImpl;
 import org.mule.apikit.ApiType;
+import org.mule.apikit.implv1.model.RamlImplV1;
+import org.mule.apikit.implv2.v10.model.RamlImpl10V2;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.result.ParsingIssue;
 
+import java.net.URI;
 import java.util.List;
 
 import org.junit.Rule;
@@ -64,7 +68,7 @@ public class ParserServiceTestCase {
 
   @Test
   public void oasJson20Wrapper() {
-    String api = resource("/oas/petstore.json");
+    String api = resource("/petstore.json");
 
     ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
     assertNotNull(wrapper);
@@ -74,7 +78,7 @@ public class ParserServiceTestCase {
 
   @Test
   public void oasYaml20Wrapper() {
-    String api = resource("/oas/petstore.yaml");
+    String api = resource("/petstore.yaml");
 
     ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
     assertNotNull(wrapper);
@@ -104,6 +108,36 @@ public class ParserServiceTestCase {
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
     assertThat(errors.size(), is(1));
     assertThat(errors.get(0).cause(), containsString("Invalid element resource for /pet"));
+  }
+
+  @Test
+  public void getAllReferences(){
+    String expected = resource("/example-with-include/schemas/team.raml");
+    String api = resource("/example-with-include/example-with-include.raml");
+
+    //AMF
+    ParseResult wrapperAMF = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
+    assertNotNull(wrapperAMF);
+    assertTrue(wrapperAMF.get() instanceof AMFImpl);
+    assertEquals(1,wrapperAMF.get().getAllReferences().size());
+    assertEquals(expected.replaceFirst("file:","file://"), wrapperAMF.get().getAllReferences().get(0));
+
+    //RAMLv2
+    ParseResult wrapperRAMLv2 = new ParserService().parse(ApiReference.create(api), ParserMode.RAML);
+    assertTrue(wrapperRAMLv2.get() instanceof RamlImpl10V2);
+    assertNotNull(wrapperRAMLv2);
+    assertEquals(1,wrapperRAMLv2.get().getAllReferences().size());
+    assertEquals(expected, wrapperRAMLv2.get().getAllReferences().get(0));
+
+    //RAMLv1
+    String expectedFor08 = resource("/example-with-include/schemas/atom.xsd");
+    String api08 = resource("/example-with-include/api-08-with-include.raml");
+    ParseResult wrapperRAML08 = new ParserService().parse(ApiReference.create(api08), ParserMode.RAML);
+    assertTrue(wrapperRAML08.get() instanceof RamlImplV1);
+    assertNotNull(wrapperRAML08);
+    assertEquals(1,wrapperRAML08.get().getAllReferences().size());
+    assertEquals(expectedFor08, wrapperRAML08.get().getAllReferences().get(0));
+
   }
 
   private static String resource(final String path) {

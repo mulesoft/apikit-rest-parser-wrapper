@@ -26,7 +26,6 @@ public class ProvidedResourceLoader implements amf.client.resource.ResourceLoade
 
   @Override
   public CompletableFuture<Content> fetch(String resourceName) {
-    resourceName = resourceName.replace("%20", " ");
     final CompletableFuture<Content> future = new CompletableFuture<>();
 
     if (resourceName == null || resourceName.isEmpty()) {

@@ -16,8 +16,6 @@
         <licensePath>../LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.skip>true</sonar.skip>
-
-        <mockServerVersion>5.5.1</mockServerVersion>
     </properties>
 
     <dependencies>
