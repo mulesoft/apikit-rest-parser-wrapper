@@ -24,6 +24,8 @@ import java.util.*;
 import org.apache.commons.io.IOUtils;
 import org.mule.apikit.implv1.loader.SnifferResourceLoader;
 import org.raml.parser.loader.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -36,6 +38,8 @@ import org.yaml.snakeyaml.nodes.Tag;
 
 public class Raml08ReferenceFinder {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(Raml08ReferenceFinder.class);
+
   private static final Yaml YAML_PARSER = new Yaml();
   private static final String INCLUDE_KEYWORD = "!include";
 
@@ -45,34 +49,42 @@ public class Raml08ReferenceFinder {
 
   public Raml08ReferenceFinder(String ramlPath, SnifferResourceLoader resourceLoader) {
     this.resourceLoader = resourceLoader;
-    ramlURI = toURI(ramlPath);
-    ramlParent = isSyncProtocol(ramlPath) ? Paths.get(getApi(ramlPath)) : Paths.get(ramlURI.getPath()).getParent();
+    ramlURI = isSyncProtocol(ramlPath) ? toURI(ramlPath) : Paths.get(ramlPath).toUri();
+    ramlParent = isSyncProtocol(ramlPath) ? Paths.get(getApi(ramlPath)) : Paths.get(ramlPath).getParent();
   }
 
   public List<String> detectIncludes() throws IOException {
     LinkedHashSet<String> references = detectIncludes(ramlURI);
-    references.addAll(resourceLoader.getResources());
+    // references.addAll(resourceLoader.getResources());
     return new ArrayList<>(references);
   }
 
   private LinkedHashSet<String> detectIncludes(URI uri) throws IOException {
+    LinkedHashSet<String> includes = new LinkedHashSet<>();
     try {
       Boolean isSync = isSyncProtocol(uri.toString());
-      String resourceLocation = isSync ? uri.toString().replace("%20", " ") : uri.getPath();
-      String rootFilePath = isSync ? getApi(uri.toString()) + URI.create(ApiSyncUtils.getFileName(uri.toString())).resolve(".") : uri.resolve(".").getPath();
+      String resourceLocation = uri.toString().replace("%20", " ");
+      URI rootFileUri = isSync ? URI.create(getApi(uri.toString())).resolve(ApiSyncUtils.getFileName(uri.toString())).resolve(".") : uri.resolve(".");
 
       String content = IOUtils.toString(resourceLoader.fetchResource(resourceLocation), "UTF-8");
-      Node rootNode = YAML_PARSER.compose(new StringReader(content));
-      if (rootNode != null) {
-        return new LinkedHashSet<>(includedFilesIn(Paths.get(rootFilePath), rootNode));
+      if (resourceLocation.endsWith("raml") || resourceLocation.endsWith("yaml")) {
+        Node rootNode = YAML_PARSER.compose(new StringReader(content));
+        if (rootNode != null) {
+          includes.add(uri.normalize().toString());
+          includes.addAll(includedFilesIn(rootFileUri, rootNode));
+        }
+      } else {
+        includes.add(uri.normalize().toString());
       }
     } catch (final MarkedYAMLException e) {
-      return new LinkedHashSet<>();
+      LOGGER.warn("Cannot read yaml: " + uri.getPath());
+    } catch (final Exception e) {
+      LOGGER.warn("Cannot find include: " + uri.getPath());
     }
-    return new LinkedHashSet<>();
+    return includes;
   }
 
-  private Set<String> includedFilesIn(Path rootFileUri, Node rootNode) throws IOException {
+  private Set<String> includedFilesIn(URI rootFileUri, Node rootNode) throws IOException {
     final Set<String> includedFiles = new HashSet<>();
     if (rootNode.getNodeId() == NodeId.scalar) {
       ScalarNode includedNode = (ScalarNode) rootNode;
@@ -80,12 +92,9 @@ public class Raml08ReferenceFinder {
       if (nodeTag != null && nodeTag.toString().equals(INCLUDE_KEYWORD)) {
         String includedNodeValue = includedNode.getValue();
         Path includedNodePath = Paths.get(includedNodeValue);
-        Path includedNodeAbsolutePath = includedNodePath.isAbsolute() ?
-            Paths.get(ramlParent.toString(), includedNodePath.toString().substring(1)) : rootFileUri.resolve(includedNodePath);
-        if (resourceLoader.fetchResource(includedNodeAbsolutePath.toString()) != null) {
-          includedFiles.add(isSyncProtocol(includedNodeAbsolutePath.toString()) ? includedNodeAbsolutePath.normalize().toString() : includedNodeAbsolutePath.normalize().toUri().toString());
-          includedFiles.addAll(detectIncludes(toURI(includedNodeAbsolutePath.toString())));
-        }
+        URI includedNodeAbsolutePath = includedNodePath.isAbsolute() ?
+            ramlURI.resolve(".").resolve(includedNodePath.toString().substring(1)).normalize() : rootFileUri.resolve(toURI(includedNodeValue)).normalize();
+        includedFiles.addAll(detectIncludes(includedNodeAbsolutePath));
       }
     } else if (rootNode.getNodeId() == NodeId.mapping) {
       final MappingNode mappingNode = (MappingNode) rootNode;
