@@ -47,9 +47,10 @@ public class ApiSyncUtils {
     return exchangeJson;
   }
 
-  public static String toApiSyncResource(String s) {
+  public static String toApiSyncResource(String resource) {
     String apiSyncResource = null;
-    Matcher exchangeMatcher = EXCHANGE_PATTERN.matcher(s);
+    resource = resource.substring(resource.lastIndexOf(EXCHANGE_MODULES));
+    Matcher exchangeMatcher = EXCHANGE_PATTERN.matcher(resource);
     if (exchangeMatcher.find()) {
       String groupId = exchangeMatcher.group(1);
       String artifactId = exchangeMatcher.group(2);
