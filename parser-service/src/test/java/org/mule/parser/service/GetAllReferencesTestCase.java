@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -93,7 +92,7 @@ public class GetAllReferencesTestCase {
           .collect(Collectors.joining("\n"));
       fail(message);
     }
-    List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).map(uri -> Paths.get(uri).toUri()).collect(toList());
+    List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).collect(toList());
     List<URI> expected = getAllReferencesExpected(apiPath);
     for (URI uri: expected) {
       assertTrue(uri.toString(), refs.contains(uri));
@@ -160,7 +159,6 @@ public class GetAllReferencesTestCase {
           break;
         }
       }
-
       return result;
     }
   }

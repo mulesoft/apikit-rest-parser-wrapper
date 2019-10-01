@@ -57,17 +57,17 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   public static ResourceLoader getResourceLoaderForPath(String ramlPath) {
-    final File ramlFolder = fetchRamlFolder(ramlPath);
+    if (isSyncProtocol(ramlPath)) {
+      return new ApiSyncResourceLoader(ramlPath);
+    }
 
+    final File ramlFolder = fetchRamlFolder(ramlPath);
     if (ramlFolder != null) {
       return new CompositeResourceLoader(new RootRamlFileResourceLoader(ramlFolder),
                                          DEFAULT_RESOURCE_LOADER,
                                          new FileResourceLoader(ramlFolder.getAbsolutePath()),
                                          new ExchangeDependencyResourceLoader(ramlFolder));
-    } else if (isSyncProtocol(ramlPath)) {
-      return new ApiSyncResourceLoader(ramlPath);
     }
-
     return new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader());
   }
 

@@ -13,6 +13,8 @@ import java.net.URL;
 import java.nio.file.Paths;
 import org.mule.apikit.loader.ResourceLoader;
 
+import static java.lang.String.join;
+
 public class ApiSyncTestResourceLoader implements ResourceLoader {
 
   private final ClassLoader contextClassLoader;
@@ -38,10 +40,10 @@ public class ApiSyncTestResourceLoader implements ResourceLoader {
   private String getResourceName(String name) {
     if (name.startsWith("resource::")) {
       String[] resource = name.split(":");
-      name = Paths.get(resource[2], resource[3], resource[4], resource[7]).toString();
+      name = join("/", resource[2], resource[3], resource[4], resource[7]);
     }
     if (name.startsWith("org.custom.api")) {
-      name = Paths.get("apis/api-with-exchange/10/exchange_modules", name).toString();
+      name = join("/", "apis", "api-with-exchange", "10", "exchange_modules", name);
     }
     return name;
   }

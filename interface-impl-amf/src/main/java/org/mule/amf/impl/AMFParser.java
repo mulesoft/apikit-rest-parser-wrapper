@@ -18,7 +18,6 @@ import static org.mule.amf.impl.DocumentParser.getParserForApi;
 
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
-import org.mule.amf.impl.loader.SnifferResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.ApiParser;
@@ -54,7 +53,6 @@ public class AMFParser implements ApiParser {
   private final Parser parser;
   private final WebApi webApi;
   private final List<String> references;
-  private SnifferResourceLoader snifferResourceLoader = new SnifferResourceLoader();
 
   private Document consoleModel;
 
@@ -101,7 +99,6 @@ public class AMFParser implements ApiParser {
       environment = environment.add(new ExchangeDependencyResourceLoader(rootDir));
     }
 
-    environment = environment.add(snifferResourceLoader);
     if (apiRef.getResourceLoader().isPresent()) {
       environment = environment.add(new ProvidedResourceLoader(apiRef.getResourceLoader().get()));
     }
