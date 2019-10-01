@@ -7,7 +7,6 @@
 package org.mule.apikit.implv2.v10.model;
 
 import static org.mule.apikit.ParserUtils.resolveVersion;
-import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
 
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
@@ -89,7 +88,7 @@ public class ResourceImpl implements Resource {
 
   @Override
   public String getDisplayName() {
-    return nullSafe(resource.displayName());
+    return resource.displayName() != null ? String.valueOf(resource.displayName().value()) : null;
   }
 
   @Override

@@ -29,7 +29,6 @@ import java.util.Map;
 import static java.util.Collections.emptyMap;
 import static org.mule.apikit.ApiType.RAML;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
-import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 public class RamlImpl10V2 implements ApiSpecification {
@@ -58,7 +57,7 @@ public class RamlImpl10V2 implements ApiSpecification {
 
   @Override
   public String getBaseUri() {
-    return nullSafe(api.baseUri());
+    return api.baseUri() != null ? String.valueOf(api.baseUri().value()) : null;
   }
 
   @Override
@@ -68,7 +67,7 @@ public class RamlImpl10V2 implements ApiSpecification {
 
   @Override
   public String getVersion() {
-    return nullSafe(api.version());
+    return api.version() != null ? String.valueOf(api.version().value()) : null;
   }
 
   @Override

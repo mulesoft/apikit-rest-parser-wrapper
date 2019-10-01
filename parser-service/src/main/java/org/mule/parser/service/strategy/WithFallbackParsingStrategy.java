@@ -8,6 +8,7 @@ package org.mule.parser.service.strategy;
 
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.references.ReferencesResolver;
 import org.mule.parser.service.result.DefaultParsingIssue;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.result.ParsingIssue;
@@ -17,8 +18,6 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 public class WithFallbackParsingStrategy implements ParsingStrategy {
-
-  private static final RamlParsingStrategy RAML_DELEGATE = new RamlParsingStrategy();
   private static final AMFParsingStrategy AMF_DELEGATE = new AMFParsingStrategy();
 
   @Override
@@ -27,7 +26,7 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
     if (amfResult.success()) {
       return amfResult;
     }
-    ParseResult ramlResult = RAML_DELEGATE.parse(ref);
+    ParseResult ramlResult = new RamlParsingStrategy(new ReferencesResolver(amfResult)).parse(ref);
     return new FallbackParseResult(ramlResult);
   }
 

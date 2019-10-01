@@ -33,32 +33,18 @@ import amf.client.validate.ValidationReport;
 public class QueryStringImpl implements QueryString {
 
   private AnyShape schema;
-  private boolean required;
   private Collection<String> scalarTypes;
 
   private final Map<String, Optional<PayloadValidator>> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType = APPLICATION_YAML;
 
-  QueryStringImpl(final AnyShape anyShape, boolean required) {
+  public QueryStringImpl(AnyShape anyShape) {
     this.schema = anyShape;
-    this.required = required;
 
     final List<ScalarType> typeIds = asList(ScalarType.values());
 
     this.scalarTypes = typeIds.stream().map(ScalarType::getName).collect(Collectors.toList());
   }
-
-  private static AnyShape getSchema(final amf.client.model.domain.Parameter parameter) {
-    final Shape shape = parameter.schema();
-    return castToAnyShape(shape);
-  }
-
-  private static AnyShape castToAnyShape(Shape shape) {
-    if (shape instanceof AnyShape)
-      return (AnyShape) shape;
-    throw new UnsupportedSchemaException();
-  }
-
 
   @Override
   public String getDefaultValue() {

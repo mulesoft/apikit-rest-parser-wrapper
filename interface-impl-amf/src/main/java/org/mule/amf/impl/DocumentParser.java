@@ -56,10 +56,6 @@ public class DocumentParser {
     }
   }
 
-  public static Document parseFile(final Parser parser, final URI uri) throws ParserException {
-    return parseFile(parser, uri, false);
-  }
-
   public static Document parseFile(final Parser parser, final URI uri, final boolean validate) throws ParserException {
     return parseFile(parser, uriToPath(uri), validate);
   }
@@ -108,10 +104,6 @@ public class DocumentParser {
       default:
         return new RamlParser(environment);
     }
-  }
-
-  public static WebApi getWebApi(final Parser parser, final URI uri) throws ParserException {
-    return getWebApi(parseFile(parser, uri));
   }
 
   public static WebApi getWebApi(final BaseUnit baseUnit) throws ParserException {

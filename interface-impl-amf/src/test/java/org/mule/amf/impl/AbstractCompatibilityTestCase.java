@@ -79,7 +79,6 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
   private static List<File> scan(final URI resources) throws IOException {
 
     return Files.walk(Paths.get(resources))
-        // .peek(path -> System.out.println("Path:" + path + " isApi:" + API_MATCHER.matches(path.getFileName())))
         .filter(path -> Files.isRegularFile(path) && API_MATCHER.matches(path.getFileName()))
         .map(Path::toFile)
         .collect(toList());

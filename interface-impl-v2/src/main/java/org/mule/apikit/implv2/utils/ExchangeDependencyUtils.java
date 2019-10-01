@@ -32,9 +32,4 @@ public class ExchangeDependencyUtils {
       return path;
     }
   }
-
-  public static boolean isExchangeModuleReference(String path) {
-    final Matcher matcher = DEPENDENCY_PATH_PATTERN.matcher(path);
-    return matcher.find();
-  }
 }
