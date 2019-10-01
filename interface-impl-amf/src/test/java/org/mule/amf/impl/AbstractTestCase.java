@@ -37,26 +37,7 @@ abstract class AbstractTestCase {
 
     assertParametersEqual(actual.getBaseUriParameters(), expected.getBaseUriParameters());
 
-    //dump("Resources 08",  ramlResources);
-    //dump("Resources AMF",  amfResources);
     assertResourcesEqual(actual.getResources(), expected.getResources());
-
-    // assertEqual(actual.getAllReferences(), expected.getAllReferences());
-
-    // TODO"
-    //schemas()
-
-    //"Different behaviour in Java Parser 08 & 10"
-    // cleanBaseUriParameters()
-    // consolidatedSchemas()
-    // instance()
-    // getSecuritySchemes()
-    // getTraits()
-    // getUri()
-  }
-
-  static void assertEqual(final List<ApiReference> actual, final List<ApiReference> expected) {
-    assertThat(actual.size(), is(expected.size()));
   }
 
   static void assertResourcesEqual(final Map<String, Resource> actual, final Map<String, Resource> expected) {
@@ -90,11 +71,6 @@ abstract class AbstractTestCase {
 
     });
     assertResourcesEqual(actual.getResources(), expected.getResources());
-
-    // Different behaviour in Java Parser 08 & 10
-    // Map<String, List<Parameter>> getBaseUriParameters();
-    // void setParentUri(String parentUri); 
-    // void cleanBaseUriParameters();
   }
 
   static void assertActionsEqual(final Map<ActionType, Action> actual, final Map<ActionType, Action> expected) {
@@ -112,9 +88,6 @@ abstract class AbstractTestCase {
 
     assertParametersEqual(actual.getHeaders(), expected.getHeaders());
     assertParametersEqual(actual.getResolvedUriParameters(), expected.getResolvedUriParameters());
-    // TODO MORE cases
-    //actual.getBody();
-    //actual.getResource();        
   }
 
   static void assertParametersEqual(final Map<String, Parameter> actual, final Map<String, Parameter> expected) {
@@ -142,40 +115,10 @@ abstract class AbstractTestCase {
     //assertThat(actual.getDisplayName(), is(equalTo(expected.getDisplayName())));
     assertThat(actual.getDescription(), is(equalTo(expected.getDescription())));
     assertThat(actual.getExample(), is(equalTo(expected.getExample())));
-    assertExamplesEqual(actual.getExamples(), expected.getExamples());
+    assertThat(actual.getExamples().size(), is(expected.getExamples().size()));
 
     // Different behaviour in Java Parser 08 & 10
     // Object getInstance();
     // MetadataType getMetadata();
-
-  }
-
-  static void assertExamplesEqual(final Map<String, String> actual, final Map<String, String> expected) {
-    assertThat(actual.size(), is(expected.size()));
-  }
-
-  private static void dump(final String title, Map<String, Resource> resources) {
-    System.out.println(format("------------- %s -------------", title));
-    System.out.println(dump("", resources, ""));
-    System.out.println("-------------------------------------");
-  }
-
-  private static String dump(final String indent, Map<String, Resource> resources, String out) {
-
-    if (resources.isEmpty())
-      return out;
-
-    for (Map.Entry<String, Resource> entry : resources.entrySet()) {
-
-      final Resource value = entry.getValue();
-      final Set<String> actions = value.getActions().keySet().stream().map(Enum::name).collect(toSet());
-      final String resource = "[" + entry.getKey() + "] -> " + value.getUri() + " " + mkString(actions);
-      out += indent + resource + "\n";
-      if (value.getResources().isEmpty())
-        continue;
-
-      out = dump(indent + "  ", value.getResources(), out);
-    }
-    return out;
   }
 }

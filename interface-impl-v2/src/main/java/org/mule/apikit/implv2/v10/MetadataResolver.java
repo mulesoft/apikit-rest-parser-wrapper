@@ -20,6 +20,8 @@ import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 
 public class MetadataResolver {
 
+  private static final MetadataType ANY_METADATA_TYPE = BaseTypeBuilder.create(MetadataFormat.JAVA).anyType().build();
+
   private MetadataResolver() {}
 
   public static Optional<MetadataType> resolve(TypeDeclaration type) {
@@ -37,7 +39,5 @@ public class MetadataResolver {
   public static MetadataType anyType() {
     return ANY_METADATA_TYPE;
   }
-
-  private static final MetadataType ANY_METADATA_TYPE = BaseTypeBuilder.create(MetadataFormat.JAVA).anyType().build();
 
 }

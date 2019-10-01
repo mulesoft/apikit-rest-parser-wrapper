@@ -56,7 +56,7 @@ public class ResourceImpl implements Resource {
     if (resource.getResources() == null) {
       return null;
     }
-    Map<String, Resource> map = new LinkedHashMap<String, Resource>();
+    Map<String, Resource> map = new LinkedHashMap<>();
     for (Map.Entry<String, org.raml.model.Resource> entry : resource.getResources().entrySet()) {
       map.put(entry.getKey(), new ResourceImpl(entry.getValue()));
     }
@@ -82,9 +82,9 @@ public class ResourceImpl implements Resource {
     if (resource.getBaseUriParameters() == null) {
       return null;
     }
-    Map<String, List<Parameter>> map = new LinkedHashMap<String, List<Parameter>>();
+    Map<String, List<Parameter>> map = new LinkedHashMap<>();
     for (Map.Entry<String, List<UriParameter>> entry : resource.getBaseUriParameters().entrySet()) {
-      List<Parameter> list = new ArrayList<Parameter>();
+      List<Parameter> list = new ArrayList<>();
       for (UriParameter parameter : entry.getValue()) {
         list.add(new ParameterImpl(parameter));
       }
@@ -101,7 +101,7 @@ public class ResourceImpl implements Resource {
     if (resource.getResolvedUriParameters() == null) {
       return null;
     }
-    Map<String, Parameter> map = new LinkedHashMap<String, Parameter>();
+    Map<String, Parameter> map = new LinkedHashMap<>();
     for (Map.Entry<String, UriParameter> entry : resource.getResolvedUriParameters().entrySet()) {
       map.put(entry.getKey(), new ParameterImpl(entry.getValue()));
     }

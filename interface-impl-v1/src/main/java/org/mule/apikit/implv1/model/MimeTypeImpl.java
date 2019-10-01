@@ -26,10 +26,6 @@ public class MimeTypeImpl implements MimeType {
     this.mimeType = mimeType;
   }
 
-  public MimeTypeImpl(String type) {
-    mimeType = new org.raml.model.MimeType(type);
-  }
-
   public Object getCompiledSchema() {
     return mimeType.getCompiledSchema();
   }
@@ -42,12 +38,10 @@ public class MimeTypeImpl implements MimeType {
     if (mimeType.getFormParameters() == null) {
       return null;
     }
-    Map<String, List<Parameter>> map = new LinkedHashMap<String, List<Parameter>>();
+    Map<String, List<Parameter>> map = new LinkedHashMap<>();
     for (Map.Entry<String, List<FormParameter>> entry : mimeType.getFormParameters().entrySet()) {
-      List<Parameter> list = new ArrayList<Parameter>();
-      for (FormParameter formparameter : entry.getValue()) {
-        list.add(new ParameterImpl(formparameter));
-      }
+      List<Parameter> list = new ArrayList<>();
+      entry.getValue().stream().forEach( formParameter -> list.add(new ParameterImpl(formParameter)));
       map.put(entry.getKey(), list);
     }
     return map;
