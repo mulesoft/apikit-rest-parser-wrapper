@@ -40,6 +40,7 @@ public class ParserWrapperV1 implements ApiParser {
 
   public static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
 
+  private final String originalPath;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
   private final List<String> references;
@@ -50,6 +51,7 @@ public class ParserWrapperV1 implements ApiParser {
   }
 
   public ParserWrapperV1(String ramlPath, List<ResourceLoader> loaders, List<String> references) {
+    this.originalPath = ramlPath;
     this.ramlPath = findRamlPath(ramlPath).orElse(ramlPath);
     this.references = references;
     this.resourceLoader = new CompositeResourceLoader(builder().addAll(loaders)
@@ -76,7 +78,7 @@ public class ParserWrapperV1 implements ApiParser {
   public ApiSpecification parse() {
     RamlDocumentBuilder builder = new RamlDocumentBuilder(resourceLoader);
     Raml api = builder.build(ramlPath);
-    return new RamlImplV1(api, resourceLoader, ramlPath,references);
+    return new RamlImplV1(api, resourceLoader, originalPath, references);
   }
 
   private static Optional<String> findRamlPath(String ramlPath) {
