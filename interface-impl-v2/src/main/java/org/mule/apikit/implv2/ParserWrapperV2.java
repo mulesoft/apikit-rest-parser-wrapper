@@ -36,6 +36,7 @@ public class ParserWrapperV2 implements ApiParser {
 
   private static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
 
+  private final String originalPath;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
   private final List<String> references;
@@ -45,6 +46,7 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   public ParserWrapperV2(String ramlPath, List<ResourceLoader> resourceLoader, List<String> references) {
+    this.originalPath = ramlPath;
     this.ramlPath = fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath);
     this.references = references;
     List<ResourceLoader> loaders = ImmutableList.<ResourceLoader>builder()
@@ -98,6 +100,6 @@ public class ParserWrapperV2 implements ApiParser {
 
   @Override
   public ApiSpecification parse() {
-    return ParserV2Utils.build(resourceLoader, ramlPath, references);
+    return ParserV2Utils.build(resourceLoader, originalPath, references);
   }
 }
