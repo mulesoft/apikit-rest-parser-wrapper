@@ -219,6 +219,6 @@ public class ActionImpl implements Action {
       return null;
 
     final Shape shape = request.queryString();
-    return shape == null ? null : new QueryStringImpl((AnyShape) shape, request.required().value());
+    return shape == null ? null : new QueryStringImpl((AnyShape) shape);
   }
 }

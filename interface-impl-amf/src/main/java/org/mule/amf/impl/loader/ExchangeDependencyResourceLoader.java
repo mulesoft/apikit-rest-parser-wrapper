@@ -18,14 +18,14 @@ import amf.client.resource.ResourceLoader;
 
 public class ExchangeDependencyResourceLoader implements ResourceLoader {
 
-  private File workingDir = null;
+  private final File workingDir;
   private final FileResourceLoader resourceLoader = new FileResourceLoader();
 
   private static final Pattern DEPENDENCY_PATH_PATTERN = Pattern.compile("^exchange_modules/|/exchange_modules/");
 
   public ExchangeDependencyResourceLoader(String rootDir) {
     String basePath = rootDir != null ? rootDir : ".";
-    workingDir = new File(basePath);
+    this.workingDir = new File(basePath);
   }
 
   @Override

@@ -6,9 +6,7 @@
  */
 package org.mule.parser.service.strategy;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.joining;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
@@ -20,16 +18,22 @@ import org.mule.apikit.implv2.ParserWrapperV2;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.validation.ApiValidationReport;
+import org.mule.parser.service.references.ReferencesResolver;
 import org.mule.parser.service.result.DefaultParseResult;
 import org.mule.parser.service.result.ExceptionParseResult;
 import org.mule.parser.service.result.ParseResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RamlParsingStrategy implements ParsingStrategy {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RamlParsingStrategy.class.getName());
-  private final AMFParsingStrategy parsingStrategy = new AMFParsingStrategy(false);
+  private ReferencesResolver referencesResolver;
+
+  public RamlParsingStrategy() {
+    this.referencesResolver = new ReferencesResolver();
+  }
+
+  public RamlParsingStrategy(ReferencesResolver referencesResolver) {
+    this.referencesResolver = referencesResolver;
+  }
 
   @Override
   public ParseResult parse(ApiReference ref) {
@@ -43,13 +47,7 @@ public class RamlParsingStrategy implements ParsingStrategy {
   }
 
   private List<String> getReferences(ApiReference ref) {
-    ParseResult result = parsingStrategy.parse(ref);
-    if (!result.success()) {
-      String message = result.getErrors().stream().map(e -> e.toString()).collect(joining("\n"));
-      LOGGER.error(message);
-      return emptyList();
-    }
-    return result.get().getAllReferences();
+    return referencesResolver.getReferences(ref);
   }
 
   public ApiParser create(ApiReference ref) {

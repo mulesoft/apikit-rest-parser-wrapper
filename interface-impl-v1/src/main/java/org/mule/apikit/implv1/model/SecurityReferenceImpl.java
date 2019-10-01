@@ -16,10 +16,6 @@ public class SecurityReferenceImpl implements SecurityReference {
     this.securityReference = securityReference;
   }
 
-  public SecurityReferenceImpl(String name) {
-    securityReference = new org.raml.model.SecurityReference(name);
-  }
-
   public String getName() {
     return securityReference.getName();
   }

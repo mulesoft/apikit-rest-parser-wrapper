@@ -10,9 +10,13 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 
+import java.util.ArrayList;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv2.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
+import org.mule.apikit.implv2.parser.rule.ApiValidationResultImpl;
+import org.mule.apikit.implv2.v08.model.RamlImpl08V2;
+import org.mule.apikit.implv2.v10.model.RamlImpl10V2;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
@@ -26,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import org.raml.v2.api.RamlModelBuilder;
+import org.raml.v2.api.RamlModelResult;
 import org.raml.v2.api.loader.CompositeResourceLoader;
 import org.raml.v2.api.loader.DefaultResourceLoader;
 import org.raml.v2.api.loader.FileResourceLoader;
@@ -35,8 +41,6 @@ import org.raml.v2.api.loader.RootRamlFileResourceLoader;
 public class ParserWrapperV2 implements ApiParser {
 
   private static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
-
-  private final String originalPath;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
   private final List<String> references;
@@ -46,7 +50,6 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   public ParserWrapperV2(String ramlPath, List<ResourceLoader> resourceLoader, List<String> references) {
-    this.originalPath = ramlPath;
     this.ramlPath = fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath);
     this.references = references;
     List<ResourceLoader> loaders = ImmutableList.<ResourceLoader>builder()
@@ -94,12 +97,33 @@ public class ParserWrapperV2 implements ApiParser {
 
   @Override
   public ApiValidationReport validate() {
-    List<ApiValidationResult> results = ParserV2Utils.validate(resourceLoader, ramlPath);
+    List<ApiValidationResult> results = validate(resourceLoader, ramlPath);
     return new DefaultApiValidationReport(results);
+  }
+
+  private List<ApiValidationResult> validate(ResourceLoader resourceLoader, String ramlPath) {
+    List<ApiValidationResult> result = new ArrayList<>();
+
+    try {
+      RamlModelResult ramlApiResult = new RamlModelBuilder(resourceLoader).buildApi((String) null, ramlPath);
+      for (org.raml.v2.api.model.common.ValidationResult validationResult : ramlApiResult.getValidationResults()) {
+        result.add(new ApiValidationResultImpl(validationResult));
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Raml parser uncaught exception: " + e.getMessage(), e);
+    }
+    return result;
   }
 
   @Override
   public ApiSpecification parse() {
-    return ParserV2Utils.build(resourceLoader, originalPath, references);
+    RamlModelResult ramlModelResult = new RamlModelBuilder(resourceLoader).buildApi(ramlPath);
+    if (ramlModelResult.hasErrors()) {
+      throw new RuntimeException("Invalid RAML descriptor.");
+    }
+    if (ramlModelResult.isVersion08()) {
+      return new RamlImpl08V2(ramlModelResult.getApiV08(), resourceLoader, ramlPath, references);
+    }
+    return new RamlImpl10V2(ramlModelResult.getApiV10(), resourceLoader, ramlPath, references);
   }
 }

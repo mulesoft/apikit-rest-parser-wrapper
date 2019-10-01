@@ -29,7 +29,7 @@ public class ResponseImpl implements Response {
     if (response.getBody() == null) {
       return null;
     }
-    Map<String, MimeType> map = new LinkedHashMap<String, MimeType>();
+    Map<String, MimeType> map = new LinkedHashMap<>();
     for (Map.Entry<String, org.raml.model.MimeType> entry : response.getBody().entrySet()) {
       map.put(entry.getKey(), new MimeTypeImpl(entry.getValue()));
     }
@@ -50,7 +50,7 @@ public class ResponseImpl implements Response {
   }
 
   public void setBody(Map<String, MimeType> body) {
-    Map<String, org.raml.model.MimeType> map = new LinkedHashMap<String, org.raml.model.MimeType>();
+    Map<String, org.raml.model.MimeType> map = new LinkedHashMap<>();
     for (Map.Entry<String, MimeType> entry : body.entrySet()) {
       map.put(entry.getKey(), (org.raml.model.MimeType) entry.getValue().getInstance());
     }
@@ -58,7 +58,7 @@ public class ResponseImpl implements Response {
   }
 
   public void setHeaders(Map<String, Parameter> headers) {
-    Map<String, Header> map = new LinkedHashMap<String, Header>();
+    Map<String, Header> map = new LinkedHashMap<>();
     for (Map.Entry<String, Parameter> entry : headers.entrySet()) {
       map.put(entry.getKey(), (Header) entry.getValue().getInstance());
     }

@@ -50,10 +50,4 @@ public class ProvidedResourceLoader implements amf.client.resource.ResourceLoade
 
     return future;
   }
-
-  private CompletableFuture<Content> fail() {
-    return CompletableFuture.supplyAsync(() -> {
-      throw new RuntimeException("Failed to apply.");
-    });
-  }
 }
