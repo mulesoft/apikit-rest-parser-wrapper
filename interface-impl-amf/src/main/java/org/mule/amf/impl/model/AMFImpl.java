@@ -200,17 +200,7 @@ public class AMFImpl implements ApiSpecification {
 
   @Override
   public List<String> getAllReferences() {
-    return references.stream()
-      .map(f -> {
-        try {
-          return new URI(f);
-        } catch (Exception e) {
-          return null;
-        }
-      })
-      .filter(Objects::nonNull)
-      .map(URI::toString)
-      .collect(toList());
+    return references;
   }
 
   // This method should only be used by API Console... /shrug
