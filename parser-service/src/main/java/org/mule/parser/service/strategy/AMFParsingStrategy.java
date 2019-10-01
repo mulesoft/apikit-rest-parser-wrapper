@@ -6,11 +6,10 @@
  */
 package org.mule.parser.service.strategy;
 
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
 import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
-import java.util.Collections;
 import org.mule.amf.impl.AMFParser;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.api.ApiReference;

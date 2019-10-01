@@ -6,35 +6,31 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import static java.util.Collections.emptyMap;
-import static org.mule.apikit.ApiType.RAML;
-import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
-import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
-
 import org.mule.apikit.ApiType;
-import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
-
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.raml.v2.api.loader.ResourceLoader;
 import org.raml.v2.api.model.v10.api.Api;
 import org.raml.v2.api.model.v10.datamodel.AnyTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExternalTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.internal.utils.StreamUtils;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
+import static org.mule.apikit.ApiType.RAML;
+import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
+import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 public class RamlImpl10V2 implements ApiSpecification {
 
