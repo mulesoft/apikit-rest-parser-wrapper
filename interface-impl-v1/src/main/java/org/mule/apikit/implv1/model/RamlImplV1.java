@@ -6,54 +6,43 @@
  */
 package org.mule.apikit.implv1.model;
 
-import static java.util.Collections.emptyMap;
-import static org.mule.apikit.ApiType.RAML;
-import static org.mule.apikit.model.ApiVendor.RAML_08;
-
+import org.apache.commons.beanutils.BeanUtils;
 import org.mule.apikit.ApiType;
-import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
-import org.mule.apikit.implv1.parser.Raml08ReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
+import org.raml.emitter.RamlEmitter;
+import org.raml.model.Raml;
+import org.raml.model.parameter.UriParameter;
 
-import java.net.URI;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.raml.emitter.RamlEmitter;
-import org.raml.model.Raml;
-import org.raml.model.parameter.UriParameter;
-import org.raml.parser.loader.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Collections.emptyMap;
+import static org.mule.apikit.ApiType.RAML;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
 
 public class RamlImplV1 implements ApiSpecification {
 
   private Raml raml;
   private String ramlPath;
-  private final Raml08ReferenceFinder referenceFinder;
   private List<String> references;
 
-  public RamlImplV1(Raml raml, ResourceLoader resourceLoader, String ramlPath, List<String> references) {
+  public RamlImplV1(Raml raml, String ramlPath, List<String> references) {
     this.raml = raml;
     this.ramlPath = ramlPath;
-    this.referenceFinder = new Raml08ReferenceFinder(resourceLoader);
     this.references = references;
   }
 
   @Deprecated
-  public RamlImplV1(Raml raml, Raml08ReferenceFinder referenceFinder) {
+  public RamlImplV1(Raml raml) {
     this.raml = raml;
-    this.referenceFinder = referenceFinder;
   }
 
   public Raml getRaml() {
