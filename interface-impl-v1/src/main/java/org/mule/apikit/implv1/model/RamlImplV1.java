@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 public class RamlImplV1 implements ApiSpecification {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RamlImplV1.class);
   private Raml raml;
   private String ramlPath;
   private final Raml08ReferenceFinder referenceFinder;
@@ -169,10 +168,6 @@ public class RamlImplV1 implements ApiSpecification {
   @Override
   public List<String> getAllReferences() {
     return references;
-  }
-
-  private URI getPathAsUri(String path) {
-    return ApiSyncUtils.isSyncProtocol(path) ? URI.create(path) : Paths.get(path).toUri();
   }
 
   @Override
