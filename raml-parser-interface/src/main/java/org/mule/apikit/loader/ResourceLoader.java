@@ -28,6 +28,9 @@ public interface ResourceLoader {
 
   default InputStream getResourceAsStream(String relativePath) {
     URI uri = getResource(relativePath);
+    if (uri == null) {
+      return null;
+    }
     try {
       URL url = uri.toURL();
       URLConnection urlConnection = url.openConnection();

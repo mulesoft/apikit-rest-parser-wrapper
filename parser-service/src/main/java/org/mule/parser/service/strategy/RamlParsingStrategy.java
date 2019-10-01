@@ -6,11 +6,14 @@
  */
 package org.mule.parser.service.strategy;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
+import java.util.List;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -20,10 +23,13 @@ import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.parser.service.result.DefaultParseResult;
 import org.mule.parser.service.result.ExceptionParseResult;
 import org.mule.parser.service.result.ParseResult;
-
-import java.util.Collections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RamlParsingStrategy implements ParsingStrategy {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RamlParsingStrategy.class.getName());
+  private final AMFParsingStrategy parsingStrategy = new AMFParsingStrategy(false);
 
   @Override
   public ParseResult parse(ApiReference ref) {
@@ -36,23 +42,37 @@ public class RamlParsingStrategy implements ParsingStrategy {
     }
   }
 
+  private List<String> getReferences(ApiReference ref) {
+    ParseResult result = parsingStrategy.parse(ref);
+    if (!result.success()) {
+      String message = result.getErrors().stream().map(e -> e.toString()).collect(joining("\n"));
+      LOGGER.error(message);
+      return emptyList();
+    }
+    return result.get().getAllReferences();
+  }
+
   public ApiParser create(ApiReference ref) {
     String path = ref.getLocation();
     ResourceLoader apiLoader = ref.getResourceLoader().orElse(null);
 
-    // TODO consider whether to use v1 or v2 when vendor is raml 0.8 (ParserV2Utils.useParserV2)
+    List<String> references = getReferences(ref);
     if (RAML_08.equals(ref.getVendor())) {
-      return createRamlParserWrapperV1(path, apiLoader);
+      return createParserV1(path, apiLoader, references);
     } else {
-      return createRamlParserWrapperV2(path, apiLoader);
+      return createRamlV2(path, apiLoader, references);
     }
   }
 
-  private ParserWrapperV1 createRamlParserWrapperV1(String path, ResourceLoader loader) {
-    return loader != null ? new ParserWrapperV1(path, singletonList(loader::getResourceAsStream)) : new ParserWrapperV1(path);
+  private ParserWrapperV1 createParserV1(String path, ResourceLoader loader, List<String> refs) {
+    return loader != null ?
+        new ParserWrapperV1(path, singletonList(loader::getResourceAsStream), refs) :
+        new ParserWrapperV1(path, refs);
   }
 
-  private ParserWrapperV2 createRamlParserWrapperV2(String path, ResourceLoader loader) {
-    return loader != null ? new ParserWrapperV2(path, singletonList(loader::getResourceAsStream)) : new ParserWrapperV2(path);
+  private ParserWrapperV2 createRamlV2(String path, ResourceLoader loader, List<String> refs) {
+    return loader != null ?
+        new ParserWrapperV2(path, singletonList(loader::getResourceAsStream), refs) :
+        new ParserWrapperV2(path, refs);
   }
 }

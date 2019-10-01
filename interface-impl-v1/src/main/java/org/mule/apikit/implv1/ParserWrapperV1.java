@@ -40,15 +40,20 @@ public class ParserWrapperV1 implements ApiParser {
 
   public static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
 
+  private final String originalPath;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
+  private final List<String> references;
 
-  public ParserWrapperV1(String ramlPath) {
-    this(ramlPath, emptyList());
+
+  public ParserWrapperV1(String ramlPath, List<String> references) {
+    this(ramlPath, emptyList(), references);
   }
 
-  public ParserWrapperV1(String ramlPath, List<ResourceLoader> loaders) {
+  public ParserWrapperV1(String ramlPath, List<ResourceLoader> loaders, List<String> references) {
+    this.originalPath = ramlPath;
     this.ramlPath = findRamlPath(ramlPath).orElse(ramlPath);
+    this.references = references;
     this.resourceLoader = new CompositeResourceLoader(builder().addAll(loaders)
                                                         .add(getResourceLoaderForPath(this.ramlPath))
                                                         .build().toArray(new ResourceLoader[0]));
@@ -73,11 +78,14 @@ public class ParserWrapperV1 implements ApiParser {
   public ApiSpecification parse() {
     RamlDocumentBuilder builder = new RamlDocumentBuilder(resourceLoader);
     Raml api = builder.build(ramlPath);
-    return new RamlImplV1(api, resourceLoader, ramlPath);
+    return new RamlImplV1(api, originalPath, references);
   }
 
   private static Optional<String> findRamlPath(String ramlPath) {
     try {
+      if (isSyncProtocol(ramlPath)) {
+        return empty();
+      }
       URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
       if (url != null && "file".equals(url.getProtocol())) {
         return Optional.of(Paths.get(url.toURI()).toString());

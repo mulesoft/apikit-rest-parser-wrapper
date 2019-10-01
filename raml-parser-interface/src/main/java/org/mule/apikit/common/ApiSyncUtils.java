@@ -19,6 +19,7 @@ public class ApiSyncUtils {
   public static final String EXCHANGE_MODULES = "exchange_modules";
   final static String EXCHANGE_ROOT_RAML_TAG = "\"main\":\"";
   public static final String EXCHANGE_MODULE_REGEX = "exchange_modules/([^/]+)/([^/]+)/([^/]+)/(.*)";
+  public static final String API_SYNC_REGEX = "resource::([^:]+):([^:]+):([^:]+):(.*):(.*):(.*)";
   private static final Pattern EXCHANGE_PATTERN = Pattern.compile(EXCHANGE_MODULE_REGEX);
 
 
@@ -32,6 +33,10 @@ public class ApiSyncUtils {
     return apiSyncResource.substring(apiSyncResource.lastIndexOf(":") + 1);
   }
 
+  public static String getApi(final String apiSyncResource) {
+    return apiSyncResource.substring(0, apiSyncResource.lastIndexOf(":") + 1);
+  }
+
   public static boolean isExchangeModules(final String path) {
     return EXCHANGE_PATTERN.matcher(path).find();
   }
@@ -42,9 +47,10 @@ public class ApiSyncUtils {
     return exchangeJson;
   }
 
-  public static String toApiSyncResource(String s) {
+  public static String toApiSyncResource(String resource) {
     String apiSyncResource = null;
-    Matcher exchangeMatcher = EXCHANGE_PATTERN.matcher(s);
+    resource = resource.substring(resource.lastIndexOf(EXCHANGE_MODULES));
+    Matcher exchangeMatcher = EXCHANGE_PATTERN.matcher(resource);
     if (exchangeMatcher.find()) {
       String groupId = exchangeMatcher.group(1);
       String artifactId = exchangeMatcher.group(2);

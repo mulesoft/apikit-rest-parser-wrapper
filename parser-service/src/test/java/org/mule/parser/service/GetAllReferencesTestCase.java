@@ -6,128 +6,160 @@
  */
 package org.mule.parser.service;
 
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.joining;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mule.parser.service.ParserMode.AMF;
-import static org.mule.parser.service.ParserMode.RAML;
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mule.parser.service.ParserMode.AUTO;
 
-import org.mule.apikit.loader.ApiSyncResourceLoader;
-import org.mule.apikit.loader.ResourceLoader;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.result.ParseResult;
-import org.mule.parser.service.result.ParsingIssue;
-
+import java.io.InputStream;
+import org.mule.apikit.loader.ClassPathResourceLoader;
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.mule.apikit.common.ReferencesUtils;
+import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.util.ApiSyncTestResourceLoader;
 
 @RunWith(Parameterized.class)
 public class GetAllReferencesTestCase {
 
-  private static final String API_FOLDER_NAME = "api-with-references/10/";
-  private static final String MAIN_API_FILE_NAME = "api.raml";
-  private static final String API_RELATIVE_PATH = API_FOLDER_NAME + MAIN_API_FILE_NAME;
-  private static final String APISYNC_NOTATION = "resource::org.mule.parser:references:1.0.0:raml:zip:";
-  private static final String ROOT_APISYNC_RAML = APISYNC_NOTATION + MAIN_API_FILE_NAME;
+  public ParserMode mode = AUTO;
 
   @Parameter
-  public ParserMode mode;
+  public String apiPath;
 
-  @Parameters(name = "Parser = {0}")
+
+  @Parameters(name = "API = {0}")
   public static Iterable<Object[]> data() {
     return asList(new Object[][] {
-      {AMF},
-      {RAML}
+        {"apis/api-simple/08/api.raml"},
+        {"apis/api-simple/10/api.raml"},
+        {"apis/api-with-absolute-references/08/api.raml"},
+        {"apis/api-with-absolute-references/10/api.raml"},
+        {"apis/api-with-exchange/08/api.raml"},
+        {"apis/api-with-exchange/10/api.raml"},
+        {"apis/api-with-references/08/api.raml"},
+        {"apis/api-with-references/10/api.raml"},
+        {"apis/api-with-spaces/08/api spaces.raml"},
+        {"apis/api-with-spaces/10/api spaces.raml"}
     });
   }
 
   @Test
-  public void getAllReferencesWithRelativePathRoot() {
-    assertReferences(ApiReference.create(API_RELATIVE_PATH));
+  public void getAllReferencesWithRelativePathRoot() throws Exception {
+    assertReferences(ApiReference.create(apiPath));
   }
 
   @Test
-  public void getAllReferencesWithAPISync() {
-    ResourceLoader resourceLoader = new ApiSyncResourceLoader(ROOT_APISYNC_RAML, resourceLoaderMock());
-    // THIS REFERENCES WONT WORK FOR RAML PARSER, RAML PARSER WITH APISYNC DOES NOT RESOLVE FULL PATHS /shrug
-    ApiReference api = ApiReference.create(ROOT_APISYNC_RAML, resourceLoader);
-    if (mode.equals(AMF)) {
-      assertReferences(api);
-    } else {
-      assertThat(mode.getStrategy().parse(api).success(), is(true));
-    }
+  public void getAllReferencesWithRamlFromUri() throws Exception {
+    URI uri = getResource(apiPath).toURI();
+    assertReferences(ApiReference.create(uri.toString()));
   }
 
   @Test
-  public void getAllReferencesWithRamlFromUri() throws URISyntaxException {
-    URI uri = getResource(API_RELATIVE_PATH).toURI();
-    assertReferences(ApiReference.create(uri));
-  }
-
-  @Test
-  public void getAllReferencesWithAbsolutePathRoot() throws URISyntaxException {
-    String path = Paths.get(getResource(API_RELATIVE_PATH).toURI()).toString();
+  public void getAllReferencesWithAbsolutePathRoot() throws Exception {
+    String path = new File(getResource(apiPath).toURI().getPath()).getAbsolutePath();
     assertReferences(ApiReference.create(path));
   }
 
-  private void assertReferences(ApiReference api) {
-    String apiFolder = new File(getResource(API_RELATIVE_PATH).getFile()).getParent();
-    ParseResult parse = mode.getStrategy().parse(api);
-    if (!parse.success()) {
-      throw new RuntimeException("Test failed: " + parse.getErrors().stream().map(ParsingIssue::toString).collect(joining("\n")));
-    }
-    List<String> refs = parse.get().getAllReferences();
-    assertThat(refs, hasSize(6));
-    assertThat(refs, hasItems(apiFolder + File.separator + "partner with spaces.raml",
-                              apiFolder + File.separator + "data-type.raml",
-                              apiFolder + File.separator + "library.raml",
-                              apiFolder + File.separator + "company.raml",
-                              apiFolder + File.separator + "address.raml",
-                              apiFolder + File.separator + "company-example.json"));
+  @Test
+  public void getAllReferencesWithAPISync() throws Exception {
+    String[] groups = apiPath.split("/");
+    CompositeResourceLoader composite = new CompositeResourceLoader(new ApiSyncTestResourceLoader(),
+        new ClassPathResourceLoader());
+    assertReferences(ApiReference.create(format("resource::%s:%s:%s:raml:zip:%s", groups[0], groups[1], groups[2], groups[3]), composite));
   }
 
-  private ResourceLoader resourceLoaderMock() {
-    ResourceLoader resourceLoaderMock = mock(ResourceLoader.class);
-    List<String> relativePaths = Arrays.asList(MAIN_API_FILE_NAME,
-                                               "company.raml",
-                                               "company-example.json",
-                                               "data-type.raml",
-                                               "library.raml",
-                                               "partner with spaces.raml",
-                                               "address.raml");
-    ClassLoader CLL = currentThread().getContextClassLoader();
-    try {
-      for (String relativePath : relativePaths) {
-        String apisyncResource = API_FOLDER_NAME + relativePath;
-        String apisyncRelativePath = APISYNC_NOTATION + relativePath;
-        doReturn(CLL.getResourceAsStream(apisyncResource)).when(resourceLoaderMock).getResourceAsStream(apisyncRelativePath);
-        doReturn(getResource(apisyncResource).toURI()).when(resourceLoaderMock).getResource(apisyncRelativePath);
-      }
-      return resourceLoaderMock;
-    } catch (Exception e) {
-      throw new RuntimeException("Something went wrong in the test: " + e.getMessage(), e);
+  private void assertReferences(ApiReference apiReference) throws Exception {
+    ParseResult raml = mode.getStrategy().parse(apiReference);
+    if (!raml.success()) {
+      String message = raml.getErrors().stream().map(e -> e.toString())
+          .collect(Collectors.joining("\n"));
+      fail(message);
     }
+    List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).collect(toList());
+    List<URI> expected = getAllReferencesExpected(apiPath);
+    for (URI uri: expected) {
+      assertTrue(uri.toString(), refs.contains(uri));
+    }
+    for (URI uri: refs) {
+      assertTrue(uri.toString(), expected.contains(uri));
+    }
+    assertEquals(expected.size(), refs.size());
   }
 
   private URL getResource(String res) {
     return currentThread().getContextClassLoader().getResource(res);
+  }
+
+  private List<URI> getAllReferencesExpected(String ramlPath) throws Exception {
+    return Files.walk(Paths.get(new File(getResource(ramlPath).toURI().resolve(".").getPath()).getAbsolutePath()))
+        .filter(Files::isRegularFile)
+        .filter(file -> !file.getFileName().toString().endsWith(".zip"))
+        .filter(file -> !file.getFileName().toString().endsWith("api.raml"))
+        .filter(file -> !file.getFileName().toString().endsWith("api spaces.raml"))
+        // TODO : amf bug missing xsd imports
+        .filter(file -> !file.getFileName().toString().endsWith("namespace.xsd"))
+        // TODO : amf bug missing example declared in type 08
+        .filter(file -> !file.getFileName().toString().endsWith("generic_error.xml"))
+        .map(file -> file.toUri())
+        .collect(toList());
+  }
+
+  public class CompositeResourceLoader implements ResourceLoader {
+
+    private ResourceLoader[] resourceLoaders;
+
+    public CompositeResourceLoader(ResourceLoader... resourceLoaders) {
+      this.resourceLoaders = resourceLoaders;
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String res) {
+      InputStream result = null;
+      ResourceLoader[] var3 = this.resourceLoaders;
+      int var4 = var3.length;
+
+      for(int var5 = 0; var5 < var4; ++var5) {
+        ResourceLoader loader = var3[var5];
+        result = loader.getResourceAsStream(res);
+        if (result != null) {
+          break;
+        }
+      }
+
+      return result;
+    }
+
+    @Override
+    public URI getResource(String resourceName) {
+      URI result = null;
+      ResourceLoader[] var3 = this.resourceLoaders;
+      int var4 = var3.length;
+
+      for(int var5 = 0; var5 < var4; ++var5) {
+        ResourceLoader loader = var3[var5];
+        result = loader.getResource(resourceName);
+        if (result != null) {
+          break;
+        }
+      }
+      return result;
+    }
   }
 }

@@ -93,7 +93,6 @@ public class AMFParser implements ApiParser {
     final URI uri = getPathAsUri(apiRef);
 
     Environment environment = DefaultEnvironment.apply();
-
     if (uri.getScheme() != null && uri.getScheme().startsWith("file")) {
       final File file = new File(uri);
       final String rootDir = file.isDirectory() ? file.getPath() : file.getParent();

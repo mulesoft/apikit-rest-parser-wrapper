@@ -36,34 +36,38 @@ public class ParserWrapperV2 implements ApiParser {
 
   private static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
 
+  private final String originalPath;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
+  private final List<String> references;
 
-  public ParserWrapperV2(String ramlPath) {
-    this(ramlPath, emptyList());
+  public ParserWrapperV2(String ramlPath, List<String> references) {
+    this(ramlPath, emptyList(), references);
   }
 
-  public ParserWrapperV2(String ramlPath, List<ResourceLoader> resourceLoader) {
+  public ParserWrapperV2(String ramlPath, List<ResourceLoader> resourceLoader, List<String> references) {
+    this.originalPath = ramlPath;
     this.ramlPath = fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath);
+    this.references = references;
     List<ResourceLoader> loaders = ImmutableList.<ResourceLoader>builder()
-      .add(getResourceLoaderForPath(ramlPath))
+      .add(getResourceLoaderForPath(this.ramlPath))
       .addAll(resourceLoader)
       .build();
     this.resourceLoader = new CompositeResourceLoader(loaders.toArray(new ResourceLoader[0]));
   }
 
   public static ResourceLoader getResourceLoaderForPath(String ramlPath) {
-    final File ramlFolder = fetchRamlFolder(ramlPath);
+    if (isSyncProtocol(ramlPath)) {
+      return new ApiSyncResourceLoader(ramlPath);
+    }
 
+    final File ramlFolder = fetchRamlFolder(ramlPath);
     if (ramlFolder != null) {
       return new CompositeResourceLoader(new RootRamlFileResourceLoader(ramlFolder),
                                          DEFAULT_RESOURCE_LOADER,
                                          new FileResourceLoader(ramlFolder.getAbsolutePath()),
                                          new ExchangeDependencyResourceLoader(ramlFolder));
-    } else if (isSyncProtocol(ramlPath)) {
-      return new ApiSyncResourceLoader(ramlPath);
     }
-
     return new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, new ExchangeDependencyResourceLoader());
   }
 
@@ -75,13 +79,15 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   private static Optional<File> fetchRamlResource(String ramlPath) {
-    try {
-      URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
-      if (url != null && "file".equals(url.getProtocol())) {
-        return Optional.of(Paths.get(url.toURI()).toFile());
+    if (!isSyncProtocol(ramlPath)) {
+      try {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
+        if (url != null && "file".equals(url.getProtocol())) {
+          return Optional.of(Paths.get(url.toURI()).toFile());
+        }
+      } catch (URISyntaxException e) {
+        throw new RuntimeException(e);
       }
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
     }
     return empty();
   }
@@ -94,6 +100,6 @@ public class ParserWrapperV2 implements ApiParser {
 
   @Override
   public ApiSpecification parse() {
-    return ParserV2Utils.build(resourceLoader, ramlPath);
+    return ParserV2Utils.build(resourceLoader, originalPath, references);
   }
 }

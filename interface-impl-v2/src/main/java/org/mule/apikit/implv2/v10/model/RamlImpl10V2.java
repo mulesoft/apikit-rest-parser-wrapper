@@ -6,56 +6,44 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static org.mule.apikit.ApiType.RAML;
-import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
-import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
-
-import com.sun.jndi.toolkit.url.Uri;
 import org.mule.apikit.ApiType;
-import org.mule.apikit.common.ApiSyncUtils;
-import org.mule.apikit.implv2.v10.RamlReferenceFinder;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.raml.v2.api.loader.ResourceLoader;
 import org.raml.v2.api.model.v10.api.Api;
 import org.raml.v2.api.model.v10.datamodel.AnyTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExternalTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.internal.utils.StreamUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
+import static org.mule.apikit.ApiType.RAML;
+import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
+import static org.mule.apikit.implv2.ParserV2Utils.nullSafe;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 public class RamlImpl10V2 implements ApiSpecification {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RamlImpl10V2.class.getName());
   private final Api api;
-  private final RamlReferenceFinder referenceFinder;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
+  private List<String> references;
 
-  public RamlImpl10V2(Api api, ResourceLoader resourceLoader, String ramlPath) {
+  public RamlImpl10V2(Api api, ResourceLoader resourceLoader, String ramlPath, List<String> references) {
     this.api = api;
     this.ramlPath = ramlPath;
     this.resourceLoader = resourceLoader;
-    this.referenceFinder = new RamlReferenceFinder(resourceLoader);
+    this.references = references;
   }
 
   @Override
@@ -156,17 +144,9 @@ public class RamlImpl10V2 implements ApiSpecification {
    */
   @Override
   public List<String> getAllReferences() {
-    try {
-      return referenceFinder.getReferences(getPathAsUri(ramlPath));
-    } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
-    }
-    return emptyList();
+    return references;
   }
 
-  private URI getPathAsUri(String path) {
-    return ApiSyncUtils.isSyncProtocol(path) ? URI.create(path) : Paths.get(path).toUri();
-  }
 
   @Override
   public String dump(String newBaseUri) {

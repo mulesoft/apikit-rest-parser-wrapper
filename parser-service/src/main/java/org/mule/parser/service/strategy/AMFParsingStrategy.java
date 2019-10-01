@@ -6,6 +6,7 @@
  */
 package org.mule.parser.service.strategy;
 
+import static java.util.Collections.emptyList;
 import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
@@ -20,11 +21,23 @@ import org.mule.parser.service.result.ParseResult;
 import java.util.concurrent.ExecutionException;
 
 public class AMFParsingStrategy implements ParsingStrategy {
+  private final boolean validate;
+
+  public AMFParsingStrategy() {
+    this(true);
+  }
+
+  public AMFParsingStrategy(boolean validate) {
+    this.validate = validate;
+  }
 
   @Override
   public ParseResult parse(ApiReference ref) {
     try {
       ApiParser parser = create(ref);
+      if (!validate) {
+        return new DefaultParseResult(parser.parse(), emptyList(), emptyList());
+      }
       ApiValidationReport report = parser.validate();
       return new DefaultParseResult(parser.parse(), errors(report), warnings(report));
     } catch (Exception e) {

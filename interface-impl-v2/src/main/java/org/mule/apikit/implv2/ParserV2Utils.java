@@ -24,24 +24,24 @@ public class ParserV2Utils {
 
   public static final String PARSER_V2_PROPERTY = "apikit.raml.parser.v2";
 
-  public static ApiSpecification build(ResourceLoader resourceLoader, String ramlPath) {
+  public static ApiSpecification build(ResourceLoader resourceLoader, String ramlPath, List<String> references) {
     RamlModelResult ramlModelResult = new RamlModelBuilder(resourceLoader).buildApi(ramlPath);
-    return wrapApiModel(ramlModelResult, resourceLoader, ramlPath);
+    return wrapApiModel(ramlModelResult, resourceLoader, ramlPath, references);
   }
 
-  public static ApiSpecification build(ResourceLoader resourceLoader, String ramlPath, String content) {
+  public static ApiSpecification build(ResourceLoader resourceLoader, String ramlPath, String content, List<String> references) {
     RamlModelResult ramlModelResult = new RamlModelBuilder(resourceLoader).buildApi(content, ramlPath);
-    return wrapApiModel(ramlModelResult, resourceLoader, ramlPath);
+    return wrapApiModel(ramlModelResult, resourceLoader, ramlPath, references);
   }
 
-  private static ApiSpecification wrapApiModel(RamlModelResult ramlModelResult, ResourceLoader resourceLoader, String ramlPath) {
+  private static ApiSpecification wrapApiModel(RamlModelResult ramlModelResult, ResourceLoader resourceLoader, String ramlPath, List<String> references) {
     if (ramlModelResult.hasErrors()) {
       throw new RuntimeException("Invalid RAML descriptor.");
     }
     if (ramlModelResult.isVersion08()) {
-      return new RamlImpl08V2(ramlModelResult.getApiV08(), resourceLoader, ramlPath);
+      return new RamlImpl08V2(ramlModelResult.getApiV08(), resourceLoader, ramlPath, references);
     }
-    return new RamlImpl10V2(ramlModelResult.getApiV10(), resourceLoader, ramlPath);
+    return new RamlImpl10V2(ramlModelResult.getApiV10(), resourceLoader, ramlPath, references);
   }
 
   public static List<ApiValidationResult> validate(ResourceLoader resourceLoader, String ramlPath, String content) {
