@@ -78,7 +78,7 @@ public class ParserWrapperV1 implements ApiParser {
   public ApiSpecification parse() {
     RamlDocumentBuilder builder = new RamlDocumentBuilder(resourceLoader);
     Raml api = builder.build(ramlPath);
-    return new RamlImplV1(api, resourceLoader, originalPath, references);
+    return new RamlImplV1(api, originalPath, references);
   }
 
   private static Optional<String> findRamlPath(String ramlPath) {
