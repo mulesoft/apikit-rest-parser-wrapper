@@ -33,10 +33,7 @@ public class ReferencesResolver {
   }
 
   private List<String> getReferences(ParseResult amfParseResult) {
-    if (amfParseResult.get() != null) {
-      amfParseResult.get().getAllReferences();
-    }
-    return emptyList();
+    return amfParseResult.get() != null ? amfParseResult.get().getAllReferences() : emptyList();
   }
 
 }
