@@ -115,8 +115,6 @@ public class GetAllReferencesTestCase {
         .filter(file -> !file.getFileName().toString().endsWith("api spaces.raml"))
         // TODO : amf bug missing xsd imports
         .filter(file -> !file.getFileName().toString().endsWith("namespace.xsd"))
-        // TODO : amf bug missing example declared in type 08
-        .filter(file -> !file.getFileName().toString().endsWith("generic_error.xml"))
         .map(file -> file.toUri())
         .collect(toList());
   }
