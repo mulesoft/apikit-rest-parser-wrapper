@@ -14,7 +14,7 @@ import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.loader.ApiSyncResourceLoader;
-import org.mule.apikit.implv1.loader.FileResourceLoader;
+import org.mule.apikit.implv1.loader.ParserV1FileResourceLoader;
 import org.mule.apikit.implv1.model.RamlImplV1;
 import org.mule.apikit.implv1.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.ApiSpecification;
@@ -32,6 +32,7 @@ import java.util.Optional;
 import org.raml.model.Raml;
 import org.raml.parser.loader.CompositeResourceLoader;
 import org.raml.parser.loader.DefaultResourceLoader;
+import org.raml.parser.loader.FileResourceLoader;
 import org.raml.parser.loader.ResourceLoader;
 import org.raml.parser.visitor.RamlDocumentBuilder;
 import org.raml.parser.visitor.RamlValidationService;
@@ -64,9 +65,9 @@ public class ParserWrapperV1 implements ApiParser {
       return new ApiSyncResourceLoader(ramlPath);
     }
     final File parentFile = new File(ramlPath).getParentFile();
-    FileResourceLoader fileResourceLoader = new FileResourceLoader(parentFile);
-    org.raml.parser.loader.FileResourceLoader parserFileLoader = new org.raml.parser.loader.FileResourceLoader(parentFile);
-    return new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, parserFileLoader, fileResourceLoader);
+    ParserV1FileResourceLoader parserV1FileResourceLoader = new ParserV1FileResourceLoader(parentFile);
+    FileResourceLoader parserFileLoader = new FileResourceLoader(parentFile);
+    return new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, parserFileLoader, parserV1FileResourceLoader);
   }
 
   @Override
