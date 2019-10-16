@@ -56,6 +56,7 @@ public class GetAllReferencesTestCase {
         {"apis/api-with-references/08/api.raml"},
         {"apis/api-with-references/10/api.raml"},
         {"apis/api-with-spaces/08/api spaces.raml"},
+        {"apis/api-with-spaces/space in path api/api.raml"},
         {"apis/api-with-spaces/10/api spaces.raml"}
     });
   }

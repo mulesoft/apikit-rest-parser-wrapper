@@ -14,6 +14,7 @@ import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.loader.ApiSyncResourceLoader;
+import org.mule.apikit.implv1.loader.ParserV1FileResourceLoader;
 import org.mule.apikit.implv1.model.RamlImplV1;
 import org.mule.apikit.implv1.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.ApiSpecification;
@@ -63,8 +64,10 @@ public class ParserWrapperV1 implements ApiParser {
     if (isSyncProtocol(ramlPath)) {
       return new ApiSyncResourceLoader(ramlPath);
     }
-    FileResourceLoader fileResourceLoader = new FileResourceLoader(new File(ramlPath).getParentFile());
-    return new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, fileResourceLoader);
+    final File parentFile = new File(ramlPath).getParentFile();
+    ParserV1FileResourceLoader parserV1FileResourceLoader = new ParserV1FileResourceLoader(parentFile);
+    FileResourceLoader parserFileLoader = new FileResourceLoader(parentFile);
+    return new CompositeResourceLoader(DEFAULT_RESOURCE_LOADER, parserFileLoader, parserV1FileResourceLoader);
   }
 
   @Override
