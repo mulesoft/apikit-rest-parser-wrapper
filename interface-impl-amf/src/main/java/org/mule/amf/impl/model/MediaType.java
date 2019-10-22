@@ -15,8 +15,10 @@ class MediaType {
   private MediaType() {}
 
   static String getMimeTypeForValue(String value) {
-    final String trim = value.trim();
-
+    if (value == null) {
+      return APPLICATION_YAML;
+    }
+    String trim = value.trim();
     if (trim.startsWith("{") || trim.startsWith("["))
       return APPLICATION_JSON;
 

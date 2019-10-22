@@ -148,8 +148,9 @@ public class ParameterImpl implements Parameter {
 
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
-    if (value.startsWith("*") || isStringArray())
+    if (value != null && (value.startsWith("*") || isStringArray())) {
       return "\"" + value + "\"";
+    }
     return value;
   }
 
