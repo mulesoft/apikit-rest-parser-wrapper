@@ -12,11 +12,11 @@ import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
+import java.util.Set;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,62 +40,65 @@ class ParameterImpl implements Parameter {
 
   private AnyShape schema;
   private boolean required;
-  private Collection<String> scalarTypes;
+  private Set<String> scalarTypes;
 
-  private final Map<String, Optional<PayloadValidator>> payloadValidatorMap = new HashMap<>();
+  private final Map<String, PayloadValidator> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType = APPLICATION_YAML;
 
-  ParameterImpl(final amf.client.model.domain.Parameter parameter) {
+  ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
   }
 
-  ParameterImpl(final PropertyShape property) {
+  ParameterImpl(PropertyShape property) {
     this(castToAnyShape(property.range()), property.minCount().value() > 0);
   }
 
-  ParameterImpl(final AnyShape anyShape, boolean required) {
+  ParameterImpl(AnyShape anyShape, boolean required) {
     this.schema = anyShape;
     this.required = required;
 
-    final List<ScalarType> typeIds = asList(ScalarType.values());
+    List<ScalarType> typeIds = asList(ScalarType.values());
 
-    this.scalarTypes = typeIds.stream().map(ScalarType::getName).collect(Collectors.toList());
+    this.scalarTypes = typeIds.stream().map(ScalarType::getName).collect(Collectors.toSet());
   }
 
   @Override
-  public boolean validate(final String value) {
+  public boolean validate(String value) {
     return validatePayload(value).conforms();
   }
 
   private ValidationReport validatePayload(String value) {
-    final String mimeType = getMimeTypeForValue(value);
-
-    Optional<PayloadValidator> payloadValidator;
-    if (!payloadValidatorMap.containsKey(mimeType)) {
-      payloadValidator = schema.parameterValidator(mimeType);
-
-      if (!payloadValidator.isPresent()) {
-        payloadValidator = schema.parameterValidator(defaultMediaType);
-      }
-
-      payloadValidatorMap.put(mimeType, payloadValidator);
-    } else {
-      payloadValidator = payloadValidatorMap.get(mimeType);
-    }
-
-    if (payloadValidator.isPresent()) {
-      try {
-        return payloadValidator.get().validate(mimeType, value).get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException("Unexpected Error validating request", e);
-      }
-    } else {
-      throw new RuntimeException("Unexpected Error validating request");
+    String mimeType = getMimeTypeForValue(value);
+    PayloadValidator payloadValidator = resolvePayloadValidator(mimeType, value);
+    try {
+      return payloadValidator.validate(mimeType, value != null ? value : "null").get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("Unexpected Error validating request", e);
     }
   }
 
-  private static AnyShape getSchema(final amf.client.model.domain.Parameter parameter) {
-    final Shape shape = parameter.schema();
+  private PayloadValidator resolvePayloadValidator(String mimeType, String value) {
+    if (value == null) {
+      return schema.payloadValidator(mimeType).get();
+    }
+    if (payloadValidatorMap.containsKey(mimeType)) {
+      return payloadValidatorMap.get(mimeType);
+    }
+    Optional<PayloadValidator> payloadValidator = schema.parameterValidator(mimeType);
+    if (payloadValidator.isPresent()) {
+      payloadValidatorMap.put(mimeType, payloadValidator.get());
+      return payloadValidator.get();
+    }
+    payloadValidator = schema.parameterValidator(defaultMediaType);
+    if (payloadValidator.isPresent()) {
+      payloadValidatorMap.put(mimeType, payloadValidator.get());
+      return payloadValidator.get();
+    }
+    throw new RuntimeException("Unexpected Error validating request");
+  }
+
+  private static AnyShape getSchema(amf.client.model.domain.Parameter parameter) {
+    Shape shape = parameter.schema();
     return castToAnyShape(shape);
   }
 
@@ -106,8 +109,8 @@ class ParameterImpl implements Parameter {
   }
 
   @Override
-  public String message(final String value) {
-    final ValidationReport validationReport = validatePayload(value);
+  public String message(String value) {
+    ValidationReport validationReport = validatePayload(value);
     if (validationReport.conforms())
       return "OK";
     else {
@@ -193,7 +196,7 @@ class ParameterImpl implements Parameter {
 
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
-    if (value.startsWith("*") || isStringArray()) {
+    if (value != null && (value.startsWith("*") || isStringArray())) {
       return "\"" + value + "\"";
     }
     return value;
