@@ -28,12 +28,13 @@ public class ApiSyncResourceLoader implements ResourceLoader {
 
   @Override
   public URI getResource(String path) {
-    final String resourcePath;
+    String resourcePath;
     if (path.startsWith("/"))
       resourcePath = path.substring(1);
     else
       resourcePath = path;
 
+    resourcePath = resourcePath.replace("%20", " ");
     if (isExchangeModules(resourcePath)) {
       return resourceLoader.getResource(toApiSyncResource(resourcePath));
     }
