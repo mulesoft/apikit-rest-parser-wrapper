@@ -15,7 +15,6 @@ import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv2.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
 import org.mule.apikit.implv2.parser.rule.ApiValidationResultImpl;
-import org.mule.apikit.implv2.v08.model.RamlImpl08V2;
 import org.mule.apikit.implv2.v10.model.RamlImpl10V2;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.validation.ApiValidationReport;
@@ -124,9 +123,7 @@ public class ParserWrapperV2 implements ApiParser {
     if (ramlModelResult.hasErrors()) {
       throw new RuntimeException("Invalid RAML descriptor.");
     }
-    if (ramlModelResult.isVersion08()) {
-      return new RamlImpl08V2(ramlModelResult.getApiV08(), resourceLoader, originalPath, references);
-    }
+
     return new RamlImpl10V2(ramlModelResult.getApiV10(), resourceLoader, originalPath, references);
   }
 }
