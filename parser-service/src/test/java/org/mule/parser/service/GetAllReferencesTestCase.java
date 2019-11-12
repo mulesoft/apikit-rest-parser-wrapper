@@ -47,17 +47,18 @@ public class GetAllReferencesTestCase {
   @Parameters(name = "API = {0}")
   public static Iterable<Object[]> data() {
     return asList(new Object[][] {
-        {"apis/api-simple/08/api.raml"},
-        {"apis/api-simple/10/api.raml"},
-        {"apis/api-with-absolute-references/08/api.raml"},
-        {"apis/api-with-absolute-references/10/api.raml"},
-        {"apis/api-with-exchange/08/api.raml"},
-        {"apis/api-with-exchange/10/api.raml"},
-        {"apis/api-with-references/08/api.raml"},
-        {"apis/api-with-references/10/api.raml"},
-        {"apis/api-with-spaces/08/api spaces.raml"},
-        {"apis/api-with-spaces/space in path api/api.raml"},
-        {"apis/api-with-spaces/10/api spaces.raml"}
+//        {"apis/api-simple/08/api.raml"},
+//        {"apis/api-simple/10/api.raml"},
+//        {"apis/api-with-absolute-references/08/api.raml"},
+//        {"apis/api-with-absolute-references/10/api.raml"},
+//        {"apis/api-with-exchange/08/api.raml"},
+//        {"apis/api-with-exchange/10/api.raml"},
+//        {"apis/api-with-references/08/api.raml"},
+//        {"apis/api-with-references/10/api.raml"},
+//        {"apis/api-with-spaces/08/api spaces.raml"},
+//        {"apis/api-with-spaces/space in path api/api.raml"},
+//        {"apis/api-with-spaces/10/api spaces.raml"},
+        {"apis/with-schema/08/api.raml"}
     });
   }
 
@@ -87,7 +88,7 @@ public class GetAllReferencesTestCase {
   }
 
   private void assertReferences(ApiReference apiReference) throws Exception {
-    ParseResult raml = mode.getStrategy().parse(apiReference);
+    ParseResult raml = ParserMode.RAML.getStrategy().parse(apiReference);
     if (!raml.success()) {
       String message = raml.getErrors().stream().map(e -> e.toString())
           .collect(Collectors.joining("\n"));
