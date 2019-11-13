@@ -34,7 +34,7 @@ public class AMFImplTest {
         Assert.assertNull(amfParser.getSecuritySchemes());
         Assert.assertNull(amfParser.getTraits());
         amfParser.updateBaseUri(BASE_URI);
-        Assert.assertEquals(amfParser.getBaseUri(), BASE_URI);
+        Assert.assertEquals(BASE_URI, amfParser.getBaseUri());
 
         ResourceImpl resource = (ResourceImpl) amfParser.getResource(RESOURCE);
         assertResource(resource);

@@ -58,11 +58,14 @@ public class ParameterImplTest {
     @Test
     public void isRepeat() {
         assertFalse(queryParams.get("author").isRepeat());
+        assertTrue(queryParams.get("tags").isRepeat());
+
     }
 
     @Test
     public void isArray() {
-        assertFalse(queryParams.get("author").isRepeat());
+        assertFalse(queryParams.get("author").isArray());
+        assertTrue(queryParams.get("tags").isArray());
     }
 
     @Test
@@ -107,7 +110,9 @@ public class ParameterImplTest {
 
     @Test
     public void surroundWithQuotesIfNeeded() {
-        final String value = "*321736079";
+        String value = "*321736079";
         assertEquals("\"" + value + "\"", queryParams.get("isbn").surroundWithQuotesIfNeeded(value));
+        value = "Comedy";
+        assertEquals("\"" + value + "\"", queryParams.get("tags").surroundWithQuotesIfNeeded(value));
     }
 }
