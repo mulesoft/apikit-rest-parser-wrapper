@@ -27,6 +27,7 @@ public class MimeTypeImplTest {
     private static final String ACTION = "GET";
     private static MimeTypeImpl jsonMimeType;
     private static MimeTypeImpl xmlMimeType;
+    private static MimeTypeImpl formMimeType;
 
     @Before
     public void setUp() throws Exception {
@@ -36,6 +37,8 @@ public class MimeTypeImplTest {
         Map<String, MimeType> mimeTypes = resource.getAction(ACTION).getResponses().get("200").getBody();
         jsonMimeType = (MimeTypeImpl) mimeTypes.get(APPLICATION_JSON);
         xmlMimeType = (MimeTypeImpl) mimeTypes.get(TEXT_XML);
+        formMimeType = (MimeTypeImpl) resource.getResources().get("/{leagueId}").getResources().get("/badge")
+                .getAction("PUT").getBody().get("multipart/form-data");
     }
 
     @Test
@@ -54,6 +57,7 @@ public class MimeTypeImplTest {
     public void getFormParameters() {
         assertEquals(0, xmlMimeType.getFormParameters().size());
         assertEquals(0, jsonMimeType.getFormParameters().size());
+        assertEquals(2, formMimeType.getFormParameters().size());
     }
 
     @Test

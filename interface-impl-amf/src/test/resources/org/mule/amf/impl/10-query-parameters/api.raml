@@ -31,3 +31,14 @@ title: Illustrate query parameter variations
         displayName: Tags
         type: string[]
         example: ["Comedy","Female author"]
+
+  delete:
+    description: Delete an item by Code.
+    body:
+      multipart/form-data:
+        properties:
+          isbn:
+            displayName: ISBN
+            type: string
+            minLength: 10
+            example: '0321736079'
