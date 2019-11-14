@@ -10,6 +10,7 @@ import static java.nio.file.Files.readAllBytes;
 import static org.junit.Assert.assertEquals;
 
 import org.mule.amf.impl.model.AMFImpl;
+import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 
 import java.net.URI;
@@ -28,8 +29,8 @@ public class AmfModelRenderTestCase {
     String goldenAmfModel = new String(expected, StandardCharsets.UTF_8);
 
     ApiReference apiRef = ApiReference.create(apiLocation);
-    String amfModel = ((AMFImpl) new AMFParser(apiRef, true).parse()).dumpAmf();
-    assertEquals(sanitize(goldenAmfModel), sanitize(amfModel));
+    final AMFImpl amfParser = (AMFImpl) new AMFParser(apiRef, true).parse();
+    assertEquals(sanitize(goldenAmfModel), sanitize(amfParser.dumpAmf()));
   }
 
   @Test
