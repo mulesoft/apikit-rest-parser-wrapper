@@ -21,10 +21,12 @@ public class ActionImplTest {
 
     @Before
     public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().getPath();
+        String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
         RamlImpl10V2 parser = (RamlImpl10V2)new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
         action = (ActionImpl) parser.getResources().get("/leagues").getAction("GET");
     }
+
+    @Test
     public void getType() {
         assertEquals("GET", action.getType().name());
     }
