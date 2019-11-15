@@ -24,7 +24,7 @@ public class ResponseImplTest {
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
-        RamlImpl10V2 parser = (RamlImpl10V2)new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+        RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
         ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION);
         response = action.getResponses().get("200");
     }

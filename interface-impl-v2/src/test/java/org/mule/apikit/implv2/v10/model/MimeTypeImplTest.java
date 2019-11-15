@@ -31,7 +31,7 @@ public class MimeTypeImplTest {
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
-        RamlImpl10V2 parser = (RamlImpl10V2)new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+        RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
         ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION);
         Map<String, MimeType> mimeTypes = action.getResponses().get("200").getBody();
         jsonMimeType = (MimeTypeImpl) mimeTypes.get(APPLICATION_JSON);
@@ -72,7 +72,7 @@ public class MimeTypeImplTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void getInstance() {
-       jsonMimeType.getInstance();
+        jsonMimeType.getInstance();
     }
 
     @Test

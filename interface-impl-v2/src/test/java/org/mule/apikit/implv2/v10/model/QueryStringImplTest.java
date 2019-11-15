@@ -23,7 +23,7 @@ public class QueryStringImplTest {
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("/apis/10-query-string/api.raml").toURI().toString();
-        RamlImpl10V2 parser = (RamlImpl10V2)new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+        RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
         ActionImpl action = (ActionImpl) parser.getResources().get("/locations").getAction("GET");
         queryString = action.queryString();
     }

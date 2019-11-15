@@ -22,7 +22,7 @@ public class ActionImplTest {
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
-        RamlImpl10V2 parser = (RamlImpl10V2)new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+        RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
         action = (ActionImpl) parser.getResources().get("/leagues").getAction("GET");
     }
 
@@ -103,7 +103,7 @@ public class ActionImplTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void addResponse() {
-        action.addResponse(null,null);
+        action.addResponse(null, null);
     }
 
     @Test(expected = UnsupportedOperationException.class)

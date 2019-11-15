@@ -12,7 +12,8 @@ import org.mule.apikit.implv2.ParserWrapperV2;
 
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RamlImpl10V2Test {
     private RamlImpl10V2 parser;
@@ -20,7 +21,7 @@ public class RamlImpl10V2Test {
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
-        parser = (RamlImpl10V2)new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+        parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
     }
 
     @Test
