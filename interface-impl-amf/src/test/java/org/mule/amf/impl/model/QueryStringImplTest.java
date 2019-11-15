@@ -17,7 +17,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class    QueryStringImplTest {
+public class QueryStringImplTest {
 
     private QueryString queryString;
 
