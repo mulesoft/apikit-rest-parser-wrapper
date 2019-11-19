@@ -115,4 +115,9 @@ public class RamlImplV1Test {
     public void getApiVendor() {
         assertEquals("RAML_08", parser.getApiVendor().name());
     }
+
+    @Test
+    public void dump() {
+        assertTrue(parser.dump("http://localhost:8080/api").contains("Getting Started"));
+    }
 }

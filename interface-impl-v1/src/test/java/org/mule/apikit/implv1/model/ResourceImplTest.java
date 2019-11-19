@@ -70,6 +70,14 @@ public class ResourceImplTest {
     }
 
     @Test
+    public void getBaseUriParameters() {
+        resource.cleanBaseUriParameters();
+        resourceWithUriParams.cleanBaseUriParameters();
+        assertEquals(0, resource.getBaseUriParameters().size());
+        assertEquals(0, resourceWithUriParams.getBaseUriParameters().size());
+    }
+
+    @Test
     public void getDisplayName() {
         assertEquals("Position Table", resource.getDisplayName());
     }

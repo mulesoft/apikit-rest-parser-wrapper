@@ -60,7 +60,7 @@ public class MimeTypeImplTest {
 
     @Test
     public void getExample() {
-        assertEquals(EXAMPLE, mimeType.getExample());
+        assertTrue(mimeType.getExample().contains("Camp Nou"));
     }
 
     @Test
