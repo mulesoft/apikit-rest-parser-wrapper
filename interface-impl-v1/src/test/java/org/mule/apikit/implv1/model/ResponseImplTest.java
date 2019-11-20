@@ -48,13 +48,4 @@ public class ResponseImplTest {
         assertNotNull(response.getInstance());
     }
 
-    @Test
-    public void setBody() {
-        response.setHeaders(Collections.emptyMap());
-    }
-
-    @Test
-    public void setHeaders() {
-        response.setHeaders(Collections.emptyMap());
-    }
 }
