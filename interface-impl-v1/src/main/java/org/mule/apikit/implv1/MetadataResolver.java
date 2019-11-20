@@ -40,11 +40,6 @@ public class MetadataResolver {
       case BOOLEAN:
         builder = handle(rootBuilder.booleanType(), param);
         break;
-      case STRING:
-      case DATE:
-      case FILE:
-        builder = handle(rootBuilder.stringType(), param);
-        break;
       default:
         builder = handle(rootBuilder.stringType(), param);
     }

@@ -92,14 +92,14 @@ public class ParameterImplTest {
         queryParams.get("author").getInstance();
     }
 
-    @Test //check difference with amf
+    @Test //TODO: APIKIT-2509 check difference with amf
     public void getMetadata() {
         assertTrue(queryParams.get("author").getMetadata().getMetadataFormat().getValidMimeTypes().contains("application/json"));
     }
 
     @Test
     public void isScalar() {
-        assertTrue(queryParams.get("author").isScalar());//check difference with amf
+        assertTrue(queryParams.get("author").isScalar());//TODO: APIKIT-2509 check difference with amf
     }
 
     @Test
