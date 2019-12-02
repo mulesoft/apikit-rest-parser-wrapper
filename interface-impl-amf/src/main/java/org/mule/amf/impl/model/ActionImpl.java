@@ -37,10 +37,12 @@ public class ActionImpl implements Action {
   private Map<String, Parameter> queryParameters;
   private Map<String, Parameter> headers;
   private Map<String, Parameter> resolvedUriParameters;
+  private QueryString queryString;
 
   public ActionImpl(final ResourceImpl resource, final Operation operation) {
     this.resource = resource;
     this.operation = operation;
+    this.queryString = initializeQueryString(operation);
   }
 
   @Override
@@ -213,12 +215,12 @@ public class ActionImpl implements Action {
 
   @Override
   public QueryString queryString() {
-    final Request request = operation.request();
+    return queryString;
+  }
 
-    if (request == null)
-      return null;
-
-    final Shape shape = request.queryString();
-    return shape == null ? null : new QueryStringImpl((AnyShape) shape);
+  private QueryString initializeQueryString(Operation op) {
+    Request request = op.request();
+    Shape shape = request != null ? request.queryString() : null;
+    return shape != null ? new QueryStringImpl((AnyShape) shape) : null;
   }
 }
