@@ -8,6 +8,7 @@ package org.mule.amf.impl.model;
 
 import static java.util.stream.Collectors.toMap;
 
+import amf.client.execution.ExecutionEnvironment;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
@@ -16,17 +17,19 @@ import java.util.Map;
 
 public class ResponseImpl implements Response {
 
+  private final ExecutionEnvironment executionEnvironment;
   amf.client.model.domain.Response response;
 
-  public ResponseImpl(amf.client.model.domain.Response response) {
+  public ResponseImpl(amf.client.model.domain.Response response, ExecutionEnvironment executionEnvironment) {
     this.response = response;
+    this.executionEnvironment = executionEnvironment;
   }
 
   @Override
   public Map<String, MimeType> getBody() {
     return response.payloads().stream()
         .filter(p -> p.mediaType().nonNull())
-        .collect(toMap(p -> p.mediaType().value(), MimeTypeImpl::new));
+        .collect(toMap(p -> p.mediaType().value(), payload -> new MimeTypeImpl(payload, executionEnvironment)));
   }
 
   @Override

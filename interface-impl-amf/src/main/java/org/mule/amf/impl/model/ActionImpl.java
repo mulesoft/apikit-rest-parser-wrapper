@@ -9,6 +9,7 @@ package org.mule.amf.impl.model;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
+import amf.client.execution.ExecutionEnvironment;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.MimeType;
@@ -58,15 +59,15 @@ public class ActionImpl implements Action {
   @Override
   public Map<String, Response> getResponses() {
     if (responses == null) {
-      responses = loadResponses(operation);
+      responses = loadResponses(operation, resource.getExecutionEnvironment());
     }
     return responses;
   }
 
-  private static Map<String, Response> loadResponses(final Operation operation) {
+  private static Map<String, Response> loadResponses(final Operation operation, ExecutionEnvironment executionEnvironment) {
     Map<String, Response> result = new LinkedHashMap<>();
     for (amf.client.model.domain.Response response : operation.responses()) {
-      result.put(response.statusCode().value(), new ResponseImpl(response));
+      result.put(response.statusCode().value(), new ResponseImpl(response, executionEnvironment));
     }
     return result;
   }
@@ -79,13 +80,13 @@ public class ActionImpl implements Action {
   @Override
   public Map<String, MimeType> getBody() {
     if (bodies == null) {
-      bodies = loadBodies(operation);
+      bodies = loadBodies(operation, resource.getExecutionEnvironment());
     }
 
     return bodies;
   }
 
-  private static Map<String, MimeType> loadBodies(final Operation operation) {
+  private static Map<String, MimeType> loadBodies(final Operation operation, ExecutionEnvironment executionEnvironment) {
     final Request request = operation.request();
     if (request == null)
       return emptyMap();
@@ -94,7 +95,7 @@ public class ActionImpl implements Action {
 
     request.payloads().stream()
         .filter(payload -> payload.mediaType().nonNull())
-        .forEach(payload -> result.put(payload.mediaType().value(), new MimeTypeImpl(payload)));
+        .forEach(payload -> result.put(payload.mediaType().value(), new MimeTypeImpl(payload,executionEnvironment )));
 
     return result;
   }
@@ -102,19 +103,19 @@ public class ActionImpl implements Action {
   @Override
   public Map<String, Parameter> getQueryParameters() {
     if (queryParameters == null) {
-      queryParameters = loadQueryParameters(operation);
+      queryParameters = loadQueryParameters(operation, resource.getExecutionEnvironment());
     }
     return queryParameters;
   }
 
-  private static Map<String, Parameter> loadQueryParameters(final Operation operation) {
+  private static Map<String, Parameter> loadQueryParameters(final Operation operation, ExecutionEnvironment executionEnvironment) {
     final Request request = operation.request();
     if (request == null)
       return emptyMap();
 
     final Map<String, Parameter> result = new HashMap<>();
     request.queryParameters().forEach(parameter -> {
-      result.put(parameter.name().value(), new ParameterImpl(parameter));
+      result.put(parameter.name().value(), new ParameterImpl(parameter, executionEnvironment));
     });
     return result;
   }
@@ -127,17 +128,17 @@ public class ActionImpl implements Action {
   @Override
   public Map<String, Parameter> getResolvedUriParameters() {
     if (resolvedUriParameters == null) {
-      resolvedUriParameters = loadResolvedUriParameters(resource, operation);
+      resolvedUriParameters = loadResolvedUriParameters(resource, operation, resource.getExecutionEnvironment());
     }
 
     return resolvedUriParameters;
   }
 
-  private static Map<String, Parameter> loadResolvedUriParameters(final Resource resource, Operation operation) {
+  private static Map<String, Parameter> loadResolvedUriParameters(final Resource resource, Operation operation, ExecutionEnvironment executionEnvironment) {
     final Map<String, Parameter> operationUriParams;
     if (operation.request() != null) {
       operationUriParams = operation.request().uriParameters().stream()
-          .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+          .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p, executionEnvironment)));
     } else {
       operationUriParams = new HashMap<>();
     }
@@ -163,7 +164,7 @@ public class ActionImpl implements Action {
 
     final Map<String, Parameter> result = new HashMap<>();
     request.headers().forEach(parameter -> {
-      result.put(parameter.name().value(), new ParameterImpl(parameter));
+      result.put(parameter.name().value(), new ParameterImpl(parameter, resource.getExecutionEnvironment()));
     });
     return result;
   }
@@ -221,6 +222,6 @@ public class ActionImpl implements Action {
   private QueryString initializeQueryString(Operation op) {
     Request request = op.request();
     Shape shape = request != null ? request.queryString() : null;
-    return shape != null ? new QueryStringImpl((AnyShape) shape) : null;
+    return shape != null ? new QueryStringImpl((AnyShape) shape, resource.getExecutionEnvironment()) : null;
   }
 }

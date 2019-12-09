@@ -6,6 +6,7 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.ScalarShape;
@@ -21,12 +22,12 @@ class ParameterValidationStrategyFactory {
     throw new IllegalStateException("Utility class");
   }
 
-  static ParameterValidationStrategy getStrategy(AnyShape anyShape){
+  static ParameterValidationStrategy getStrategy(AnyShape anyShape, ExecutionEnvironment executionEnvironment){
     if(anyShape instanceof ArrayShape || anyShape instanceof UnionShape){
-      return new YamlParameterValidationStrategy(anyShape);
+      return new YamlParameterValidationStrategy(anyShape, executionEnvironment);
     }
 
-    return new JsonParameterValidationStrategy(anyShape, needsQuotes(anyShape));
+    return new JsonParameterValidationStrategy(anyShape, needsQuotes(anyShape), executionEnvironment);
   }
 
   private static boolean needsQuotes(AnyShape anyShape) {

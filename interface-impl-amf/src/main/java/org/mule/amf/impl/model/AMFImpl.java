@@ -16,6 +16,9 @@ import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
 import amf.client.render.RenderOptions;
 import org.mule.amf.impl.util.LazyValue;
+import amf.client.environment.DefaultEnvironment;
+import amf.client.environment.Environment;
+import amf.client.execution.ExecutionEnvironment;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -58,9 +61,11 @@ public class AMFImpl implements ApiSpecification {
   private final ApiVendor apiVendor;
   private final transient LazyValue<Document> consoleModel;
   private final ApiReference apiRef;
+  private final ExecutionEnvironment executionEnvironment;
 
-  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, LazyValue<Document> console, ApiReference apiRef) {
+  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, LazyValue<Document> console, ApiReference apiRef, ExecutionEnvironment executionEnvironment) {
     this.webApi = webApi;
+    this.executionEnvironment = executionEnvironment;
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
     this.apiVendor = apiVendor;
@@ -78,7 +83,7 @@ public class AMFImpl implements ApiSpecification {
     String parentKey = parentKey(endPoint);
     Map<String, Resource> parentMap = resources.computeIfAbsent(parentKey, k -> new LinkedHashMap<>());
     String childKey = endPoint.relativePath();
-    parentMap.put(childKey, new ResourceImpl(this, endPoint));
+    parentMap.put(childKey, new ResourceImpl(this, endPoint, executionEnvironment));
   }
 
   private static String parentKey(final EndPoint endPoint) {
@@ -135,7 +140,7 @@ public class AMFImpl implements ApiSpecification {
   @Override
   public Map<String, Parameter> getBaseUriParameters() {
     return getServer().<Map<String, Parameter>>map(server -> server.variables().stream()
-      .collect(toMap(p -> p.name().value(), ParameterImpl::new)))
+      .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p,executionEnvironment))))
       .orElseGet(Collections::emptyMap);
   }
 
@@ -175,16 +180,17 @@ public class AMFImpl implements ApiSpecification {
   }
 
   private String renderApi() {
+    Environment env = DefaultEnvironment.apply(executionEnvironment) ;
     Renderer renderer;
     switch (apiVendor) {
       case RAML_08:
-        renderer = new Raml08Renderer();
+        renderer = new Raml08Renderer(env);
         break;
       case OAS_20:
-        renderer = new Oas20Renderer();
+        renderer = new Oas20Renderer(env);
         break;
       default:
-        renderer = new Raml10Renderer();
+        renderer = new Raml10Renderer(env);
         break;
     }
     try {
@@ -208,7 +214,7 @@ public class AMFImpl implements ApiSpecification {
   // This method should only be used by API Console... /shrug
   public String dumpAmf() {
     try {
-      return new AmfGraphRenderer().generateString(consoleModel.get(),
+      return new AmfGraphRenderer(DefaultEnvironment.apply(executionEnvironment)).generateString(consoleModel.get(),
           new RenderOptions()
               .withoutSourceMaps()
               .withoutPrettyPrint()

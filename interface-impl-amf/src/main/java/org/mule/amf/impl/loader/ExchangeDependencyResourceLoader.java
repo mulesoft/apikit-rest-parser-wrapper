@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import amf.client.execution.ExecutionEnvironment;
 import amf.client.remote.Content;
 import amf.client.resource.FileResourceLoader;
 import amf.client.resource.ResourceLoader;
@@ -19,13 +20,14 @@ import amf.client.resource.ResourceLoader;
 public class ExchangeDependencyResourceLoader implements ResourceLoader {
 
   private final File workingDir;
-  private final FileResourceLoader resourceLoader = new FileResourceLoader();
+  private final FileResourceLoader resourceLoader;
 
   private static final Pattern DEPENDENCY_PATH_PATTERN = Pattern.compile("^exchange_modules/|/exchange_modules/");
 
-  public ExchangeDependencyResourceLoader(String rootDir) {
+  public ExchangeDependencyResourceLoader(String rootDir, ExecutionEnvironment executionEnvironment) {
     String basePath = rootDir != null ? rootDir : ".";
     this.workingDir = new File(basePath);
+    this.resourceLoader = new FileResourceLoader(executionEnvironment);
   }
 
   @Override

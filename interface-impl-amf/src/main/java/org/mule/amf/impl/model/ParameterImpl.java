@@ -6,6 +6,7 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.StrField;
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
@@ -34,22 +35,24 @@ import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
 class ParameterImpl implements Parameter {
 
+  private final ExecutionEnvironment executionEnvironment;
   private final ParameterValidationStrategy validationStrategy;
   private AnyShape schema;
   private boolean required;
 
-  ParameterImpl(amf.client.model.domain.Parameter parameter) {
-    this(getSchema(parameter), parameter.required().value());
+  ParameterImpl(amf.client.model.domain.Parameter parameter, ExecutionEnvironment executionEnvironment) {
+    this(getSchema(parameter), parameter.required().value(),executionEnvironment);
   }
 
-  ParameterImpl(PropertyShape property) {
-    this(castToAnyShape(property.range()), property.minCount().value() > 0);
+  ParameterImpl(PropertyShape property , ExecutionEnvironment executionEnvironment) {
+    this(castToAnyShape(property.range()), property.minCount().value() > 0, executionEnvironment);
   }
 
-  ParameterImpl(AnyShape anyShape, boolean required) {
+  ParameterImpl(AnyShape anyShape, boolean required,ExecutionEnvironment executionEnvironment) {
     this.schema = anyShape;
     this.required = required;
-    this.validationStrategy = ParameterValidationStrategyFactory.getStrategy(anyShape);
+    this.executionEnvironment = executionEnvironment;
+    this.validationStrategy = ParameterValidationStrategyFactory.getStrategy(anyShape, executionEnvironment);
   }
 
   @Override

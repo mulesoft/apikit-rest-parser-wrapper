@@ -10,6 +10,7 @@ import static java.util.Collections.emptyList;
 import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
+import java.util.concurrent.ScheduledExecutorService;
 import org.mule.amf.impl.AMFParser;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.api.ApiReference;
@@ -22,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 public class AMFParsingStrategy implements ParsingStrategy {
   private final boolean validate;
+  private ScheduledExecutorService executor;
 
   public AMFParsingStrategy() {
     this(true);
@@ -45,8 +47,16 @@ public class AMFParsingStrategy implements ParsingStrategy {
     }
   }
 
+  @Override
+  public void setExecutor(ScheduledExecutorService executor) {
+    this.executor = executor;
+  }
+
   private AMFParser create(ApiReference ref) {
     try {
+      if (executor != null) {
+        return new AMFParser(ref, false, executor);
+      }
       return new AMFParser(ref, false);
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);

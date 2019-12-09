@@ -6,6 +6,7 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.domain.AnyShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
@@ -18,21 +19,23 @@ import static org.mule.amf.impl.model.ParameterImpl.quote;
 
 class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   private final boolean needsQuotes;
-  private AnyShape anyShape;
 
-  private final LazyValue<PayloadValidator> jsonValidator = new LazyValue<>(() -> anyShape.payloadValidator(APPLICATION_JSON)
-          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape)));
+  private final LazyValue<PayloadValidator> jsonValidator ;
+  private final LazyValue<ValidationReport> nullValidationReport ;
 
-  private final LazyValue<ValidationReport> nullValidationReport = new LazyValue<>(() -> {
-    final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML)
-            .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
-
-    return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
-  });
-
-  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes){
-    this.anyShape = anyShape;
+  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes, ExecutionEnvironment executionEnvironment){
     this.needsQuotes = needsQuotes;
+
+    this.nullValidationReport = new LazyValue<>(() -> {
+      final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML, executionEnvironment)
+              .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
+
+      return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
+    });
+
+    this.jsonValidator = new LazyValue<>(() -> anyShape.payloadValidator(APPLICATION_JSON, executionEnvironment)
+            .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape)));
+
   }
 
   public ValidationReport validate(String value) {
