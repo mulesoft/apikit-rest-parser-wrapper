@@ -1,0 +1,23 @@
+#%RAML 1.0
+title: Testing multipart/form API!
+
+/multipart:
+  post:
+    body:
+      multipart/form-data:
+        properties:
+          first:
+            type: string
+          second:
+            type: string
+            default: segundo
+          third:
+            type: boolean
+            required: false
+            default: true
+          fourth:
+            type: string
+            required: false
+    responses:
+      201: ~
+
