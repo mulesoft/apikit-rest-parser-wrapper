@@ -9,11 +9,15 @@ package org.mule.amf.impl.model;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.mule.apikit.ApiType.AMF;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -23,16 +27,13 @@ import org.mule.apikit.model.Template;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import amf.client.model.document.Document;
 import amf.client.model.domain.EndPoint;
@@ -45,6 +46,7 @@ import amf.client.render.Raml10Renderer;
 import amf.client.render.Renderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.builder.JsonOutputBuilder;
 import scala.Option;
 
 public class AMFImpl implements ApiSpecification {
@@ -205,20 +207,36 @@ public class AMFImpl implements ApiSpecification {
 
   // This method should only be used by API Console... /shrug
   public String dumpAmf() {
-    try {
-      return new AmfGraphRenderer().generateString(consoleModel).get();
-    } catch (InterruptedException | ExecutionException e) {
-      return e.getMessage();
+      try {
+        return new AmfGraphRenderer().generateString(consoleModel).get();
+      } catch (InterruptedException | ExecutionException e) {
+        return e.getMessage();
+      }
+  }
+
+  public void dumpAmfModelToFile(String filePath) {
+    try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(filePath))) {
+      OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8"));
+      new AmfGraphRenderer()
+          .generateToBuilder(consoleModel,
+              new JsonOutputBuilder<>(writer, false,
+                  org.mulesoft.common.io.Output$.MODULE$.outputWriter()))
+          .get();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException(format("Error trying to dump AMF model to file path %s", filePath), e);
     }
   }
 
   public void updateBaseUri(String baseUri) {
-    if (webApi.servers() != null && webApi.servers().size() > 0) {
-      final Server server = webApi.servers().get(0);
-      server.withUrl(baseUri);
-      server.withVariables(emptyList());
-    } else {
-      webApi.withServer(baseUri);
+    if (baseUri != null) {
+      if (webApi.servers() != null && webApi.servers().size() > 0) {
+        Server server = webApi.servers().get(0);
+        server.withUrl(baseUri);
+        server.withVariables(emptyList());
+      } else {
+        webApi.withServer(baseUri);
+      }
     }
     consoleModel.withEncodes(webApi);
   }
