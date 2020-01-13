@@ -1,0 +1,44 @@
+#%RAML 1.0
+---
+title: Examples from shape test
+version: 1.0
+
+types:
+  international-league:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      country:
+        type: string
+        required: false
+  local-league:
+    type: object
+    properties:
+      name:
+        type: string
+    example: { "name": "localTeam" }
+
+/leagues:
+
+  /{leagueId}:
+    get:
+      queryParameters:
+        nullableString:
+          type: string | nil
+          required: false
+          example: "paramExample"
+      responses:
+        200:
+          description: "Success"
+          body:
+            application/json:
+              type: international-league
+              example: { "id": "12", "name": "internationalTeam" }
+        201:
+          description: "Success"
+          body:
+            application/json:
+              type: local-league | international-league
