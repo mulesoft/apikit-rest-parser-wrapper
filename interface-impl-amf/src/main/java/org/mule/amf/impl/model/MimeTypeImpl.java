@@ -6,12 +6,15 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
-
+import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.Example;
+import amf.client.model.domain.NodeShape;
+import amf.client.model.domain.Payload;
+import amf.client.model.domain.PropertyShape;
+import amf.client.model.domain.Shape;
+import amf.client.model.domain.UnionShape;
+import amf.client.validate.PayloadValidator;
+import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.parameter.Parameter;
@@ -24,15 +27,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.Example;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.Payload;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.Shape;
-import amf.client.model.domain.UnionShape;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
 public class MimeTypeImpl implements MimeType {
 
@@ -58,7 +58,7 @@ public class MimeTypeImpl implements MimeType {
       return null;
 
     if (shape instanceof AnyShape)
-      return ((AnyShape) shape).toJsonSchema();
+      return ((AnyShape) shape).buildJsonSchema();
 
     return null;
   }
@@ -119,13 +119,25 @@ public class MimeTypeImpl implements MimeType {
     if (trackedExample.isPresent()) {
       final Example example = trackedExample.get();
       if (example.value().nonNull())
-        return example.value().value();
+        return getExampleValueByMediaType(example);
     }
 
     return anyShape.examples().stream().filter(example -> example.value().value() != null)
-        .map(example -> example.value().value())
-        .findFirst()
-        .orElse(null);
+            .map(example -> getExampleValueByMediaType(example))
+            .findFirst()
+            .orElse(null);
+  }
+
+  private String getExampleValueByMediaType(Example example) {
+    String mimeType = firstNonNull(getType(), defaultMediaType);
+    switch (mimeType) {
+      case MediaType.APPLICATION_JSON:
+        return example.toJson();
+      case MediaType.APPLICATION_YAML:
+        return example.toYaml();
+      default:
+        return example.value().value();
+    }
   }
 
   @Override
