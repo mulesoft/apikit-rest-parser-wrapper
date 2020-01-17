@@ -21,11 +21,11 @@ enum ScalarType {
   BOOLEAN(BOOLEAN_ID, "boolean"),
   NUMBER(NUMBER_ID, "number"),
   FLOAT(FLOAT_ID, "float"),
-  DATE_TIME_ONLY(DATE_TIME_ONLY_ID, "dateTimeOnly"),
+  DATE_TIME_ONLY(DATE_TIME_ONLY_ID, "datetime-only"),
   INTEGER(INTEGER_ID, "integer"),
-  TIME(TIME_ID, "time"),
-  DATE_TIME(DATE_TIME_ID, "dateTime"),
-  DATE_ONLY(DATE_ONLY_ID, "date");
+  TIME(TIME_ID, "time-only"),
+  DATE_TIME(DATE_TIME_ID, "datetime"),
+  DATE_ONLY(DATE_ONLY_ID, "date-only");
 
   private String id;
   private String name;
@@ -33,6 +33,10 @@ enum ScalarType {
   ScalarType(String id, String name) {
     this.id = id;
     this.name = name;
+  }
+
+  public String getId() {
+    return id;
   }
 
   public String getName() {

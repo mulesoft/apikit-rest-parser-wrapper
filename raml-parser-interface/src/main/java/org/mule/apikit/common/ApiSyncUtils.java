@@ -6,6 +6,8 @@
  */
 package org.mule.apikit.common;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +28,7 @@ public class ApiSyncUtils {
   private ApiSyncUtils() {}
 
   public static boolean isSyncProtocol(final String path) {
-    return path.startsWith(API_SYNC_PROTOCOL);
+    return StringUtils.isNotBlank(path) && path.startsWith(API_SYNC_PROTOCOL);
   }
 
   public static String getFileName(final String apiSyncResource) {

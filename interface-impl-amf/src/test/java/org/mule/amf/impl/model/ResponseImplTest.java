@@ -9,8 +9,16 @@ package org.mule.amf.impl.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
+import org.mule.apikit.implv1.model.MimeTypeImpl;
+import org.mule.apikit.implv1.model.parameter.ParameterImpl;
+import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.api.ApiReference;
+import org.mule.apikit.model.parameter.Parameter;
+import org.raml.model.parameter.Header;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -19,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 public class ResponseImplTest {
     private static final String RESOURCE = "/leagues";
     private static final String ACTION = "GET";
+    private static final String APPLICATION_XML = "application/xml";
+    private static final String CONTENT_TYPE = "content-type";
     private Response response;
 
     @Before
@@ -30,27 +40,45 @@ public class ResponseImplTest {
     }
 
     @Test
-    public void getBody() {
+    public void getBodyTest() {
         assertEquals(2, response.getBody().size());
     }
 
     @Test
-    public void hasBody() {
+    public void setBodyTest() {
+        Map<String, MimeType> body = new HashMap<>();
+        body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
+        response.setBody(body);
+        // Assert that it does nothing
+        assertEquals(2, response.getBody().size());
+    }
+
+    @Test
+    public void hasBodyTest() {
         assertTrue(response.hasBody());
     }
 
     @Test
-    public void getHeaders() {
+    public void getHeadersTest() {
         assertNull(response.getHeaders());
     }
 
     @Test
-    public void getInstance() {
+    public void setHeadersTest() {
+        Map<String, Parameter> headers = new HashMap<>();
+        headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
+        response.setHeaders(headers);
+        // Assert that it does nothing
+        assertNull(response.getHeaders());
+    }
+
+    @Test
+    public void getInstanceTest() {
         assertNull(response.getInstance());
     }
 
     @Test
-    public void getExamples() {
+    public void getExamplesTest() {
         assertEquals(2, response.getExamples().size());
     }
 }

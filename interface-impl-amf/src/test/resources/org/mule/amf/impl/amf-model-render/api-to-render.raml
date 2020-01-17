@@ -12,9 +12,23 @@ uses:
 /test:
   get:
     description: uses dependency type
+    headers:
+      stringHeader:
     responses:
       '200':
         description: a dependency type
         body:
           application/json:
             type: myLib.moreStuff
+
+  post:
+    description: adds stuff
+    queryParameters:
+      access_token:
+        description: Access Token
+        type: string
+        example: ACCESS_TOKEN
+        required: true
+    body:
+      application/json:
+        type: myLib.stuff

@@ -7,17 +7,29 @@
 
 package org.mule.apikit.implv1.model;
 
+import org.apache.commons.collections.MapUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.implv1.ParserWrapperV1;
+import org.mule.apikit.implv1.model.parameter.ParameterImpl;
+import org.mule.apikit.model.MimeType;
+import org.mule.apikit.model.parameter.Parameter;
+import org.raml.model.parameter.Header;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ResponseImplTest {
+
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String APPLICATION_XML = "application/xml";
+    private static final String CONTENT_TYPE = "Content-type";
 
     private ResponseImpl response;
 
@@ -29,23 +41,44 @@ public class ResponseImplTest {
     }
 
     @Test
-    public void getBody() {
-        assertEquals("application/json", response.getBody().get("application/json").getType());
+    public void getBodyTest() {
+        assertEquals(APPLICATION_JSON, response.getBody().get(APPLICATION_JSON).getType());
     }
 
     @Test
-    public void hasBody() {
+    public void hasBodyTest() {
         assertTrue(response.hasBody());
     }
 
     @Test
-    public void getHeaders() {
+    public void getHeadersTest() {
         assertEquals(0, response.getHeaders().size());
     }
 
     @Test
-    public void getInstance() {
+    public void getInstanceTest() {
         assertNotNull(response.getInstance());
+    }
+
+    @Test
+    public void setBodyTest() {
+        Map<String, MimeType> body = response.getBody();
+        assertNotNull(body);
+        assertNotNull(body.get(APPLICATION_JSON));
+        body = new HashMap<>();
+        body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
+        response.setBody(body);
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().get(APPLICATION_JSON));
+    }
+
+    @Test
+    public void setHeadersTest() {
+        assertEquals(MapUtils.EMPTY_MAP, response.getHeaders());
+        Map<String, Parameter> headers = new HashMap<>();
+        headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
+        response.setHeaders(headers);
+        assertNotNull(response.getHeaders().get(CONTENT_TYPE));
     }
 
 }

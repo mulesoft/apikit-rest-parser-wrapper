@@ -6,12 +6,6 @@
  */
 package org.mule.apikit.implv1;
 
-import static com.google.common.collect.ImmutableList.builder;
-import static java.util.Collections.emptyList;
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toList;
-import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
-
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv1.loader.ParserV1FileResourceLoader;
@@ -21,14 +15,6 @@ import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-
 import org.raml.model.Raml;
 import org.raml.parser.loader.CompositeResourceLoader;
 import org.raml.parser.loader.DefaultResourceLoader;
@@ -37,9 +23,22 @@ import org.raml.parser.loader.ResourceLoader;
 import org.raml.parser.visitor.RamlDocumentBuilder;
 import org.raml.parser.visitor.RamlValidationService;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.collect.ImmutableList.builder;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toList;
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
+
 public class ParserWrapperV1 implements ApiParser {
 
-  public static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
+  private static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
 
   private final String originalPath;
   private final String ramlPath;

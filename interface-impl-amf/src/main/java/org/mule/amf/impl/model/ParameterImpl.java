@@ -6,24 +6,6 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toMap;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
-import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
-
-import java.util.Set;
-import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
-import org.mule.apikit.model.parameter.Parameter;
-import org.mule.metadata.api.model.MetadataType;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.DataNode;
@@ -35,12 +17,24 @@ import amf.client.model.domain.Shape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
+import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
+import org.mule.apikit.model.parameter.Parameter;
+import org.mule.metadata.api.model.MetadataType;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import static java.util.stream.Collectors.toMap;
+import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
+import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
 class ParameterImpl implements Parameter {
 
   private AnyShape schema;
   private boolean required;
-  private Set<String> scalarTypes;
 
   private final Map<String, PayloadValidator> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType = APPLICATION_YAML;
@@ -56,10 +50,6 @@ class ParameterImpl implements Parameter {
   ParameterImpl(AnyShape anyShape, boolean required) {
     this.schema = anyShape;
     this.required = required;
-
-    List<ScalarType> typeIds = asList(ScalarType.values());
-
-    this.scalarTypes = typeIds.stream().map(ScalarType::getName).collect(Collectors.toSet());
   }
 
   @Override
@@ -180,7 +170,7 @@ class ParameterImpl implements Parameter {
 
   @Override
   public boolean isScalar() {
-    return scalarTypes.contains(schema.id());
+    return schema instanceof ScalarShape;
   }
 
   @Override

@@ -27,22 +27,22 @@ public class ApiValidationResultImplTest {
     }
 
     @Test
-    public void getMessage() {
+    public void getMessageTest() {
         assertEquals("RAML resource not found", result.getMessage());
     }
 
     @Test
-    public void getLine() {
+    public void getLineTest() {
         assertEquals(-1, result.getLine().get().intValue());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void getPath() {
+    public void getPathTest() {
         result.getPath();
     }
 
     @Test
-    public void getSeverity() {
+    public void getSeverityTest() {
         assertEquals("ERROR", result.getSeverity().name());
     }
 

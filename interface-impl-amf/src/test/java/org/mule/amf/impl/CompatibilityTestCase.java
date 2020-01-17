@@ -6,12 +6,10 @@
  */
 package org.mule.amf.impl;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mule.apikit.model.ApiVendor.RAML_08;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
-
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -26,13 +24,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 @RunWith(Parameterized.class)
 public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
+
+  private static final String NEW_BASE_URI = "http://apikit-test";
 
   public CompatibilityTestCase(final File input, final String name) {
     super(input, name);
@@ -54,8 +55,8 @@ public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
 
   @Test
   public void dump() {
-    final String amfDump = amfWrapper.parse().dump("http://apikit-test");
-    final String ramlDump = ramlWrapper.parse().dump("http://apikit-test");
+    final String amfDump = amfWrapper.parse().dump(NEW_BASE_URI);
+    final String ramlDump = ramlWrapper.parse().dump(NEW_BASE_URI);
 
     // Dump to file
     final Path basePath = Paths.get(input.getPath()).getParent();
