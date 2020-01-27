@@ -14,6 +14,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.mule.apikit.ApiType.AMF;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
+import amf.client.render.RenderOptions;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -206,7 +207,11 @@ public class AMFImpl implements ApiSpecification {
   // This method should only be used by API Console... /shrug
   public String dumpAmf() {
     try {
-      return new AmfGraphRenderer().generateString(consoleModel).get();
+      return new AmfGraphRenderer().generateString(consoleModel,
+          new RenderOptions()
+              .withoutSourceMaps()
+              .withoutPrettyPrint()
+              .withCompactUris()).get();
     } catch (InterruptedException | ExecutionException e) {
       return e.getMessage();
     }
