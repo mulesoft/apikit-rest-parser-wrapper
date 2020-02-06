@@ -24,11 +24,10 @@ import org.mule.metadata.api.model.MetadataType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static java.util.stream.Collectors.toMap;
+import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
 class ParameterImpl implements Parameter {
@@ -37,7 +36,7 @@ class ParameterImpl implements Parameter {
   private boolean required;
 
   private final Map<String, PayloadValidator> payloadValidatorMap = new HashMap<>();
-  private final String defaultMediaType = APPLICATION_YAML;
+  private final String defaultMediaType = APPLICATION_JSON;
 
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
@@ -58,28 +57,46 @@ class ParameterImpl implements Parameter {
   }
 
   private ValidationReport validatePayload(String value) {
-    String mimeType = getMimeTypeForValue(value);
-    PayloadValidator payloadValidator = resolvePayloadValidator(mimeType, value);
-    try {
-      return payloadValidator.validate(mimeType, value != null ? value : "null").get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Unexpected Error validating request", e);
+    String mimeType = APPLICATION_JSON;
+    String payload = value;
+
+    if(isArray() || value == null){
+      mimeType = APPLICATION_YAML;
     }
+
+    PayloadValidator payloadValidator = resolvePayloadValidator(mimeType);
+
+    if(isScalar() && !isNumber() && !isBoolean() && !isArray()){
+      payload = value != null ? quote(payload) : "null";
+    }
+
+    return payloadValidator.syncValidate(mimeType, payload);
   }
 
-  private PayloadValidator resolvePayloadValidator(String mimeType, String value) {
-    if (value == null) {
-      return schema.payloadValidator(mimeType).get();
-    }
+  private static String quote(String payload) {
+    return "\"" + payload + "\"";
+  }
+
+  private boolean isNumber(){
+    final String value = ((ScalarShape) schema).dataType().value();
+    return  value.equals("http://a.ml/vocabularies/shapes#number") ||
+            value.equals("http://www.w3.org/2001/XMLSchema#integer");
+  }
+
+  private boolean isBoolean(){
+    return ((ScalarShape) schema).dataType().value().equals("http://www.w3.org/2001/XMLSchema#boolean");
+  }
+
+  private PayloadValidator resolvePayloadValidator(String mimeType) {
     if (payloadValidatorMap.containsKey(mimeType)) {
       return payloadValidatorMap.get(mimeType);
     }
-    Optional<PayloadValidator> payloadValidator = schema.parameterValidator(mimeType);
+    Optional<PayloadValidator> payloadValidator = schema.payloadValidator(mimeType);
     if (payloadValidator.isPresent()) {
       payloadValidatorMap.put(mimeType, payloadValidator.get());
       return payloadValidator.get();
     }
-    payloadValidator = schema.parameterValidator(defaultMediaType);
+    payloadValidator = schema.payloadValidator(defaultMediaType);
     if (payloadValidator.isPresent()) {
       payloadValidatorMap.put(mimeType, payloadValidator.get());
       return payloadValidator.get();
@@ -187,7 +204,7 @@ class ParameterImpl implements Parameter {
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
     if (value != null && (value.startsWith("*") || isStringArray())) {
-      return "\"" + value + "\"";
+      return quote(value);
     }
     return value;
   }

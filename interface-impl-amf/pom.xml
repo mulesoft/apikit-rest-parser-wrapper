@@ -18,7 +18,7 @@
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
-        <amf.version>4.0.2-0</amf.version>
+        <amf.version>sync-validate-SNAPSHOT</amf.version>
         <amf.xml.extension.version>1.4.1</amf.xml.extension.version>
     </properties>
 
