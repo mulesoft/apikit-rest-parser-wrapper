@@ -9,6 +9,7 @@ package org.mule.amf.impl.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
+import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
@@ -24,19 +25,56 @@ public class ParameterImplTest {
 
     private static final String RESOURCE = "/books";
     private static final String ACTION = "GET";
+<<<<<<< HEAD
     private static final String ISBN = "0321736079";
     private static final String ISBN_QUERY_PARAM = "isbn";
     private static final String TAGS_QUERY_PARAM = "tags";
     private static final String AUTHOR_QUERY_PARAM = "author";
     private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
+=======
+    private final String TEST_NULL_RESOURCE = "/testNull";
+>>>>>>> Use strategy for parameter validator
     private Map<String, Parameter> queryParams;
+    private Map<String, Parameter> testNullQueryParams;
 
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("../10-query-parameters/api.raml").toURI().toString();
         ApiReference apiRef = ApiReference.create(apiLocation);
-        ResourceImpl resource = (ResourceImpl) new AMFParser(apiRef, true).parse().getResource(RESOURCE);
+        ApiSpecification apiSpecification = new AMFParser(apiRef, true).parse();
+        ResourceImpl resource = (ResourceImpl) apiSpecification.getResource(RESOURCE);
         queryParams = resource.getAction(ACTION).getQueryParameters();
+        testNullQueryParams =  apiSpecification.getResource(TEST_NULL_RESOURCE).getAction(ACTION).getQueryParameters();
+    }
+
+    @Test
+    public void nonNullableInteger(){
+        final Parameter nonNullableInteger = testNullQueryParams.get("nonNullableInteger");
+        assertFalse(nonNullableInteger.validate(null));
+        assertEquals("expected type: Number, found: Null", nonNullableInteger.message(null));
+        assertTrue(nonNullableInteger.validate("123"));
+    }
+
+    @Test
+    public void nullableInteger(){
+        final Parameter nullableInteger = testNullQueryParams.get("nullableInteger");
+        assertTrue(nullableInteger.validate(null));
+        assertTrue(nullableInteger.validate("123"));
+    }
+
+    @Test
+    public void nonNullableString(){
+        final Parameter nonNullableString = testNullQueryParams.get("nonNullableString");
+        assertFalse(nonNullableString.validate(null));
+        assertEquals("expected type: String, found: Null", nonNullableString.message(null));
+        assertTrue(nonNullableString.validate("123"));
+    }
+
+    @Test
+    public void nullableString(){
+        final Parameter nullableString = testNullQueryParams.get("nullableString");
+        assertTrue(nullableString.validate(null));
+        assertTrue(nullableString.validate("123"));
     }
 
     @Test

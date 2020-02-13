@@ -1,12 +1,30 @@
 #%RAML 1.0
 title: Illustrate query parameter variations
 
+<<<<<<< HEAD
 types:
   author:
     properties:
       name: string
       lastname: string
       addresses?: array
+=======
+/testNull:
+  get:
+    queryParameters:
+        nullableString:
+            type: string | nil
+            required: false
+        nonNullableString:
+            type: string
+            required: false
+        nullableInteger:
+            type: integer | nil
+            required: false
+        nonNullableInteger:
+            type: integer
+            required: false
+>>>>>>> Use strategy for parameter validator
 
 /books:
   get:

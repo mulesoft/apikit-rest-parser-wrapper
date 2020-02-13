@@ -14,29 +14,23 @@ import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
 import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
-import amf.client.validate.PayloadValidator;
+import amf.client.model.domain.UnionShape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toMap;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
 class ParameterImpl implements Parameter {
 
+  private final ParameterValidationStrategy validationStrategy;
   private AnyShape schema;
   private boolean required;
-
-  private final Map<String, PayloadValidator> payloadValidatorMap = new HashMap<>();
-  private final String defaultMediaType = APPLICATION_JSON;
 
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
@@ -49,6 +43,12 @@ class ParameterImpl implements Parameter {
   ParameterImpl(AnyShape anyShape, boolean required) {
     this.schema = anyShape;
     this.required = required;
+
+    if(isArray() || isUnion()){
+      this.validationStrategy = new ObjectParameterValidationStrategy(anyShape);
+    } else {
+      this.validationStrategy = new ScalarParameterValidationStrategy(anyShape);
+    }
   }
 
   @Override
@@ -56,52 +56,16 @@ class ParameterImpl implements Parameter {
     return validatePayload(value).conforms();
   }
 
-  private ValidationReport validatePayload(String value) {
-    String mimeType = APPLICATION_JSON;
-    String payload = value;
-
-    if(isArray() || value == null){
-      mimeType = APPLICATION_YAML;
-    }
-
-    PayloadValidator payloadValidator = resolvePayloadValidator(mimeType);
-
-    if(isScalar() && !isNumber() && !isBoolean() && !isArray()){
-      payload = value != null ? quote(payload) : "null";
-    }
-
-    return payloadValidator.syncValidate(mimeType, payload);
+  ValidationReport validatePayload(String value) {
+    return validationStrategy.validate(value);
   }
 
-  private static String quote(String payload) {
+  static String quote(String payload) {
     return "\"" + payload + "\"";
   }
 
-  private boolean isNumber(){
-    final String value = ((ScalarShape) schema).dataType().value();
-    return  value.equals("http://a.ml/vocabularies/shapes#number") ||
-            value.equals("http://www.w3.org/2001/XMLSchema#integer");
-  }
-
-  private boolean isBoolean(){
-    return ((ScalarShape) schema).dataType().value().equals("http://www.w3.org/2001/XMLSchema#boolean");
-  }
-
-  private PayloadValidator resolvePayloadValidator(String mimeType) {
-    if (payloadValidatorMap.containsKey(mimeType)) {
-      return payloadValidatorMap.get(mimeType);
-    }
-    Optional<PayloadValidator> payloadValidator = schema.payloadValidator(mimeType);
-    if (payloadValidator.isPresent()) {
-      payloadValidatorMap.put(mimeType, payloadValidator.get());
-      return payloadValidator.get();
-    }
-    payloadValidator = schema.payloadValidator(defaultMediaType);
-    if (payloadValidator.isPresent()) {
-      payloadValidatorMap.put(mimeType, payloadValidator.get());
-      return payloadValidator.get();
-    }
-    throw new RuntimeException("Unexpected Error validating request");
+  boolean isUnion(){
+    return schema instanceof UnionShape;
   }
 
   private static AnyShape getSchema(amf.client.model.domain.Parameter parameter) {
