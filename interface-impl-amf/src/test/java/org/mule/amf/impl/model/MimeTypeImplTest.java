@@ -43,12 +43,14 @@ public class MimeTypeImplTest {
     private static final String FIXTURE_RESOURCE = "/fixture";
     private static final String GET_ACTION = "GET";
     private static final String PUT_ACTION = "PUT";
+    private static final String POST_ACTION = "POST";
     private static final String RESPONSE_200_CODE = "200";
     private static final String RESPONSE_201_CODE = "201";
     private static MimeTypeImpl jsonMimeType;
     private static MimeTypeImpl xmlMimeType;
     private static MimeTypeImpl jsonMimeTypeWithYamlExample;
     private static MimeTypeImpl formMimeType;
+    private static MimeTypeImpl formMimeTypeWithoutFormParameters;
     private static MimeTypeImpl objectJsonMimeType;
     private static MimeTypeImpl multilineJsonMimeType;
     private static MimeTypeImpl arrayJsonMimeType;
@@ -66,6 +68,8 @@ public class MimeTypeImplTest {
         ResourceImpl leagueIdResource = (ResourceImpl) resource.getResources().get(LEAGUE_ID_RESOURCE);
         jsonMimeTypeWithYamlExample = (MimeTypeImpl) leagueIdResource.getAction(GET_ACTION).getResponses().get(RESPONSE_200_CODE).getBody().get("application/yaml");
         formMimeType = (MimeTypeImpl) leagueIdResource.getResources().get(BADGE_RESOURCE).getAction(PUT_ACTION).getBody().get(MULTIPART);
+        formMimeTypeWithoutFormParameters = (MimeTypeImpl) resource.getResources().get(LEAGUE_ID_RESOURCE).getResources().get(BADGE_RESOURCE)
+            .getAction(POST_ACTION).getBody().get(MULTIPART);
 
         apiLocation = this.getClass().getResource("../08-leagues/api.raml").toURI().toString();
         apiRef = ApiReference.create(apiLocation);
@@ -121,6 +125,7 @@ public class MimeTypeImplTest {
         assertEquals(0, inlineJsonMimeType.getFormParameters().size());
         assertEquals(0, unionJsonMimeType.getFormParameters().size());
         assertEquals(2, formMimeType.getFormParameters().size());
+        assertEquals(0, formMimeTypeWithoutFormParameters.getFormParameters().size());
     }
 
     @Test

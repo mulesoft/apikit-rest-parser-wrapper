@@ -100,6 +100,11 @@ traits:
                         body:
                             application/json:
                                 example: 'foo'
+            post:
+                 body:
+                      multipart/form-data:
+                          type: file
+                          description: files
             get:
                 responses:
                     200:
