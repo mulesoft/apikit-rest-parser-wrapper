@@ -6,44 +6,33 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.Arrays.asList;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
-
-import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
-import org.mule.apikit.model.QueryString;
-import org.mule.apikit.model.parameter.Parameter;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.NodeShape;
 import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.Shape;
+import amf.client.model.domain.ScalarShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
+import org.mule.apikit.model.QueryString;
+import org.mule.apikit.model.parameter.Parameter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
+import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
 public class QueryStringImpl implements QueryString {
 
   private AnyShape schema;
-  private Collection<String> scalarTypes;
 
   private final Map<String, Optional<PayloadValidator>> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType = APPLICATION_YAML;
 
   public QueryStringImpl(AnyShape anyShape) {
     this.schema = anyShape;
-
-    final List<ScalarType> typeIds = asList(ScalarType.values());
-
-    this.scalarTypes = typeIds.stream().map(ScalarType::getName).collect(Collectors.toList());
   }
 
   @Override
@@ -90,7 +79,7 @@ public class QueryStringImpl implements QueryString {
 
   @Override
   public boolean isScalar() {
-    return scalarTypes.contains(schema.id());
+    return schema instanceof ScalarShape;
   }
 
   @Override

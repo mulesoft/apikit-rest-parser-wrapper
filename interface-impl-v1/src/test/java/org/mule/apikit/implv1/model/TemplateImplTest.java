@@ -17,7 +17,7 @@ public class TemplateImplTest {
     private static final String TEMPLATE = "template";
 
     @Test
-    public void getDisplayName() {
+    public void getDisplayNameTest() {
         TemplateImpl template = new TemplateImpl(new Template());
         assertNull(template.getDisplayName());
         template.setDisplayName(TEMPLATE);

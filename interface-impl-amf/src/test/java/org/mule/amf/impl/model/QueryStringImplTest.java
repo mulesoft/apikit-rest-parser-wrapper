@@ -9,54 +9,78 @@ package org.mule.amf.impl.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
+import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.api.ApiReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class QueryStringImplTest {
 
-    private QueryString queryString;
+    private static final String GET_ACTION = "GET";
+    private QueryString locationsQueryString;
+    private QueryString emailsQueryString;
+    private QueryString emailQueryString;
+    private QueryString historySinceQueryString;
 
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("../10-query-string/api.raml").toURI().toString();
         ApiReference apiRef = ApiReference.create(apiLocation);
-        ResourceImpl resource = (ResourceImpl) new AMFParser(apiRef, true).parse().getResource("/locations");
-        queryString = resource.getAction("GET").queryString();
+        ApiSpecification api = new AMFParser(apiRef, true).parse();
+        ResourceImpl resource = (ResourceImpl) api.getResource("/locations");
+        ActionImpl action = (ActionImpl) resource.getAction(GET_ACTION);
+        locationsQueryString = action.queryString();
+        ResourceImpl emails = (ResourceImpl) api.getResources().get("/emails");
+        action = (ActionImpl) emails.getAction(GET_ACTION);
+        emailsQueryString = action.queryString();
+        action = (ActionImpl) emails.getResources().get("/details").getAction(GET_ACTION);
+        emailQueryString = action.queryString();
+        action = (ActionImpl) emails.getResources().get("/historySince").getAction(GET_ACTION);
+        historySinceQueryString = action.queryString();
     }
 
     @Test
-    public void getDefaultValue() {
-        assertNull(queryString.getDefaultValue());
+    public void getDefaultValueTest() {
+        assertNull(locationsQueryString.getDefaultValue());
+        assertNotNull(emailsQueryString.getDefaultValue());
     }
 
     @Test
-    public void isArray() {
-        assertFalse(queryString.isArray());
+    public void isArrayTest() {
+        assertFalse(locationsQueryString.isArray());
+        assertTrue(emailsQueryString.isArray());
     }
 
     @Test
-    public void validate() {
-        assertTrue(queryString.validate("{'start':2,'lat':12,'long':13}"));
-        assertFalse(queryString.validate("Not valid query string"));
+    public void validateTest() {
+        assertTrue(locationsQueryString.validate("{ \"start\": 2, \"lat\": 12, \"long\": 13 }"));
+        assertFalse(locationsQueryString.validate("Not valid query string"));
+        assertTrue(emailsQueryString.validate("[ { \"subject\": \"Email Subject\", \"to\": [ \"John\" ], \"body\": \"Email body\" } ]"));
     }
 
     @Test
-    public void isScalar() {
-        assertFalse(queryString.isScalar());
+    public void isScalarTest() {
+        assertFalse(locationsQueryString.isScalar());
+        assertFalse(emailsQueryString.isScalar());
+        assertFalse(emailQueryString.isScalar());
+        assertTrue(historySinceQueryString.isScalar());
     }
 
     @Test
-    public void isFacetArray() {
-        assertFalse(queryString.isFacetArray("UnionShape"));
+    public void isFacetArrayTest() {
+        assertFalse(locationsQueryString.isFacetArray("UnionShape"));
+        assertTrue(emailQueryString.isFacetArray("to"));
     }
 
     @Test
-    public void facets() {
-        assertEquals(0, queryString.facets().size());
+    public void facetsTest() {
+        assertEquals(0, locationsQueryString.facets().size());
+        assertEquals(0, emailsQueryString.facets().size());
+        assertEquals(3, emailQueryString.facets().size());
     }
 }

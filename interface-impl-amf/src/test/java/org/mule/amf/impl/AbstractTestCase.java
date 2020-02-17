@@ -6,23 +6,20 @@
  */
 package org.mule.amf.impl;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.Resource;
-import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
 
 abstract class AbstractTestCase {
 
@@ -62,13 +59,12 @@ abstract class AbstractTestCase {
     assertThat(actual.getParentUri(), is(equalTo(expected.getParentUri())));
     assertThat(actual.getResolvedUri("v10"), is(equalTo(expected.getResolvedUri("v10"))));
     // Different behaviour in Java Parser 08 & 10
-    //assertThat(actual.getDisplayName(), is(equalTo(expected.getDisplayName())));
+    // assertThat(actual.getDisplayName(), is(equalTo(expected.getDisplayName())));
     assertActionsEqual(actual.getActions(), expected.getActions());
     actual.getActions().keySet().forEach(action -> {
       final String actualAction = actual.getAction(action.name()).getType().name();
       final String expectedAction = expected.getAction(action.name()).getType().name();
       assertThat(actualAction, is(equalTo(expectedAction)));
-
     });
     assertResourcesEqual(actual.getResources(), expected.getResources());
   }

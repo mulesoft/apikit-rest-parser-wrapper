@@ -1,20 +1,33 @@
 #%RAML 1.0
 title: Illustrate query parameter variations
 
+types:
+  author:
+    properties:
+      name: string
+      lastname: string
+      addresses?: array
+
 /books:
   get:
     queryParameters:
       author:
         displayName: Author
-        type: string
+        type: author
         description: An author's full name
-        example: Mary Roach
         required: false
+        examples:
+          author1:
+            name: John
+            lastname: Doe
+          author2:
+            name: Mary
+            lastname: Doe
+            addresses: [ 1st Street 125 ]
       publicationYear:
         displayName: Pub Year
         type: number
         description: The year released for the first time in the US
-        example: 1984
         required: false
       rating:
         displayName: Rating
@@ -31,6 +44,7 @@ title: Illustrate query parameter variations
         displayName: Tags
         type: string[]
         example: ["Comedy","Female author"]
+        default: ["General"]
 
   delete:
     description: Delete an item by Code.
