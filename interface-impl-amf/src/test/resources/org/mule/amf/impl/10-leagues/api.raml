@@ -2,17 +2,20 @@
 ---
 title: Leagues API
 version: v1
-baseUri: http://localhost/api
-
+baseUri: https://{apiDomain}.ec2.amazonaws.com
+baseUriParameters:
+    apiDomain:
+        description: |
+            The sub-domain at which the API is accessible.
 documentation:
     - title: Leagues
       content: |
-        Welcome to the _Leagues API_ Documentation. The _Leagues API_
-        allows you to view a list of football leagues. You may also
-        add or delete leagues to keep the list up to date.
+          Welcome to the _Leagues API_ Documentation. The _Leagues API_
+          allows you to view a list of football leagues. You may also
+          add or delete leagues to keep the list up to date.
     - title: Contact
       content: |
-        If you need support, please contact apikit@mulesoft.com.
+          If you need support, please contact apikit@mulesoft.com.
 
 types:
     league-json:
@@ -35,6 +38,10 @@ traits:
     get:
         responses:
             200:
+                headers:
+                    paginationEnabled:
+                        type: boolean
+                        required: false
                 body:
                     application/json:
                         example: 'foo'
@@ -47,7 +54,7 @@ traits:
                 example: |
                     { "name": "liga criolla" }
             text/xml:
-                schema: league-xml
+                type: league-xml
         responses:
             201:
                 description: league created
@@ -64,7 +71,12 @@ traits:
             is: [ taxed ]
             responses:
                 200:
-                    body: *league-schema
+                    body: &league-schema
+                        application/yaml:
+                            type: league-json
+                            example:
+                                name: Example League
+                                description: This is an example league
         put:
             body: *league-schema
             responses:
@@ -125,3 +137,12 @@ traits:
                                 example: 'foo'
             /leader:
                 get: !!null
+
+/history/{version}:
+    displayName: Leagues History
+    description: World Soccer Leagues History
+    get:
+        responses:
+            200:
+                body:
+                    application/json:

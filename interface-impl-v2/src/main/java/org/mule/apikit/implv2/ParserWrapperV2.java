@@ -6,11 +6,8 @@
  */
 package org.mule.apikit.implv2;
 
-import static java.util.Collections.emptyList;
-import static java.util.Optional.empty;
-import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
-
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv2.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
@@ -20,15 +17,6 @@ import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-
-import com.google.common.collect.ImmutableList;
 import org.raml.v2.api.RamlModelBuilder;
 import org.raml.v2.api.RamlModelResult;
 import org.raml.v2.api.loader.CompositeResourceLoader;
@@ -36,6 +24,19 @@ import org.raml.v2.api.loader.DefaultResourceLoader;
 import org.raml.v2.api.loader.FileResourceLoader;
 import org.raml.v2.api.loader.ResourceLoader;
 import org.raml.v2.api.loader.RootRamlFileResourceLoader;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
 
 public class ParserWrapperV2 implements ApiParser {
 
@@ -77,14 +78,15 @@ public class ParserWrapperV2 implements ApiParser {
   }
 
   private static File fetchRamlFolder(String ramlPath) {
-    return fetchRamlResource(ramlPath).orElseGet(() -> {
+    Supplier<File> fileSupplier = () -> {
       File file = new File(ramlPath);
       return file.exists() && file.getParent() != null ? file.getParentFile() : null;
-    });
+    };
+    return StringUtils.isBlank(ramlPath) ? null : fetchRamlResource(ramlPath).orElseGet(fileSupplier);
   }
 
   private static Optional<File> fetchRamlResource(String ramlPath) {
-    if (!isSyncProtocol(ramlPath)) {
+    if (StringUtils.isNotBlank(ramlPath) && !isSyncProtocol(ramlPath)) {
       try {
         URL url = Thread.currentThread().getContextClassLoader().getResource(ramlPath);
         if (url != null && "file".equals(url.getProtocol())) {

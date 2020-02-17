@@ -6,6 +6,7 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
+import org.apache.commons.collections.MapUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -30,27 +31,37 @@ public class ResponseImplTest {
     }
 
     @Test
-    public void getBody() {
+    public void getBodyTest() {
         assertEquals(2, response.getBody().size());
     }
 
     @Test
-    public void hasBody() {
+    public void hasBodyTest() {
         assertTrue(response.hasBody());
     }
 
     @Test
-    public void getHeaders() {
-        assertEquals(0, response.getHeaders().size());//TODO: APIKIT-2509 check difference with amf
+    public void getHeadersTest() {
+        assertEquals(1, response.getHeaders().size());//TODO: APIKIT-2509 check difference with amf
     }
 
     @Test(expected = UnsupportedOperationException.class)//TODO: APIKIT-2509 check difference with amf
-    public void getInstance() {
+    public void getInstanceTest() {
         response.getInstance();
     }
 
     @Test
-    public void getExamples() {
+    public void getExamplesTest() {
         assertEquals(2, response.getExamples().size());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void setBodyTest() {
+        response.setBody(MapUtils.EMPTY_MAP);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void setHeadersTest() {
+        response.setHeaders(MapUtils.EMPTY_MAP);
     }
 }

@@ -9,6 +9,7 @@ package org.mule.apikit.implv2.v10.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserWrapperV2;
+import org.mule.apikit.model.Resource;
 
 import java.util.Collections;
 
@@ -17,107 +18,112 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 public class ActionImplTest {
-    private ActionImpl action;
+    private static final String GET_ACTION = "GET";
+    private ActionImpl leaguesAction;
+    private ActionImpl teamsAction;
 
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
         RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
-        action = (ActionImpl) parser.getResources().get("/leagues").getAction("GET");
+        Resource leaguesResource = parser.getResources().get("/leagues");
+        leaguesAction = (ActionImpl) leaguesResource.getAction(GET_ACTION);
+        teamsAction = (ActionImpl) leaguesResource.getResources().get("/{leagueId}").getResources().get("/teams").getAction(GET_ACTION);
     }
 
     @Test
-    public void getType() {
-        assertEquals("GET", action.getType().name());
+    public void getTypeTest() {
+        assertEquals(GET_ACTION, leaguesAction.getType().name());
     }
 
     @Test
-    public void hasBody() {
-        assertFalse(action.hasBody());
+    public void hasBodyTest() {
+        assertFalse(leaguesAction.hasBody());
     }
 
     @Test
-    public void getResponses() {
-        assertEquals(1, action.getResponses().size());
+    public void getResponsesTest() {
+        assertEquals(1, leaguesAction.getResponses().size());
     }
 
     @Test
-    public void getResource() {
-        assertEquals("Leagues", action.getResource().getDisplayName());
+    public void getResourceTest() {
+        assertEquals("Leagues", leaguesAction.getResource().getDisplayName());
     }
 
     @Test
-    public void getBody() {
-        assertEquals(0, action.getBody().size());
+    public void getBodyTest() {
+        assertEquals(0, leaguesAction.getBody().size());
     }
 
     @Test
-    public void getQueryParameters() {
-        assertEquals(0, action.getQueryParameters().size());
+    public void getQueryParametersTest() {
+        assertEquals(0, leaguesAction.getQueryParameters().size());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void getBaseUriParameters() {
-        action.getBaseUriParameters();
+    public void getBaseUriParametersTest() {
+        leaguesAction.getBaseUriParameters();
     }
 
     @Test
-    public void getResolvedUriParameters() {
-        assertEquals(0, action.getResolvedUriParameters().size());
+    public void getResolvedUriParametersTest() {
+        assertEquals(0, leaguesAction.getResolvedUriParameters().size());
     }
 
     @Test
-    public void getHeaders() {
-        assertEquals(0, action.getHeaders().size());
+    public void getHeadersTest() {
+        assertEquals(0, leaguesAction.getHeaders().size());
+        assertEquals(1, teamsAction.getHeaders().size());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void getSecuredBy() {
-        action.getSecuredBy();
+    public void getSecuredByTest() {
+        leaguesAction.getSecuredBy();
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void getIs() {
-        action.getIs();
+    public void getIsTest() {
+        leaguesAction.getIs();
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void cleanBaseUriParameters() {
-        action.cleanBaseUriParameters();
+    public void cleanBaseUriParametersTest() {
+        leaguesAction.cleanBaseUriParameters();
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void setHeaders() {
-        action.setHeaders(Collections.emptyMap());
+    public void setHeadersTest() {
+        leaguesAction.setHeaders(Collections.emptyMap());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void setQueryParameters() {
-        action.setQueryParameters(Collections.emptyMap());
+    public void setQueryParametersTest() {
+        leaguesAction.setQueryParameters(Collections.emptyMap());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void setBody() {
-        action.setBody(Collections.emptyMap());
+    public void setBodyTest() {
+        leaguesAction.setBody(Collections.emptyMap());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void addResponse() {
-        action.addResponse(null, null);
+    public void addResponseTest() {
+        leaguesAction.addResponse(null, null);
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void addSecurityReference() {
-        action.addSecurityReference(null);
+    public void addSecurityReferenceTest() {
+        leaguesAction.addSecurityReference(null);
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void addIs() {
-        action.addIs(null);
+    public void addIsTest() {
+        leaguesAction.addIs(null);
     }
 
     @Test
-    public void queryString() {
-        assertNull(action.queryString());
+    public void queryStringTest() {
+        assertNull(leaguesAction.queryString());
     }
 }

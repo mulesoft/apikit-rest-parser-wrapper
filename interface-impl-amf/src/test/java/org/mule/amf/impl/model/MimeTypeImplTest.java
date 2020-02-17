@@ -23,16 +23,18 @@ import static org.junit.Assert.assertNull;
 
 public class MimeTypeImplTest {
 
-    public static final String APPLICATION_JSON = "application/json";
-    public static final String TEXT_XML = "text/xml";
-    public static final String MULTIPART = "multipart/form-data";
-    public static final String XML_EXAMPLE = "<foo/>";
-    public static final String JSON_STRING_EXAMPLE = "\"foo\"";
-    public static final String JSON_OBJECT_EXAMPLE = "{\"name\":\"Barcelona\",\"id\":\"BAR\",\"homeCity\":\"Barcelona\",\"stadium\":\"CampNou\",\"matches\":24}";
-    public static final String JSON_MULTILINE_EXAMPLE = "{\"homeTeamScore\":3,\"awayTeamScore\":0}";
-    public static final String JSON_ARRAY_EXAMPLE = "[{\"homeTeam\":\"BAR\",\"awayTeam\":\"RMA\",\"date\":\"2014-01-12T20:00:00Z\"}]";
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String TEXT_XML = "text/xml";
+    private static final String MULTIPART = "multipart/form-data";
+    private static final String XML_EXAMPLE = "<foo/>";
+    private static final String XML_EXAMPLE_WRONG = "<foo";
+    private static final String JSON_STRING_EXAMPLE = "\"foo\"";
+    private static final String JSON_OBJECT_EXAMPLE = "{\"name\":\"Barcelona\",\"id\":\"BAR\",\"homeCity\":\"Barcelona\",\"stadium\":\"CampNou\",\"matches\":24}";
+    private static final String JSON_MULTILINE_EXAMPLE = "{\"homeTeamScore\":3,\"awayTeamScore\":0}";
+    private static final String JSON_ARRAY_EXAMPLE = "[{\"homeTeam\":\"BAR\",\"awayTeam\":\"RMA\",\"date\":\"2014-01-12T20:00:00Z\"}]";
     private static final String JSON_UNION_EXAMPLE = "{\"name\":\"localTeam\"}";
     private static final String JSON_INLINE_EXAMPLE = "{\"id\":\"12\",\"name\":\"internationalTeam\"}";
+    private static final String YAML_EXAMPLE = "name:ExampleLeaguedescription:Thisisanexampleleague";
     private static final String LEAGUES_RESOURCE = "/leagues";
     private static final String LEAGUE_ID_RESOURCE = "/{leagueId}";
     private static final String TEAMS_RESOURCE = "/teams";
@@ -45,6 +47,7 @@ public class MimeTypeImplTest {
     private static final String RESPONSE_201_CODE = "201";
     private static MimeTypeImpl jsonMimeType;
     private static MimeTypeImpl xmlMimeType;
+    private static MimeTypeImpl jsonMimeTypeWithYamlExample;
     private static MimeTypeImpl formMimeType;
     private static MimeTypeImpl objectJsonMimeType;
     private static MimeTypeImpl multilineJsonMimeType;
@@ -60,8 +63,9 @@ public class MimeTypeImplTest {
         Map<String, MimeType> mimeTypes = resource.getAction(GET_ACTION).getResponses().get(RESPONSE_200_CODE).getBody();
         jsonMimeType = (MimeTypeImpl) mimeTypes.get(APPLICATION_JSON);
         xmlMimeType = (MimeTypeImpl) mimeTypes.get(TEXT_XML);
-        formMimeType = (MimeTypeImpl) resource.getResources().get(LEAGUE_ID_RESOURCE).getResources().get(BADGE_RESOURCE)
-                .getAction(PUT_ACTION).getBody().get(MULTIPART);
+        ResourceImpl leagueIdResource = (ResourceImpl) resource.getResources().get(LEAGUE_ID_RESOURCE);
+        jsonMimeTypeWithYamlExample = (MimeTypeImpl) leagueIdResource.getAction(GET_ACTION).getResponses().get(RESPONSE_200_CODE).getBody().get("application/yaml");
+        formMimeType = (MimeTypeImpl) leagueIdResource.getResources().get(BADGE_RESOURCE).getAction(PUT_ACTION).getBody().get(MULTIPART);
 
         apiLocation = this.getClass().getResource("../08-leagues/api.raml").toURI().toString();
         apiRef = ApiReference.create(apiLocation);
@@ -104,6 +108,7 @@ public class MimeTypeImplTest {
         assertNotNull(unionJsonMimeType.getSchema());
         assertNull(xmlMimeType.getSchema());
         assertNotNull(formMimeType.getSchema());
+        assertNotNull(jsonMimeTypeWithYamlExample.getSchema());
     }
 
     @Test
@@ -139,6 +144,7 @@ public class MimeTypeImplTest {
         assertEquals(JSON_ARRAY_EXAMPLE, minifyJson(arrayJsonMimeType.getExample()));
         assertEquals(JSON_INLINE_EXAMPLE, minifyJson(inlineJsonMimeType.getExample()));
         assertEquals(JSON_UNION_EXAMPLE, minifyJson(unionJsonMimeType.getExample()));
+        assertEquals(YAML_EXAMPLE, minifyJson(jsonMimeTypeWithYamlExample.getExample()));
     }
 
     @Test
@@ -162,7 +168,12 @@ public class MimeTypeImplTest {
         assertEquals(0, arrayJsonMimeType.validate(JSON_ARRAY_EXAMPLE).size());
         assertEquals(0, inlineJsonMimeType.validate(JSON_INLINE_EXAMPLE).size());
         assertEquals(0, unionJsonMimeType.validate(JSON_UNION_EXAMPLE).size());
+        assertEquals(1, xmlMimeType.validate(XML_EXAMPLE_WRONG).size());
+    }
 
+    @Test(expected = RuntimeException.class)
+    public void validateExceptionTest() {
+        jsonMimeTypeWithYamlExample.validate(null);
     }
 
     private String minifyJson(String jsonValue) {
