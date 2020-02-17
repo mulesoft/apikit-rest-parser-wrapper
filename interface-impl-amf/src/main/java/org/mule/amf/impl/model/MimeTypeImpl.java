@@ -65,18 +65,16 @@ public class MimeTypeImpl implements MimeType {
 
   @Override
   public Map<String, List<Parameter>> getFormParameters() {
-    final String mediaType = payload.mediaType().value();
+    String mediaType = payload.mediaType().value();
 
     if (mediaType.startsWith("multipart/") || mediaType.equals("application/x-www-form-urlencoded")) {
-      if (shape.getClass() == AnyShape.class)
+
+      if (!(shape instanceof NodeShape)) {
         return emptyMap();
+      }
+      NodeShape nodeShape = (NodeShape) shape;
 
-      if (!(shape instanceof NodeShape))
-        throw new RuntimeException("Unexpected Shape " + shape.getClass());
-
-      final NodeShape nodeShape = (NodeShape) shape;
-
-      final Map<String, List<Parameter>> parameters = new LinkedHashMap<>();
+      Map<String, List<Parameter>> parameters = new LinkedHashMap<>();
 
       for (PropertyShape propertyShape : nodeShape.properties()) {
         parameters.put(propertyShape.name().value(), singletonList(new ParameterImpl(propertyShape)));
