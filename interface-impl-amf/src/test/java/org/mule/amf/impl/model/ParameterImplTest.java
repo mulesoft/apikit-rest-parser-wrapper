@@ -25,15 +25,12 @@ public class ParameterImplTest {
 
     private static final String RESOURCE = "/books";
     private static final String ACTION = "GET";
-<<<<<<< HEAD
     private static final String ISBN = "0321736079";
     private static final String ISBN_QUERY_PARAM = "isbn";
     private static final String TAGS_QUERY_PARAM = "tags";
     private static final String AUTHOR_QUERY_PARAM = "author";
     private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
-=======
     private final String TEST_NULL_RESOURCE = "/testNull";
->>>>>>> Use strategy for parameter validator
     private Map<String, Parameter> queryParams;
     private Map<String, Parameter> testNullQueryParams;
 

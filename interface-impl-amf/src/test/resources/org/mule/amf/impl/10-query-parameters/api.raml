@@ -1,14 +1,13 @@
 #%RAML 1.0
 title: Illustrate query parameter variations
 
-<<<<<<< HEAD
 types:
   author:
     properties:
       name: string
       lastname: string
       addresses?: array
-=======
+
 /testNull:
   get:
     queryParameters:
@@ -24,16 +23,12 @@ types:
         nonNullableInteger:
             type: integer
             required: false
-<<<<<<< HEAD
->>>>>>> Use strategy for parameter validator
-=======
         nullableArray:
             type: string[] | nil
             required: false
         nonNullableArray:
             type: string[]
             required: false
->>>>>>> Fix PR comments
 
 /books:
   get:
