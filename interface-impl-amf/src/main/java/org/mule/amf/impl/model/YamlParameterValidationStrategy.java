@@ -11,12 +11,12 @@ import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 
-public class ObjectParameterValidationStrategy implements ParameterValidationStrategy {
+class YamlParameterValidationStrategy implements ParameterValidationStrategy {
 
 
   private final PayloadValidator parameterValidator;
 
-  ObjectParameterValidationStrategy(AnyShape anyShape){
+  YamlParameterValidationStrategy(AnyShape anyShape){
     this.parameterValidator = anyShape.parameterValidator(APPLICATION_YAML).get();
   }
 

@@ -75,6 +75,23 @@ public class ParameterImplTest {
         final Parameter nullableString = testNullQueryParams.get("nullableString");
         assertTrue(nullableString.validate(null));
         assertTrue(nullableString.validate("123"));
+
+    }
+
+    @Test
+    public void nullableArray(){
+        final Parameter nullableString = testNullQueryParams.get("nullableArray");
+        assertTrue(nullableString.validate(null));
+        assertTrue(nullableString.validate("- \"Hola\"\n- \"Mundo\""));
+    }
+
+
+    @Test
+    public void nonNullableArray(){
+        final Parameter nonNullableString = testNullQueryParams.get("nonNullableArray");
+        assertFalse(nonNullableString.validate(null));
+        assertEquals("expected type: JSONArray, found: Null", nonNullableString.message(null));
+        assertTrue(nonNullableString.validate("- \"Hola\"\n- \"Mundo\""));
     }
 
     @Test

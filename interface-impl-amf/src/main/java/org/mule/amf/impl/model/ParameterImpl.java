@@ -43,12 +43,7 @@ class ParameterImpl implements Parameter {
   ParameterImpl(AnyShape anyShape, boolean required) {
     this.schema = anyShape;
     this.required = required;
-
-    if(isArray() || isUnion()){
-      this.validationStrategy = new ObjectParameterValidationStrategy(anyShape);
-    } else {
-      this.validationStrategy = new ScalarParameterValidationStrategy(anyShape);
-    }
+    this.validationStrategy = new ParameterValidationStrategyBuilder(anyShape).build();
   }
 
   @Override
