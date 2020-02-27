@@ -14,17 +14,10 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
-class ParameterValidationStrategyBuilder {
+class ParameterValidationStrategyFactory {
   private static final Set<String> NOT_QUOTABLE_DATA_TYPES = ImmutableSet.of("integer", "float", "number", "boolean");
 
-
-  private final AnyShape anyShape;
-
-  ParameterValidationStrategyBuilder(AnyShape anyShape) {
-    this.anyShape = anyShape;
-  }
-
-  ParameterValidationStrategy build(){
+  static ParameterValidationStrategy getStrategy(AnyShape anyShape){
     if(anyShape instanceof ArrayShape || anyShape instanceof UnionShape){
       return new YamlParameterValidationStrategy(anyShape);
     } else if(needsQuotes(anyShape)) {
@@ -32,7 +25,6 @@ class ParameterValidationStrategyBuilder {
     }
 
     return new NotQuotedJsonParameterValidationStrategy(anyShape);
-
   }
 
   private static boolean needsQuotes(AnyShape anyShape) {
@@ -43,10 +35,6 @@ class ParameterValidationStrategyBuilder {
     String dataType = ((ScalarShape) anyShape).dataType().value();
     dataType = dataType.substring(dataType.lastIndexOf("#") + 1);
 
-    if(!NOT_QUOTABLE_DATA_TYPES.contains(dataType)){
-      return true;
-    }
-
-    return false;
+    return !NOT_QUOTABLE_DATA_TYPES.contains(dataType);
   }
 }

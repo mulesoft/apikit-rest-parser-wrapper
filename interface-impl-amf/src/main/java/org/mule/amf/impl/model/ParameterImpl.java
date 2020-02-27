@@ -43,7 +43,7 @@ class ParameterImpl implements Parameter {
   ParameterImpl(AnyShape anyShape, boolean required) {
     this.schema = anyShape;
     this.required = required;
-    this.validationStrategy = new ParameterValidationStrategyBuilder(anyShape).build();
+    this.validationStrategy = ParameterValidationStrategyFactory.getStrategy(anyShape);
   }
 
   @Override

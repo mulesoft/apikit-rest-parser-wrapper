@@ -14,13 +14,13 @@ import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 
 abstract class JsonParameterValidationStrategy implements ParameterValidationStrategy {
-  final PayloadValidator jsonValidator;
+  protected final PayloadValidator jsonValidator;
   final ValidationReport nullValidationReport;
 
   JsonParameterValidationStrategy(AnyShape anyShape){
     this.jsonValidator = anyShape.payloadValidator(APPLICATION_JSON).get();
     final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML).get();
-    this.nullValidationReport = yamlPayloadValidator.syncValidate(APPLICATION_YAML,"null");
+    this.nullValidationReport = yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   }
 
   public ValidationReport validate(String payload) {
