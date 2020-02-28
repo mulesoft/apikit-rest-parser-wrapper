@@ -20,9 +20,9 @@ abstract class JsonParameterValidationStrategy implements ParameterValidationStr
 
   JsonParameterValidationStrategy(AnyShape anyShape){
     final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML)
-            .orElseThrow(ParserException::new);
+            .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
     this.jsonValidator = anyShape.payloadValidator(APPLICATION_JSON)
-            .orElseThrow(ParserException::new);
+            .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape));
     this.nullValidationReport = yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   }
 

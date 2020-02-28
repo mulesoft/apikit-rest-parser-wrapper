@@ -19,7 +19,8 @@ class YamlParameterValidationStrategy implements ParameterValidationStrategy {
   private final PayloadValidator parameterValidator;
 
   YamlParameterValidationStrategy(AnyShape anyShape){
-    this.parameterValidator = anyShape.parameterValidator(APPLICATION_YAML).orElseThrow(ParserException::new);
+    this.parameterValidator = anyShape.parameterValidator(APPLICATION_YAML)
+            .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
   }
 
   @Override
