@@ -30,11 +30,11 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   }
 
   public ValidationReport validate(String value) {
-    return value == null ? nullValidationReport :
-            jsonValidator.syncValidate(APPLICATION_JSON, sanitize(value, needsQuotes));
-  }
+    if(value == null){
+      return nullValidationReport;
+    }
 
-  private static String sanitize(String value, boolean needsQuotes) {
-    return needsQuotes ? quote(value.replaceAll("\"", "\\\\\"")) : value;
+    return jsonValidator.syncValidate(APPLICATION_JSON,  needsQuotes ?
+            quote(value.replaceAll("\"", "\\\\\"")) : value);
   }
 }
