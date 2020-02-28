@@ -77,9 +77,9 @@ public class ParameterImplTest {
 
     @Test
     public void nullableArray(){
-        final Parameter nullableString = testNullQueryParams.get("nullableArray");
-        assertTrue(nullableString.validate(null));
-        assertTrue(nullableString.validate("- \"Hola\"\n- \"Mundo\""));
+        final Parameter nullableArray = testNullQueryParams.get("nullableArray");
+        assertTrue(nullableArray.validate(null));
+        assertTrue(nullableArray.validate("- \"Hola\"\n- \"Mundo\""));
     }
 
 
