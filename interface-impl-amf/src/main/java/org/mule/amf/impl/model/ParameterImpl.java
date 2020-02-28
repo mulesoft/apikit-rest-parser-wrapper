@@ -14,7 +14,6 @@ import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
 import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
-import amf.client.model.domain.UnionShape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
