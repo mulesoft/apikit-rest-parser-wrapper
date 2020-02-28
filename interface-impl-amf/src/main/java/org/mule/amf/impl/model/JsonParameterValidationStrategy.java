@@ -10,8 +10,7 @@ import amf.client.model.domain.AnyShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.exceptions.ParserException;
-
-import java.util.function.Supplier;
+import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
@@ -21,15 +20,15 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   private final boolean needsQuotes;
   private AnyShape anyShape;
 
-  private final Supplier<PayloadValidator> jsonValidator = () -> anyShape.payloadValidator(APPLICATION_JSON)
-          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape));
+  private final LazyValue<PayloadValidator> jsonValidator = new LazyValue<>(() -> anyShape.payloadValidator(APPLICATION_JSON)
+          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape)));
 
-  private final Supplier<ValidationReport> nullValidationReport = () ->{
+  private final LazyValue<ValidationReport> nullValidationReport = new LazyValue<>(() -> {
     final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML)
             .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
 
     return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
-  };
+  });
 
   JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes){
     this.anyShape = anyShape;
@@ -44,4 +43,5 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
     return jsonValidator.get().syncValidate(APPLICATION_JSON,  needsQuotes ?
             quote(value.replaceAll("\"", "\\\\\"")) : value);
   }
+
 }
