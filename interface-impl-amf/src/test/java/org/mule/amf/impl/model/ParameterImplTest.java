@@ -100,6 +100,21 @@ public class ParameterImplTest {
     }
 
     @Test
+    public void validateSpecialCharacters() {
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate(";',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("A',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("1',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("%',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("@',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("%25%3B%27%2C%7C%5B%5D%2B%40%3C%3E%7B%7D%60%21%22%25"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("\"Test:%20Test\""));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("Tests:Tests"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("Test:%20Test"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("Test%3A%20Test"));
+    }
+
+    @Test
     public void messageTest() {
         assertEquals("expected type: Number, found: String", queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).message("Not valid value"));
         assertEquals("OK", queryParams.get(ISBN_QUERY_PARAM).message(ISBN));

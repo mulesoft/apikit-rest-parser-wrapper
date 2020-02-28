@@ -20,7 +20,8 @@ class QuotedJsonParameterValidationStrategy extends JsonParameterValidationStrat
 
   @Override
   public ValidationReport validate(String value) {
-    return value == null ? nullValidationReport : super.validate(quote(value));
+    String payload = value.replaceAll("\"", "\\\\\"");
+    return value == null ? nullValidationReport : super.validate(quote(payload));
   }
 
 }
