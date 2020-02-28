@@ -59,10 +59,6 @@ class ParameterImpl implements Parameter {
     return "\"" + payload + "\"";
   }
 
-  boolean isUnion(){
-    return schema instanceof UnionShape;
-  }
-
   private static AnyShape getSchema(amf.client.model.domain.Parameter parameter) {
     Shape shape = parameter.schema();
     return castToAnyShape(shape);

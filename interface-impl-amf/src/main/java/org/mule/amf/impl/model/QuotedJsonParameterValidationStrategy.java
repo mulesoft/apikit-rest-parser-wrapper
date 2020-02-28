@@ -9,7 +9,6 @@ package org.mule.amf.impl.model;
 import amf.client.model.domain.AnyShape;
 import amf.client.validate.ValidationReport;
 
-import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.ParameterImpl.quote;
 
 class QuotedJsonParameterValidationStrategy extends JsonParameterValidationStrategy implements ParameterValidationStrategy {
