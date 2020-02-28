@@ -9,6 +9,7 @@ package org.mule.amf.impl.model;
 import amf.client.model.domain.AnyShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
+import org.mule.amf.impl.exceptions.ParserException;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
@@ -18,8 +19,10 @@ abstract class JsonParameterValidationStrategy implements ParameterValidationStr
   final ValidationReport nullValidationReport;
 
   JsonParameterValidationStrategy(AnyShape anyShape){
-    this.jsonValidator = anyShape.payloadValidator(APPLICATION_JSON).get();
-    final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML).get();
+    final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML)
+            .orElseThrow(ParserException::new);
+    this.jsonValidator = anyShape.payloadValidator(APPLICATION_JSON)
+            .orElseThrow(ParserException::new);
     this.nullValidationReport = yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   }
 

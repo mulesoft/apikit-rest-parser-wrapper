@@ -9,6 +9,8 @@ package org.mule.amf.impl.model;
 import amf.client.model.domain.AnyShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
+import org.mule.amf.impl.exceptions.ParserException;
+
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 
 class YamlParameterValidationStrategy implements ParameterValidationStrategy {
@@ -17,7 +19,7 @@ class YamlParameterValidationStrategy implements ParameterValidationStrategy {
   private final PayloadValidator parameterValidator;
 
   YamlParameterValidationStrategy(AnyShape anyShape){
-    this.parameterValidator = anyShape.parameterValidator(APPLICATION_YAML).get();
+    this.parameterValidator = anyShape.parameterValidator(APPLICATION_YAML).orElseThrow(ParserException::new);
   }
 
   @Override

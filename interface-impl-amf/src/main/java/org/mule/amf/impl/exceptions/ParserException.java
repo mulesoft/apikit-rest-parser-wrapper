@@ -8,6 +8,10 @@ package org.mule.amf.impl.exceptions;
 
 public class ParserException extends RuntimeException {
 
+  public ParserException() {
+
+  }
+
   public ParserException(final String message) {
     super(message);
   }
