@@ -52,6 +52,7 @@ public class LazyValue<T> implements Supplier<T> {
       synchronized (this) {
         if (!initialized) {
           this.value = valueSupplier.get();
+          this.valueSupplier = null;
           this.initialized = true;
         }
       }
