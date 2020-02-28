@@ -11,30 +11,37 @@ import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.exceptions.ParserException;
 
+import java.util.function.Supplier;
+
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 import static org.mule.amf.impl.model.ParameterImpl.quote;
 
 class JsonParameterValidationStrategy implements ParameterValidationStrategy {
-  private final PayloadValidator jsonValidator;
-  private final ValidationReport nullValidationReport;
   private final boolean needsQuotes;
+  private AnyShape anyShape;
 
-  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes){
+  private final Supplier<PayloadValidator> jsonValidator = () -> anyShape.payloadValidator(APPLICATION_JSON)
+          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape));
+
+  private final Supplier<ValidationReport> nullValidationReport = () ->{
     final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML)
             .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
-    this.jsonValidator = anyShape.payloadValidator(APPLICATION_JSON)
-            .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape));
-    this.nullValidationReport = yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
+
+    return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
+  };
+
+  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes){
+    this.anyShape = anyShape;
     this.needsQuotes = needsQuotes;
   }
 
   public ValidationReport validate(String value) {
     if(value == null){
-      return nullValidationReport;
+      return nullValidationReport.get();
     }
 
-    return jsonValidator.syncValidate(APPLICATION_JSON,  needsQuotes ?
+    return jsonValidator.get().syncValidate(APPLICATION_JSON,  needsQuotes ?
             quote(value.replaceAll("\"", "\\\\\"")) : value);
   }
 }

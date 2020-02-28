@@ -11,22 +11,24 @@ import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.exceptions.ParserException;
 
+import java.util.function.Supplier;
+
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 
 class YamlParameterValidationStrategy implements ParameterValidationStrategy {
+  private AnyShape anyShape;
 
-
-  private final PayloadValidator parameterValidator;
+  private final Supplier<PayloadValidator> parameterValidator = () -> anyShape.parameterValidator(APPLICATION_YAML)
+          .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
 
   YamlParameterValidationStrategy(AnyShape anyShape){
-    this.parameterValidator = anyShape.parameterValidator(APPLICATION_YAML)
-            .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
+    this.anyShape = anyShape;
   }
 
   @Override
   public ValidationReport validate(String value) {
     String payload = value != null ? value : "null" ;
 
-    return parameterValidator.syncValidate(APPLICATION_YAML,payload);
+    return parameterValidator.get().syncValidate(APPLICATION_YAML,payload);
   }
 }
