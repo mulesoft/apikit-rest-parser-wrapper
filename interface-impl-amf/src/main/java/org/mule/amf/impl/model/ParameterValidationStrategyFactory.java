@@ -24,11 +24,9 @@ class ParameterValidationStrategyFactory {
   static ParameterValidationStrategy getStrategy(AnyShape anyShape){
     if(anyShape instanceof ArrayShape || anyShape instanceof UnionShape){
       return new YamlParameterValidationStrategy(anyShape);
-    } else if(needsQuotes(anyShape)) {
-      return new QuotedJsonParameterValidationStrategy(anyShape);
     }
 
-    return new NotQuotedJsonParameterValidationStrategy(anyShape);
+    return new JsonParameterValidationStrategy(anyShape, needsQuotes(anyShape));
   }
 
   private static boolean needsQuotes(AnyShape anyShape) {
