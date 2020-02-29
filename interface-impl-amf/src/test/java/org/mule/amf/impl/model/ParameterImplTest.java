@@ -9,6 +9,7 @@ package org.mule.amf.impl.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
+import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
@@ -29,14 +30,65 @@ public class ParameterImplTest {
     private static final String TAGS_QUERY_PARAM = "tags";
     private static final String AUTHOR_QUERY_PARAM = "author";
     private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
+    private final String TEST_NULL_RESOURCE = "/testNull";
     private Map<String, Parameter> queryParams;
+    private Map<String, Parameter> testNullQueryParams;
 
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("../10-query-parameters/api.raml").toURI().toString();
         ApiReference apiRef = ApiReference.create(apiLocation);
-        ResourceImpl resource = (ResourceImpl) new AMFParser(apiRef, true).parse().getResource(RESOURCE);
+        ApiSpecification apiSpecification = new AMFParser(apiRef, true).parse();
+        ResourceImpl resource = (ResourceImpl) apiSpecification.getResource(RESOURCE);
         queryParams = resource.getAction(ACTION).getQueryParameters();
+        testNullQueryParams =  apiSpecification.getResource(TEST_NULL_RESOURCE).getAction(ACTION).getQueryParameters();
+    }
+
+    @Test
+    public void nonNullableInteger(){
+        final Parameter nonNullableInteger = testNullQueryParams.get("nonNullableInteger");
+        assertFalse(nonNullableInteger.validate(null));
+        assertEquals("expected type: Number, found: Null", nonNullableInteger.message(null));
+        assertTrue(nonNullableInteger.validate("123"));
+    }
+
+    @Test
+    public void nullableInteger(){
+        final Parameter nullableInteger = testNullQueryParams.get("nullableInteger");
+        assertTrue(nullableInteger.validate(null));
+        assertTrue(nullableInteger.validate("123"));
+    }
+
+    @Test
+    public void nonNullableString(){
+        final Parameter nonNullableString = testNullQueryParams.get("nonNullableString");
+        assertFalse(nonNullableString.validate(null));
+        assertEquals("expected type: String, found: Null", nonNullableString.message(null));
+        assertTrue(nonNullableString.validate("123"));
+    }
+
+    @Test
+    public void nullableString(){
+        final Parameter nullableString = testNullQueryParams.get("nullableString");
+        assertTrue(nullableString.validate(null));
+        assertTrue(nullableString.validate("123"));
+
+    }
+
+    @Test
+    public void nullableArray(){
+        final Parameter nullableArray = testNullQueryParams.get("nullableArray");
+        assertTrue(nullableArray.validate(null));
+        assertTrue(nullableArray.validate("- \"Hola\"\n- \"Mundo\""));
+    }
+
+
+    @Test
+    public void nonNullableArray(){
+        final Parameter nonNullableString = testNullQueryParams.get("nonNullableArray");
+        assertFalse(nonNullableString.validate(null));
+        assertEquals("expected type: JSONArray, found: Null", nonNullableString.message(null));
+        assertTrue(nonNullableString.validate("- \"Hola\"\n- \"Mundo\""));
     }
 
     @Test
@@ -45,6 +97,21 @@ public class ParameterImplTest {
         assertFalse(queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).validate("Not valid value"));
         assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate(ISBN));
         assertFalse(queryParams.get(TAGS_QUERY_PARAM).validate("<tagExample>Not valid value</tagExample>"));
+    }
+
+    @Test
+    public void validateSpecialCharacters() {
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate(";',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("A',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("1',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("%',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("@',|[]+@<>{}`!\"%"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("%25%3B%27%2C%7C%5B%5D%2B%40%3C%3E%7B%7D%60%21%22%25"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("\"Test:%20Test\""));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("Tests:Tests"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("Test:%20Test"));
+        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate("Test%3A%20Test"));
     }
 
     @Test

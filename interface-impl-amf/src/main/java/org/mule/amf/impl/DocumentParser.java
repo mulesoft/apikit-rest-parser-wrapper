@@ -6,21 +6,6 @@
  */
 package org.mule.amf.impl;
 
-import static org.apache.commons.io.FilenameUtils.getExtension;
-
-import org.mule.amf.impl.exceptions.ParserException;
-import org.mule.apikit.model.ApiVendor;
-import org.mule.apikit.model.api.ApiReference;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import amf.ProfileName;
 import amf.ProfileNames;
 import amf.client.AMF;
@@ -36,11 +21,24 @@ import amf.client.parse.Raml10Parser;
 import amf.client.parse.RamlParser;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
-import amf.plugins.features.validation.AMFValidatorPlugin;
 import amf.plugins.xml.XmlValidationPlugin;
 import org.apache.commons.io.IOUtils;
+import org.mule.amf.impl.exceptions.ParserException;
+import org.mule.apikit.model.ApiVendor;
+import org.mule.apikit.model.api.ApiReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static org.apache.commons.io.FilenameUtils.getExtension;
 
 public class DocumentParser {
 
@@ -164,7 +162,6 @@ public class DocumentParser {
   static {
     try {
       AMF.init().get();
-      AMFValidatorPlugin.withEnabledValidation(true);
       amf.core.AMF.registerPlugin(new XmlValidationPlugin());
     } catch (final Exception e) {
       logger.error("Error initializing AMF", e);
