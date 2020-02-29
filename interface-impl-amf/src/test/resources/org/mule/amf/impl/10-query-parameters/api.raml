@@ -8,6 +8,28 @@ types:
       lastname: string
       addresses?: array
 
+/testNull:
+  get:
+    queryParameters:
+        nullableString:
+            type: string | nil
+            required: false
+        nonNullableString:
+            type: string
+            required: false
+        nullableInteger:
+            type: integer | nil
+            required: false
+        nonNullableInteger:
+            type: integer
+            required: false
+        nullableArray:
+            type: string[] | nil
+            required: false
+        nonNullableArray:
+            type: string[]
+            required: false
+
 /books:
   get:
     queryParameters:
