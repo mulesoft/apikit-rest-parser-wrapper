@@ -20,6 +20,7 @@ import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
+import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -149,7 +150,8 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiSpecification parse() {
-    return new AMFImpl(webApi, references, apiRef.getVendor(), getConsoleModel(), apiRef);
+    return new AMFImpl(webApi, references, apiRef.getVendor(), new LazyValue<>(
+        this::getConsoleModel), apiRef);
   }
 
   private Document getConsoleModel() {
