@@ -15,6 +15,7 @@ import amf.client.render.Oas20Renderer;
 import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
 import amf.client.render.RenderOptions;
+import org.mule.amf.impl.util.LazyValue;
 import amf.client.render.Renderer;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
@@ -50,10 +51,10 @@ public class AMFImpl implements ApiSpecification {
   private final Map<String, Map<String, Resource>> resources;
   private final List<String> references;
   private final ApiVendor apiVendor;
-  private final Document consoleModel;
+  private final transient LazyValue<Document> consoleModel;
   private final ApiReference apiRef;
 
-  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, Document console, ApiReference apiRef) {
+  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, LazyValue<Document> console, ApiReference apiRef) {
     this.webApi = webApi;
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
@@ -182,7 +183,7 @@ public class AMFImpl implements ApiSpecification {
         break;
     }
     try {
-      return renderer.generateString(consoleModel).get();
+      return renderer.generateString(consoleModel.get()).get();
     } catch (final InterruptedException | ExecutionException e) {
       LOGGER.error(format("Error render API '%s' to '%s'", apiRef.getLocation(), apiVendor.name()), e);
       return "";
@@ -202,7 +203,7 @@ public class AMFImpl implements ApiSpecification {
   // This method should only be used by API Console... /shrug
   public String dumpAmf() {
     try {
-      return new AmfGraphRenderer().generateString(consoleModel,
+      return new AmfGraphRenderer().generateString(consoleModel.get(),
           new RenderOptions()
               .withoutSourceMaps()
               .withoutPrettyPrint()
@@ -220,6 +221,6 @@ public class AMFImpl implements ApiSpecification {
     } else {
       webApi.withServer(baseUri);
     }
-    consoleModel.withEncodes(webApi);
+    consoleModel.get().withEncodes(webApi);
   }
 }
