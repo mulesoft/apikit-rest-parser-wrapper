@@ -1,5 +1,6 @@
 Map pipelineParams = [
    agentLabel                   : "windows2019",
+   enableMavenDeployStage       : false,
    enableSonarQubeStage         : false,
    enableNexusIqStage           : false,
    enableAllureTestReportStage  : false,
