@@ -52,7 +52,8 @@ public class ApiValidationResultImpl implements ApiValidationResult {
 
   @Override
   public Severity getSeverity() {
-    return !severities.contains(validationResult.level()) ? ERROR : Severity.fromString(validationResult.level());
+    return !severities.contains(validationResult.level().toUpperCase()) ?
+        ERROR : Severity.fromString(validationResult.level());
   }
 
   private static String buildErrorMessage(String message, String location, Position startPosition) {
