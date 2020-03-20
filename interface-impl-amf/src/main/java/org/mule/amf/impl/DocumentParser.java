@@ -16,6 +16,8 @@ import amf.client.model.document.Document;
 import amf.client.model.domain.WebApi;
 import amf.client.parse.Oas20Parser;
 import amf.client.parse.Oas20YamlParser;
+import amf.client.parse.Oas30Parser;
+import amf.client.parse.Oas30YamlParser;
 import amf.client.parse.Parser;
 import amf.client.parse.Raml08Parser;
 import amf.client.parse.Raml10Parser;
@@ -65,7 +67,8 @@ public class DocumentParser {
     final Document document = parseFile(parser, apiPath);
 
     if (validate) {
-      final ProfileName profile = parser instanceof Oas20Parser ? ProfileNames.OAS() : ProfileNames.RAML();
+      final ProfileName profile = parser instanceof Oas20Parser || parser instanceof Oas30Parser ?
+              ProfileNames.OAS() : ProfileNames.RAML();
       final ValidationReport parsingReport = DocumentParser.getParsingReport(parser, profile);
       if (!parsingReport.conforms()) {
         final List<ValidationResult> results = parsingReport.results();
@@ -97,6 +100,11 @@ public class DocumentParser {
           return new Oas20Parser(environment);
         else
           return new Oas20YamlParser(environment);
+      case OAS_30:
+        if ("JSON".equalsIgnoreCase(apiRef.getFormat()))
+          return new Oas30Parser(environment);
+        else
+          return new Oas30YamlParser(environment);
       case RAML_08:
         return new Raml08Parser(environment);
       case RAML_10:
@@ -126,19 +134,25 @@ public class DocumentParser {
     try {
       in = new BufferedReader(new InputStreamReader(api.toURL().openStream()));
 
-      final String firstLine = getFirstLine(in);
+      final String firstLine = getFirstLine(in).toUpperCase();
 
-      if (firstLine.toUpperCase().contains("#%RAML"))
+      if (firstLine.contains("#%RAML"))
         return VendorEx.RAML;
 
       final boolean isJson = firstLine.startsWith("{") || firstLine.startsWith("[");
       // Some times swagger version is in the first line too, e.g. yaml files
-      if (firstLine.toUpperCase().contains("SWAGGER"))
+      if (firstLine.contains("SWAGGER")) {
         return isJson ? VendorEx.OAS20_JSON : VendorEx.OAS20_YAML;
+      }
+      if (firstLine.contains("OPENAPI")) {
+        return isJson ? VendorEx.OAS30_JSON : VendorEx.OAS30_YAML;
+      }
 
       int lines = 0;
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
+        if (inputLine.toUpperCase().contains("OPENAPI"))
+          return isJson ? VendorEx.OAS30_JSON : VendorEx.OAS30_YAML;
         if (inputLine.toUpperCase().contains("SWAGGER"))
           return isJson ? VendorEx.OAS20_JSON : VendorEx.OAS20_YAML;
         if (++lines == 10)
@@ -174,6 +188,8 @@ public class DocumentParser {
   public enum VendorEx {
     RAML,
     OAS20_JSON,
-    OAS20_YAML
+    OAS20_YAML,
+    OAS30_JSON,
+    OAS30_YAML
   }
 }

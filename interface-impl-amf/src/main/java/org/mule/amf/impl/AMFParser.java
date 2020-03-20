@@ -9,6 +9,7 @@ package org.mule.amf.impl;
 import static amf.ProfileNames.AMF;
 import static amf.ProfileNames.OAS;
 import static amf.ProfileNames.OAS20;
+import static amf.ProfileNames.OAS30;
 import static amf.ProfileNames.RAML;
 import static amf.ProfileNames.RAML08;
 import static amf.ProfileNames.RAML10;
@@ -150,6 +151,8 @@ public class AMFParser implements ApiParser {
         return OAS();
       case OAS_20:
         return OAS20();
+      case OAS_30:
+        return OAS30();
       case RAML:
         return RAML();
       case RAML_08:

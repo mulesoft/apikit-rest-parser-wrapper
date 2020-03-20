@@ -7,6 +7,7 @@
 package org.mule.apikit.common;
 
 import static org.mule.apikit.model.ApiVendor.OAS_20;
+import static org.mule.apikit.model.ApiVendor.OAS_30;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 
 public class ApiVendorUtils {
 
+  private static final String OPENAPI = "OPENAPI";
   private static final String SWAGGER = "SWAGGER";
   private static final String HEADER_RAML_10 = "#%RAML 1.0";
   private static final String HEADER_RAML_08 = "#%RAML 0.8";
@@ -39,6 +41,8 @@ public class ApiVendorUtils {
       do {
         if (inputLine.toUpperCase().contains(SWAGGER))
           return OAS_20;
+        if (inputLine.toUpperCase().contains(OPENAPI))
+          return OAS_30;
         if (++lines == 10)
           break;
       } while ((inputLine = in.readLine()) != null);

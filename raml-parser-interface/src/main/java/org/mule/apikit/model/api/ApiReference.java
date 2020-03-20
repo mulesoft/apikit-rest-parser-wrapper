@@ -64,9 +64,6 @@ public interface ApiReference {
       return ramlVendor != null ? ramlVendor : RAML_10;
     }
 
-    if ("JSON".equalsIgnoreCase(format))
-      return OAS_20;
-
     return deduceApiVendor(resolve());
   }
 }
