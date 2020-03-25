@@ -6,7 +6,8 @@
  */
 package org.mule.apikit.implv1.model;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.SuppressPropertiesBeanIntrospector;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.ApiSpecification;
@@ -49,6 +50,7 @@ public class RamlImplV1 implements ApiSpecification {
     return raml;
   }
 
+  @Override
   public Resource getResource(String s) {
     org.raml.model.Resource resource = raml.getResource(s);
     if (resource == null) {
@@ -57,14 +59,17 @@ public class RamlImplV1 implements ApiSpecification {
     return new ResourceImpl(resource);
   }
 
+  @Override
   public Map<String, String> getConsolidatedSchemas() {
     return raml.getConsolidatedSchemas();
   }
 
+  @Override
   public Map<String, Object> getCompiledSchemas() {
     return raml.getCompiledSchemas();
   }
 
+  @Override
   public String getBaseUri() {
     return raml.getBaseUri();
   }
@@ -74,6 +79,7 @@ public class RamlImplV1 implements ApiSpecification {
     return ramlPath;
   }
 
+  @Override
   public Map<String, Resource> getResources() {
     if (raml.getResources() == null) {
       return null;
@@ -85,6 +91,7 @@ public class RamlImplV1 implements ApiSpecification {
     return map;
   }
 
+  @Override
   public String getVersion() {
     return raml.getVersion();
   }
@@ -93,6 +100,7 @@ public class RamlImplV1 implements ApiSpecification {
     raml.setBaseUri(s);
   }
 
+  @Override
   public Map<String, Parameter> getBaseUriParameters() {
     if (raml.getBaseUriParameters() == null) {
       return emptyMap();
@@ -104,6 +112,7 @@ public class RamlImplV1 implements ApiSpecification {
     return map;
   }
 
+  @Override
   public List<Map<String, SecurityScheme>> getSecuritySchemes() {
     if (raml.getSecuritySchemes() == null) {
       return null;
@@ -119,6 +128,7 @@ public class RamlImplV1 implements ApiSpecification {
     return list;
   }
 
+  @Override
   public List<Map<String, Template>> getTraits() {
     if (raml.getTraits() == null) {
       return null;
@@ -134,10 +144,12 @@ public class RamlImplV1 implements ApiSpecification {
     return list;
   }
 
+  @Override
   public String getUri() {
     return raml.getUri();
   }
 
+  @Override
   public List<Map<String, String>> getSchemas() {
     return raml.getSchemas();
   }
@@ -164,7 +176,9 @@ public class RamlImplV1 implements ApiSpecification {
     RamlEmitter emitter = new RamlEmitter();
     if (newBaseUri != null) {
       try {
-        Raml clone = (Raml) BeanUtils.cloneBean(raml);
+        BeanUtilsBean beanUtilsBean = BeanUtilsBean.getInstance();
+        beanUtilsBean.getPropertyUtils().addBeanIntrospector(SuppressPropertiesBeanIntrospector.SUPPRESS_CLASS);
+        Raml clone = (Raml) beanUtilsBean.cloneBean(raml);
         clone.setBaseUri(newBaseUri);
         return emitter.dump(clone);
       } catch (Exception e) {
