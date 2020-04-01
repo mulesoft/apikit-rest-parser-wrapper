@@ -6,9 +6,11 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.client.model.StrField;
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.DataNode;
+import amf.client.model.domain.FileShape;
 import amf.client.model.domain.NodeShape;
 import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
@@ -16,12 +18,17 @@ import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
+import java.util.Optional;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
+import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
 import java.util.Map;
 
+import static java.util.Optional.of;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toMap;
 import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
@@ -161,6 +168,18 @@ class ParameterImpl implements Parameter {
       return quote(value);
     }
     return value;
+  }
+
+  @Override
+  public Optional<FileProperties> getFileProperties() {
+    if (schema instanceof FileShape) {
+      FileShape fileShape = (FileShape) schema;
+      return of(new FileProperties(fileShape.minLength().value(),
+          fileShape.maxLength().value(),
+          fileShape.fileTypes().stream()
+              .map(StrField::value).collect(toSet())));
+    }
+    return empty();
   }
 
   private boolean isStringArray() {

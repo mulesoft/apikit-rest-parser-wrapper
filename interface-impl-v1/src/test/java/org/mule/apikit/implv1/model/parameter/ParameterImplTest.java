@@ -142,4 +142,9 @@ public class ParameterImplTest {
     public void surroundWithQuotesIfNeededTest() {
         assertEquals(EXAMPLE, stringParameter.surroundWithQuotesIfNeeded(EXAMPLE));
     }
+
+    @Test
+    public void filePropertiesIsEmpty() {
+        assertFalse(stringParameter.getFileProperties().isPresent());
+    }
 }
