@@ -26,19 +26,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import org.mule.apikit.validation.ExceptionApiValidationResult;
 
+import static com.google.common.collect.ImmutableList.of;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.mule.amf.impl.model.MediaType.APPLICATION_XML;
 import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
 public class MimeTypeImpl implements MimeType {
 
   private final Payload payload;
   private final Shape shape;
-  private final Map<String, Optional<PayloadValidator>> payloadValidatorMap = new HashMap<>();
+  private final Map<String, PayloadValidator> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType;
 
   public MimeTypeImpl(final Payload payload) {
@@ -145,32 +149,25 @@ public class MimeTypeImpl implements MimeType {
 
   @Override
   public List<ApiValidationResult> validate(String payload) {
-    final String mimeType = getMimeTypeForValue(payload);
+    String mimeType = getMimeTypeForValue(payload);
 
-    Optional<PayloadValidator> payloadValidator;
-    if (!payloadValidatorMap.containsKey(mimeType)) {
-      payloadValidator = getPayloadValidator(mimeType);
+    PayloadValidator payloadValidator = payloadValidatorMap.computeIfAbsent(mimeType,
+        payloadMimeType ->
+            getPayloadValidator(payloadMimeType).orElse(null));
 
-      if (!payloadValidator.isPresent()) {
-        payloadValidator = getPayloadValidator(defaultMediaType);
+    if (payloadValidator != null) {
+      // APIKIT-2616
+      if (mimeType.equals(APPLICATION_XML)) {
+        try {
+          return mapToValidationResult(payloadValidator.validate(mimeType, payload).get());
+        } catch (InterruptedException | ExecutionException e) {
+          throw new RuntimeException("Unexpected Error validating payload", e);
+        }
       }
-
-      payloadValidatorMap.put(mimeType, payloadValidator);
-    } else {
-      payloadValidator = payloadValidatorMap.get(mimeType);
+      return mapToValidationResult(payloadValidator.syncValidate(mimeType, payload));
     }
-
-    if (payloadValidator.isPresent()) {
-      final ValidationReport result;
-      try {
-        result = payloadValidator.get().validate(mimeType, payload).get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException("Unexpected Error validating payload", e);
-      }
-      return mapToValidationResult(result);
-    } else {
-      throw new RuntimeException("Unexpected Error validating payload");
-    }
+    return of(
+          new ExceptionApiValidationResult(new RuntimeException(format("Validator not found for %s", mimeType))));
   }
 
   private Optional<PayloadValidator> getPayloadValidator(String mediaType) {
@@ -178,9 +175,10 @@ public class MimeTypeImpl implements MimeType {
   }
 
   private static List<ApiValidationResult> mapToValidationResult(ValidationReport validationReport) {
-    if (validationReport.conforms())
+    if (validationReport.conforms()) {
       return emptyList();
-    else
-      return validationReport.results().stream().map(ApiValidationResultImpl::new).collect(toList());
+    }
+    return validationReport.results().stream().map(ApiValidationResultImpl::new)
+          .collect(toList());
   }
 }
