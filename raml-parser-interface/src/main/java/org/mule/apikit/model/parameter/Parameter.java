@@ -6,6 +6,7 @@
  */
 package org.mule.apikit.model.parameter;
 
+import java.util.Optional;
 import org.mule.metadata.api.model.MetadataType;
 
 import java.util.Map;
@@ -43,4 +44,7 @@ public interface Parameter {
   boolean isFacetArray(String facet);
 
   String surroundWithQuotesIfNeeded(String value);
+
+  Optional<FileProperties> getFileProperties();
+
 }

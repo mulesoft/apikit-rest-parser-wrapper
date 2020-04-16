@@ -78,3 +78,16 @@ types:
             type: string
             minLength: 10
             example: '0321736079'
+
+/documents:
+  post:
+    body:
+      multipart/form-data:
+        properties:
+          first:
+            type: file
+            fileTypes: 'image/jpeg'
+            minLength: 8
+            maxLength: 5000
+          second:
+            type: file

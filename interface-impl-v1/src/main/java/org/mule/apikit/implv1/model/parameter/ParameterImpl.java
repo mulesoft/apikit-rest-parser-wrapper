@@ -6,9 +6,12 @@
  */
 package org.mule.apikit.implv1.model.parameter;
 
+import static java.util.Optional.empty;
 import static org.mule.apikit.implv1.MetadataResolver.resolve;
 import static org.mule.apikit.implv1.MetadataResolver.stringType;
 
+import java.util.Optional;
+import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
@@ -89,6 +92,11 @@ public class ParameterImpl implements Parameter {
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
     return value;
+  }
+
+  @Override
+  public Optional<FileProperties> getFileProperties() {
+    return empty();
   }
 
 }

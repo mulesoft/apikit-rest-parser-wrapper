@@ -6,37 +6,47 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserWrapperV2;
+import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Collections;
 import java.util.Map;
 
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class ParameterImplTest {
 
     private static final String RESOURCE = "/books";
-    private static final String ACTION = "GET";
+    private static final String RESOURCE_DOCUMENTS = "/documents";
+    private static final String ACTION_GET = "GET";
+    private static final String ACTION_POST = "POST";
     private static final String ISBN = "0321736079";
     private static final String ISBN_QUERY_PARAM = "isbn";
     private static final String TAGS_QUERY_PARAM = "tags";
     private static final String AUTHOR_QUERY_PARAM = "author";
     private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
+    private final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
     private Map<String, Parameter> queryParams;
+    private Map<String, List<Parameter>> formParameters;
 
     @Before
     public void setUp() throws Exception {
         String apiLocation = this.getClass().getResource("/apis/10-query-parameters/api.raml").toURI().toString();
         RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
-        ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION);
+        ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION_GET);
         queryParams = action.getQueryParameters();
+        formParameters = parser.getResources().get(RESOURCE_DOCUMENTS).getAction(ACTION_POST)
+            .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
     }
 
     @Test
@@ -129,6 +139,29 @@ public class ParameterImplTest {
         assertEquals(value, queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
         value = "Comedy";
         assertEquals("\"" + value + "\"", queryParams.get(TAGS_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    }
+
+    @Test
+    public void getFileProperties() {
+        List<Parameter> parameters = formParameters.get("first");
+        FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+        assertThat(fileProperties.getMinLength(), equalTo(8));
+        assertThat(fileProperties.getMaxLength(), equalTo(5000));
+        assertThat(fileProperties.getFileTypes().contains("image/jpeg"), equalTo(true));
+    }
+
+    @Test
+    public void fileParameterWithoutValues() {
+        List<Parameter> parameters = formParameters.get("second");
+        FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+        assertThat(fileProperties.getMinLength(), equalTo(0));
+        assertThat(fileProperties.getMaxLength(), equalTo(0));
+        assertThat(fileProperties.getFileTypes().isEmpty(), equalTo(true));
+    }
+
+    @Test
+    public void filePropertiesIsEmptyWhenParameterIsNotFile() {
+        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).getFileProperties().isPresent());
     }
 
 }

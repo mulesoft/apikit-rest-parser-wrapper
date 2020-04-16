@@ -6,33 +6,41 @@
  */
 package org.mule.amf.impl.model;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
+import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Map;
 
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class ParameterImplTest {
 
     private static final String RESOURCE = "/books";
-    private static final String ACTION = "GET";
+    private static final String ACTION_GET = "GET";
     private static final String ISBN = "0321736079";
     private static final String ISBN_QUERY_PARAM = "isbn";
     private static final String TAGS_QUERY_PARAM = "tags";
     private static final String AUTHOR_QUERY_PARAM = "author";
     private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
     private final String TEST_NULL_RESOURCE = "/testNull";
+    private final String MULTIPART_DOCUMENTS = "/documents";
+    private final String ACTION_POST = "POST";
+    private final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
     private Map<String, Parameter> queryParams;
     private Map<String, Parameter> testNullQueryParams;
+    private Map<String, List<Parameter>> formParameters;
 
     @Before
     public void setUp() throws Exception {
@@ -40,8 +48,10 @@ public class ParameterImplTest {
         ApiReference apiRef = ApiReference.create(apiLocation);
         ApiSpecification apiSpecification = new AMFParser(apiRef, true).parse();
         ResourceImpl resource = (ResourceImpl) apiSpecification.getResource(RESOURCE);
-        queryParams = resource.getAction(ACTION).getQueryParameters();
-        testNullQueryParams =  apiSpecification.getResource(TEST_NULL_RESOURCE).getAction(ACTION).getQueryParameters();
+        queryParams = resource.getAction(ACTION_GET).getQueryParameters();
+        testNullQueryParams =  apiSpecification.getResource(TEST_NULL_RESOURCE).getAction(ACTION_GET).getQueryParameters();
+        formParameters = apiSpecification.getResource(MULTIPART_DOCUMENTS).getAction(ACTION_POST)
+            .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
     }
 
     @Test
@@ -199,6 +209,29 @@ public class ParameterImplTest {
         assertEquals(value, queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
         value = "Comedy";
         assertEquals("\"" + value + "\"", queryParams.get(TAGS_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    }
+
+    @Test
+    public void getFileProperties() {
+        List<Parameter> parameters = formParameters.get("first");
+        FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+        assertThat(fileProperties.getMinLength(), equalTo(8));
+        assertThat(fileProperties.getMaxLength(), equalTo(5000));
+        assertThat(fileProperties.getFileTypes().contains("image/jpeg"), equalTo(true));
+    }
+
+    @Test
+    public void fileParameterWithoutValues() {
+        List<Parameter> parameters = formParameters.get("second");
+        FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+        assertThat(fileProperties.getMinLength(), equalTo(0));
+        assertThat(fileProperties.getMaxLength(), equalTo(0));
+        assertThat(fileProperties.getFileTypes().isEmpty(), equalTo(true));
+    }
+
+    @Test
+    public void filePropertiesIsEmptyWhenParameterIsNotFile() {
+        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).getFileProperties().isPresent());
     }
 
 }
