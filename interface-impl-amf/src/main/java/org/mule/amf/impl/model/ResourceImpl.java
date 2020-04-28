@@ -6,10 +6,8 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.stream.Collectors.toMap;
-import static org.mule.apikit.ParserUtils.resolveVersion;
-
 import amf.client.execution.ExecutionEnvironment;
+import amf.client.model.domain.EndPoint;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.Resource;
@@ -19,7 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import amf.client.model.domain.EndPoint;
+import static java.util.stream.Collectors.toMap;
+import static org.mule.apikit.ParserUtils.resolveVersion;
 
 public class ResourceImpl implements Resource {
 
@@ -63,15 +62,15 @@ public class ResourceImpl implements Resource {
   @Override
   public Map<ActionType, Action> getActions() {
     if (actions == null)
-      actions = loadActions(endPoint, executionEnvironment);
+      actions = loadActions(endPoint);
 
     return actions;
   }
 
-  private Map<ActionType, Action> loadActions(final EndPoint endPoint, ExecutionEnvironment executionEnvironment) {
+  private Map<ActionType, Action> loadActions(final EndPoint endPoint) {
     final Map<ActionType, Action> map = new LinkedHashMap<>();
     endPoint.operations()
-        .forEach(operation -> map.put(getActionKey(operation.method().value()), new ActionImpl(this, operation)));
+            .forEach(operation -> map.put(getActionKey(operation.method().value()), new ActionImpl(this, operation)));
     return map;
   }
 
@@ -93,16 +92,16 @@ public class ResourceImpl implements Resource {
   @Override
   public Map<String, Parameter> getResolvedUriParameters() {
     if (resolvedUriParameters == null) {
-      resolvedUriParameters = loadResolvedUriParameters(endPoint, executionEnvironment);
+      resolvedUriParameters = loadResolvedUriParameters(endPoint);
     }
 
     return resolvedUriParameters;
   }
 
-  private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource, ExecutionEnvironment executionEnvironment) {
+  private Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource) {
     return resource.parameters().stream()
-        .filter(p -> !"version".equals(p.name().value())) // version is an special uri param so it is ignored
-        .collect(toMap(p -> p.name().value(),p -> new ParameterImpl(p,executionEnvironment)));
+            .filter(p -> !"version".equals(p.name().value())) // version is an special uri param so it is ignored
+            .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p, executionEnvironment)));
   }
 
   @Override

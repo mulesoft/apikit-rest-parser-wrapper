@@ -6,27 +6,11 @@
  */
 package org.mule.amf.impl;
 
-import static org.apache.commons.io.FilenameUtils.getExtension;
-
-import amf.client.execution.ExecutionEnvironment;
-import org.mule.amf.impl.exceptions.ParserException;
-import org.mule.apikit.model.ApiVendor;
-import org.mule.apikit.model.api.ApiReference;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import amf.ProfileName;
 import amf.ProfileNames;
 import amf.client.AMF;
 import amf.client.environment.Environment;
+import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.document.BaseUnit;
 import amf.client.model.document.Document;
 import amf.client.model.domain.WebApi;
@@ -45,7 +29,6 @@ import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.api.ApiReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Option;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.apache.commons.io.FilenameUtils.getExtension;
+
 
 public class DocumentParser {
 
@@ -179,6 +163,7 @@ public class DocumentParser {
   }
   private static void init(ExecutionEnvironment executionEnvironment){
     try {
+//      Why is this init called for second time?
       AMF.init(executionEnvironment).get();
 //      AMFValidatorPlugin.withEnabledValidation(true);
       amf.core.AMF.registerPlugin(new XmlValidationPlugin());

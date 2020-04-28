@@ -6,39 +6,9 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.mule.apikit.ApiType.AMF;
-import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
-
-import amf.client.render.RenderOptions;
-import org.mule.amf.impl.util.LazyValue;
 import amf.client.environment.DefaultEnvironment;
 import amf.client.environment.Environment;
 import amf.client.execution.ExecutionEnvironment;
-import org.mule.apikit.ApiType;
-import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.model.ApiVendor;
-import org.mule.apikit.model.Resource;
-import org.mule.apikit.model.SecurityScheme;
-import org.mule.apikit.model.Template;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.apikit.model.parameter.Parameter;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
 import amf.client.model.document.Document;
 import amf.client.model.domain.EndPoint;
 import amf.client.model.domain.Server;
@@ -47,10 +17,35 @@ import amf.client.render.AmfGraphRenderer;
 import amf.client.render.Oas20Renderer;
 import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
+import amf.client.render.RenderOptions;
 import amf.client.render.Renderer;
+import org.mule.amf.impl.util.LazyValue;
+import org.mule.apikit.ApiType;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.ApiVendor;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.SecurityScheme;
+import org.mule.apikit.model.Template;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.apikit.model.parameter.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
+import static org.mule.apikit.ApiType.AMF;
+import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
 public class AMFImpl implements ApiSpecification {
 
@@ -180,7 +175,7 @@ public class AMFImpl implements ApiSpecification {
   }
 
   private String renderApi() {
-    Environment env = DefaultEnvironment.apply(executionEnvironment) ;
+    Environment env = DefaultEnvironment.apply(executionEnvironment);
     Renderer renderer;
     switch (apiVendor) {
       case RAML_08:

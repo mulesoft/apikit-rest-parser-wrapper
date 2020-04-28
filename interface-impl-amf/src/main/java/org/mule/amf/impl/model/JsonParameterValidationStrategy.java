@@ -20,10 +20,10 @@ import static org.mule.amf.impl.model.ParameterImpl.quote;
 class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   private final boolean needsQuotes;
 
-  private final LazyValue<PayloadValidator> jsonValidator ;
-  private final LazyValue<ValidationReport> nullValidationReport ;
+  private final LazyValue<PayloadValidator> jsonValidator;
+  private final LazyValue<ValidationReport> nullValidationReport;
 
-  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes, ExecutionEnvironment executionEnvironment){
+  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes, ExecutionEnvironment executionEnvironment) {
     this.needsQuotes = needsQuotes;
 
     this.nullValidationReport = new LazyValue<>(() -> {
@@ -38,6 +38,7 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
 
   }
 
+  @Override
   public ValidationReport validate(String value) {
     if(value == null){
       return nullValidationReport.get();

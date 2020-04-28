@@ -19,23 +19,22 @@ import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
-import java.util.Optional;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
 import java.util.Map;
+import java.util.Optional;
 
-import static java.util.Optional.of;
 import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
+import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
 class ParameterImpl implements Parameter {
 
-  private final ExecutionEnvironment executionEnvironment;
   private final ParameterValidationStrategy validationStrategy;
   private AnyShape schema;
   private boolean required;
@@ -51,7 +50,6 @@ class ParameterImpl implements Parameter {
   ParameterImpl(AnyShape anyShape, boolean required,ExecutionEnvironment executionEnvironment) {
     this.schema = anyShape;
     this.required = required;
-    this.executionEnvironment = executionEnvironment;
     this.validationStrategy = ParameterValidationStrategyFactory.getStrategy(anyShape, executionEnvironment);
   }
 
