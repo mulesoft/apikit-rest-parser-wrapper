@@ -12,6 +12,7 @@ import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -44,6 +45,11 @@ public class RamlParsingStrategy implements ParsingStrategy {
     } catch (Exception e) {
       return new ExceptionParseResult(e);
     }
+  }
+
+  @Override
+  public void setExecutor(ScheduledExecutorService executor) {
+
   }
 
   public ApiParser create(ApiReference ref) {

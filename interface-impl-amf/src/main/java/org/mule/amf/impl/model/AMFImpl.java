@@ -6,36 +6,6 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.mule.apikit.ApiType.AMF;
-import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
-
-import amf.client.render.RenderOptions;
-import org.mule.amf.impl.util.LazyValue;
-import org.mule.apikit.ApiType;
-import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.model.ApiVendor;
-import org.mule.apikit.model.Resource;
-import org.mule.apikit.model.SecurityScheme;
-import org.mule.apikit.model.Template;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.apikit.model.parameter.Parameter;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
 import amf.client.model.document.Document;
 import amf.client.model.domain.EndPoint;
 import amf.client.model.domain.Server;
@@ -44,10 +14,34 @@ import amf.client.render.AmfGraphRenderer;
 import amf.client.render.Oas20Renderer;
 import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
+import amf.client.render.RenderOptions;
 import amf.client.render.Renderer;
+import org.mule.apikit.ApiType;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.ApiVendor;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.SecurityScheme;
+import org.mule.apikit.model.Template;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.apikit.model.parameter.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
+import static org.mule.apikit.ApiType.AMF;
+import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
 public class AMFImpl implements ApiSpecification {
 
@@ -56,10 +50,10 @@ public class AMFImpl implements ApiSpecification {
   private final Map<String, Map<String, Resource>> resources;
   private final List<String> references;
   private final ApiVendor apiVendor;
-  private final transient LazyValue<Document> consoleModel;
+  private final Document consoleModel;
   private final ApiReference apiRef;
 
-  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, LazyValue<Document> console, ApiReference apiRef) {
+  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, Document console, ApiReference apiRef) {
     this.webApi = webApi;
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
@@ -188,7 +182,7 @@ public class AMFImpl implements ApiSpecification {
         break;
     }
     try {
-      return renderer.generateString(consoleModel.get()).get();
+      return renderer.generateString(consoleModel).get();
     } catch (final InterruptedException | ExecutionException e) {
       LOGGER.error(format("Error render API '%s' to '%s'", apiRef.getLocation(), apiVendor.name()), e);
       return "";
@@ -208,7 +202,7 @@ public class AMFImpl implements ApiSpecification {
   // This method should only be used by API Console... /shrug
   public String dumpAmf() {
     try {
-      return new AmfGraphRenderer().generateString(consoleModel.get(),
+      return new AmfGraphRenderer().generateString(consoleModel,
           new RenderOptions()
               .withoutSourceMaps()
               .withoutPrettyPrint()
@@ -226,6 +220,6 @@ public class AMFImpl implements ApiSpecification {
     } else {
       webApi.withServer(baseUri);
     }
-    consoleModel.get().withEncodes(webApi);
+    consoleModel.withEncodes(webApi);
   }
 }
