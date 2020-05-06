@@ -160,11 +160,10 @@ public class DocumentParser {
     }
     return "";
   }
+
   private static void init(ExecutionEnvironment executionEnvironment){
     try {
-//      Why is this init called for second time?
       AMF.init(executionEnvironment).get();
-//      AMFValidatorPlugin.withEnabledValidation(true);
       amf.core.AMF.registerPlugin(new XmlValidationPlugin());
     } catch (final Exception e) {
       logger.error("Error initializing AMF", e);

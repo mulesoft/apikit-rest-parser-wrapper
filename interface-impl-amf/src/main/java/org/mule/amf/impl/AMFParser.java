@@ -6,19 +6,17 @@
  */
 package org.mule.amf.impl;
 
-import static amf.ProfileNames.AMF;
-import static amf.ProfileNames.OAS;
-import static amf.ProfileNames.OAS20;
-import static amf.ProfileNames.RAML;
-import static amf.ProfileNames.RAML08;
-import static amf.ProfileNames.RAML10;
-import static java.util.stream.Collectors.toList;
-import static org.mule.amf.impl.AMFUtils.getPathAsUri;
-import static org.mule.amf.impl.DocumentParser.getParserForApi;
-
-import java.util.concurrent.ScheduledExecutorService;
-
+import amf.ProfileName;
+import amf.client.AMF;
+import amf.client.environment.DefaultEnvironment;
+import amf.client.environment.Environment;
 import amf.client.execution.ExecutionEnvironment;
+import amf.client.model.document.BaseUnit;
+import amf.client.model.document.Document;
+import amf.client.model.domain.WebApi;
+import amf.client.parse.Parser;
+import amf.client.resolve.Raml10Resolver;
+import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
@@ -39,17 +37,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 
-import amf.ProfileName;
-import amf.client.AMF;
-import amf.client.environment.DefaultEnvironment;
-import amf.client.environment.Environment;
-import amf.client.model.document.BaseUnit;
-import amf.client.model.document.Document;
-import amf.client.model.domain.WebApi;
-import amf.client.parse.Parser;
-import amf.client.resolve.Raml10Resolver;
-import amf.client.validate.ValidationReport;
+import static amf.ProfileNames.AMF;
+import static amf.ProfileNames.OAS;
+import static amf.ProfileNames.OAS20;
+import static amf.ProfileNames.RAML;
+import static amf.ProfileNames.RAML08;
+import static amf.ProfileNames.RAML10;
+import static java.util.stream.Collectors.toList;
+import static org.mule.amf.impl.AMFUtils.getPathAsUri;
+import static org.mule.amf.impl.DocumentParser.getParserForApi;
 
 public class AMFParser implements ApiParser {
 
@@ -168,12 +166,8 @@ public class AMFParser implements ApiParser {
   }
 
   private Document getConsoleModel() {
-
-    if (consoleModel == null) {
-      Document document = buildDocument(false);
-      consoleModel = (Document) new Raml10Resolver().resolve(document, "editing");
-    }
-    return consoleModel;
+    Document document = buildDocument(false);
+    return  (Document) new Raml10Resolver().resolve(document, "editing");
   }
 
   private Document buildDocument(boolean validate) {
