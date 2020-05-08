@@ -24,20 +24,23 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
 
   @Override
   public ParseResult parse(ApiReference ref) {
-    if(executor != null){
-      AMF_DELEGATE.setExecutor(executor);
-    }
     ParseResult amfResult = AMF_DELEGATE.parse(ref);
     if (amfResult.success()) {
       return amfResult;
     }
-    ParseResult ramlResult = new RamlParsingStrategy(new ReferencesResolver(amfResult)).parse(ref);
+    ReferencesResolver referencesResolver = new ReferencesResolver(amfResult);
+
+    if(executor == null){
+      referencesResolver.setExecutor(executor);
+    }
+    ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
     return new FallbackParseResult(ramlResult);
   }
 
   @Override
   public void setExecutor(ScheduledExecutorService executor) {
     this.executor = executor;
+    AMF_DELEGATE.setExecutor(executor);
   }
 
   public class FallbackParseResult implements ParseResult {

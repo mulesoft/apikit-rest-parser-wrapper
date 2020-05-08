@@ -54,10 +54,7 @@ public class AMFParsingStrategy implements ParsingStrategy {
 
   private AMFParser create(ApiReference ref) {
     try {
-      if (executor != null) {
-        return new AMFParser(ref, false, executor);
-      }
-      return new AMFParser(ref, false);
+      return new AMFParser(ref, false, executor);
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }

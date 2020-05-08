@@ -49,7 +49,7 @@ public class RamlParsingStrategy implements ParsingStrategy {
 
   @Override
   public void setExecutor(ScheduledExecutorService executor) {
-
+    referencesResolver.setExecutor(executor);
   }
 
   public ApiParser create(ApiReference ref) {
