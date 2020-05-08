@@ -30,7 +30,7 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
     }
     ReferencesResolver referencesResolver = new ReferencesResolver(amfResult);
 
-    if(executor == null){
+    if(executor != null){
       referencesResolver.setExecutor(executor);
     }
     ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
