@@ -10,14 +10,25 @@ import static org.mule.parser.service.ParserMode.AMF;
 import static org.mule.parser.service.ParserMode.AUTO;
 import static org.mule.parser.service.ParserMode.RAML;
 
+import java.util.concurrent.ScheduledExecutorService;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
 
 import java.util.Optional;
+import org.mule.parser.service.strategy.ParsingStrategy;
 
 public class ParserService {
 
   private static final String MULE_APIKIT_PARSER = "mule.apikit.parser";
+  private ScheduledExecutorService executor;
+
+  public ParserService() {
+
+  }
+
+  public ParserService(ScheduledExecutorService executor) {
+    this.executor = executor;
+  }
 
   public ParseResult parse(ApiReference ref) {
     return parse(ref, AUTO);
@@ -25,7 +36,11 @@ public class ParserService {
 
   public ParseResult parse(ApiReference ref, ParserMode parserConfig) {
     ParserMode parser = getOverrideParserConfig().orElse(parserConfig);
-    return parser.getStrategy().parse(ref);
+    ParsingStrategy parsingStrategy = parser.getStrategy();
+    if (executor != null) {
+      parsingStrategy.setExecutor(executor);
+    }
+    return parsingStrategy.parse(ref);
   }
 
   private Optional<ParserMode> getOverrideParserConfig() {

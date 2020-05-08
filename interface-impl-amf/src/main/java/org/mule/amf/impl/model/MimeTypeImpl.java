@@ -156,14 +156,6 @@ public class MimeTypeImpl implements MimeType {
             getPayloadValidator(payloadMimeType).orElse(null));
 
     if (payloadValidator != null) {
-      // APIKIT-2616
-      if (mimeType.equals(APPLICATION_XML)) {
-        try {
-          return mapToValidationResult(payloadValidator.validate(mimeType, payload).get());
-        } catch (InterruptedException | ExecutionException e) {
-          throw new RuntimeException("Unexpected Error validating payload", e);
-        }
-      }
       return mapToValidationResult(payloadValidator.syncValidate(mimeType, payload));
     }
     return of(

@@ -6,11 +6,14 @@
  */
 package org.mule.parser.service.strategy;
 
+import java.util.concurrent.ScheduledExecutorService;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
 
 public interface ParsingStrategy {
 
   ParseResult parse(ApiReference ref);
+
+  void setExecutor(ScheduledExecutorService executor);
 
 }

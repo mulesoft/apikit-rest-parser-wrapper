@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import amf.client.execution.ExecutionEnvironment;
 import amf.client.remote.Content;
 import amf.client.resource.FileResourceLoader;
 import amf.client.resource.ResourceLoader;
@@ -19,19 +20,24 @@ import amf.client.resource.ResourceLoader;
 public class ExchangeDependencyResourceLoader implements ResourceLoader {
 
   private final File workingDir;
-  private final FileResourceLoader resourceLoader = new FileResourceLoader();
+  private final FileResourceLoader resourceLoader;
 
   private static final Pattern DEPENDENCY_PATH_PATTERN = Pattern.compile("^exchange_modules/|/exchange_modules/");
 
-  public ExchangeDependencyResourceLoader(String rootDir) {
+  public ExchangeDependencyResourceLoader(String rootDir, ExecutionEnvironment executionEnvironment) {
     String basePath = rootDir != null ? rootDir : ".";
     this.workingDir = new File(basePath);
+    this.resourceLoader = new FileResourceLoader(executionEnvironment);
   }
 
   @Override
   public CompletableFuture<Content> fetch(String path) {
-    if (path == null || path.isEmpty())
-      return fail();
+    final CompletableFuture<Content> future = new CompletableFuture<>();
+
+    if (path == null || path.isEmpty()) {
+      future.completeExceptionally(new Exception("Failed to apply."));
+      return future;
+    }
 
     final Matcher matcher = DEPENDENCY_PATH_PATTERN.matcher(path);
     if (matcher.find()) {
@@ -40,12 +46,7 @@ public class ExchangeDependencyResourceLoader implements ResourceLoader {
       final String resourceName = dependencyIndex <= 0 ? path : path.substring(dependencyIndex);
       return resourceLoader.fetch(Paths.get(workingDir.getPath(), resourceName).toUri().toString());
     }
-    return fail();
-  }
 
-  private CompletableFuture<Content> fail() {
-    return CompletableFuture.supplyAsync(() -> {
-      throw new RuntimeException("Failed to apply.");
-    });
+    return resourceLoader.fetch(path);
   }
 }
