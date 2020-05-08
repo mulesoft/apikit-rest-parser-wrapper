@@ -6,6 +6,7 @@
  */
 package org.mule.parser.service.strategy;
 
+import java.util.concurrent.ScheduledExecutorService;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.references.ReferencesResolver;
@@ -19,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 
 public class WithFallbackParsingStrategy implements ParsingStrategy {
   private static final AMFParsingStrategy AMF_DELEGATE = new AMFParsingStrategy();
+  private ScheduledExecutorService executor;
 
   @Override
   public ParseResult parse(ApiReference ref) {
@@ -26,8 +28,19 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
     if (amfResult.success()) {
       return amfResult;
     }
-    ParseResult ramlResult = new RamlParsingStrategy(new ReferencesResolver(amfResult)).parse(ref);
+    ReferencesResolver referencesResolver = new ReferencesResolver(amfResult);
+
+    if(executor != null){
+      referencesResolver.setExecutor(executor);
+    }
+    ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
     return new FallbackParseResult(ramlResult);
+  }
+
+  @Override
+  public void setExecutor(ScheduledExecutorService executor) {
+    this.executor = executor;
+    AMF_DELEGATE.setExecutor(executor);
   }
 
   public class FallbackParseResult implements ParseResult {

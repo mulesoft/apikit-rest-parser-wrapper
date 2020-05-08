@@ -16,6 +16,9 @@ import static java.util.stream.Collectors.toList;
 import static org.mule.amf.impl.AMFUtils.getPathAsUri;
 import static org.mule.amf.impl.DocumentParser.getParserForApi;
 
+import java.util.concurrent.ScheduledExecutorService;
+
+import amf.client.execution.ExecutionEnvironment;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
@@ -50,15 +53,25 @@ import amf.client.validate.ValidationReport;
 
 public class AMFParser implements ApiParser {
 
-  private final ApiReference apiRef;
-  private final Parser parser;
-  private final WebApi webApi;
-  private final List<String> references;
+  private ApiReference apiRef;
+  private Parser parser;
+  private WebApi webApi;
+  private List<String> references;
 
   private Document consoleModel;
+  private ExecutionEnvironment executionEnvironment;
+
+  public AMFParser(ApiReference apiRef, boolean validate, ScheduledExecutorService scheduler) throws ExecutionException, InterruptedException {
+    initialize(apiRef, validate, new ExecutionEnvironment(scheduler));
+  }
 
   public AMFParser(ApiReference apiRef, boolean validate) throws ExecutionException, InterruptedException {
-    AMF.init().get();
+    initialize(apiRef, validate, new ExecutionEnvironment());
+  }
+
+  private void initialize(ApiReference apiRef, boolean validate, ExecutionEnvironment executionEnvironment) throws ExecutionException, InterruptedException {
+    AMF.init(executionEnvironment).get();
+    this.executionEnvironment = executionEnvironment;
     this.apiRef = apiRef;
     this.parser = initParser(apiRef);
 
@@ -69,7 +82,7 @@ public class AMFParser implements ApiParser {
 
   private Parser initParser(ApiReference apiRef) {
     final Environment environment = buildEnvironment(apiRef);
-    return getParserForApi(apiRef, environment);
+    return getParserForApi(apiRef, environment, executionEnvironment);
   }
 
   private List<String> getReferences(List<BaseUnit> references) {
@@ -93,11 +106,11 @@ public class AMFParser implements ApiParser {
   private Environment buildEnvironment(ApiReference apiRef) {
     final URI uri = getPathAsUri(apiRef);
 
-    Environment environment = DefaultEnvironment.apply();
+    Environment environment = DefaultEnvironment.apply(executionEnvironment);
     if (uri.getScheme() != null && uri.getScheme().startsWith("file")) {
       final File file = new File(uri);
       final String rootDir = file.isDirectory() ? file.getPath() : file.getParent();
-      environment = environment.add(new ExchangeDependencyResourceLoader(rootDir));
+      environment = environment.add(new ExchangeDependencyResourceLoader(rootDir,executionEnvironment));
     }
 
     if (apiRef.getResourceLoader().isPresent()) {
@@ -155,6 +168,7 @@ public class AMFParser implements ApiParser {
   }
 
   private Document getConsoleModel() {
+
     if (consoleModel == null) {
       Document document = buildDocument(false);
       consoleModel = (Document) new Raml10Resolver().resolve(document, "editing");

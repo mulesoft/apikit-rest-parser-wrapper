@@ -10,6 +10,7 @@ import amf.ProfileName;
 import amf.ProfileNames;
 import amf.client.AMF;
 import amf.client.environment.Environment;
+import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.document.BaseUnit;
 import amf.client.model.document.Document;
 import amf.client.model.domain.WebApi;
@@ -39,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.apache.commons.io.FilenameUtils.getExtension;
+
 
 public class DocumentParser {
 
@@ -85,9 +87,9 @@ public class DocumentParser {
     return handleFuture(parser.parseFileAsync(url));
   }
 
-  public static Parser getParserForApi(final ApiReference apiRef, Environment environment) {
+  public static Parser getParserForApi(final ApiReference apiRef, Environment environment, ExecutionEnvironment executionEnvironment) {
+    init(executionEnvironment);
     final ApiVendor vendor = apiRef.getVendor();
-
     switch (vendor) {
       case OAS:
       case OAS_20:
@@ -158,10 +160,11 @@ public class DocumentParser {
     }
     return "";
   }
-
-  static {
+  private static void init(ExecutionEnvironment executionEnvironment){
     try {
-      AMF.init().get();
+//      Why is this init called for second time?
+      AMF.init(executionEnvironment).get();
+//      AMFValidatorPlugin.withEnabledValidation(true);
       amf.core.AMF.registerPlugin(new XmlValidationPlugin());
     } catch (final Exception e) {
       logger.error("Error initializing AMF", e);
