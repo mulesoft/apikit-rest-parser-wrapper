@@ -9,6 +9,8 @@ package org.mule.parser.service.references;
 import static java.util.Collections.emptyList;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.strategy.AMFParsingStrategy;
@@ -36,4 +38,7 @@ public class ReferencesResolver {
     return amfParseResult.get() != null ? amfParseResult.get().getAllReferences() : emptyList();
   }
 
+  public void setExecutor(ScheduledExecutorService executor) {
+    amfParsingStrategy.setExecutor(executor);
+  }
 }
