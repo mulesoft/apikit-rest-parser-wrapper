@@ -15,8 +15,8 @@ import amf.client.render.Oas20Renderer;
 import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
 import amf.client.render.RenderOptions;
-import amf.client.render.Renderer;
 import org.mule.amf.impl.util.LazyValue;
+import amf.client.render.Renderer;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -198,10 +198,6 @@ public class AMFImpl implements ApiSpecification {
   @Override
   public List<String> getAllReferences() {
     return references;
-  }
-
-  public void initConsole(){
-    consoleModel.get();
   }
 
   // This method should only be used by API Console... /shrug
