@@ -6,21 +6,26 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.stream.Collectors.toMap;
-import static org.mule.apikit.ParserUtils.resolveVersion;
-
+import amf.client.model.domain.EndPoint;
+import amf.client.model.domain.Request;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 
-import amf.client.model.domain.EndPoint;
+import static java.util.stream.Collectors.toMap;
+import static org.mule.apikit.ParserUtils.resolveVersion;
 
 public class ResourceImpl implements Resource {
+
+  private static final String VERSION = "version";
 
   private AMFImpl amf;
   private EndPoint endPoint;
@@ -97,9 +102,21 @@ public class ResourceImpl implements Resource {
   }
 
   private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource) {
-    return resource.parameters().stream()
-        .filter(p -> !"version".equals(p.name().value())) // version is an special uri param so it is ignored
-        .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+    Predicate<amf.client.model.domain.Parameter> notVersionPredicate = p -> !VERSION.equals(p.name().value());
+    Map<String, Parameter> uriResourceParams = resource.parameters().stream()
+            .filter(notVersionPredicate)
+            .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+
+    Map<String, Parameter> uriOperationParams = new HashMap<>();
+    Optional<Request> request =
+            resource.operations().stream().filter(o -> o.request() != null).map(o -> o.request()).findFirst();
+    if (request.isPresent()) {
+      uriOperationParams = request.get().uriParameters().stream()
+              .filter(notVersionPredicate)
+              .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+    }
+    uriOperationParams.forEach(uriResourceParams::putIfAbsent);
+    return uriResourceParams;
   }
 
   @Override

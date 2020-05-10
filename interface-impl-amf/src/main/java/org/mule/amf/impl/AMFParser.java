@@ -6,20 +6,14 @@
  */
 package org.mule.amf.impl;
 
-import static amf.ProfileNames.AMF;
-import static amf.ProfileNames.OAS;
-import static amf.ProfileNames.OAS20;
-import static amf.ProfileNames.OAS30;
-import static amf.ProfileNames.RAML;
-import static amf.ProfileNames.RAML08;
-import static amf.ProfileNames.RAML10;
-import static java.util.stream.Collectors.toList;
-import static org.mule.amf.impl.AMFUtils.getPathAsUri;
-import static org.mule.amf.impl.DocumentParser.getParserForApi;
-
-import java.util.concurrent.ScheduledExecutorService;
-
+import amf.client.environment.DefaultEnvironment;
+import amf.client.environment.Environment;
 import amf.client.execution.ExecutionEnvironment;
+import amf.client.model.document.BaseUnit;
+import amf.client.model.document.Document;
+import amf.client.model.domain.WebApi;
+import amf.client.parse.Parser;
+import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
@@ -27,7 +21,6 @@ import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.ApiSpecification;
-import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
@@ -39,18 +32,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 
-import amf.ProfileName;
-import amf.client.AMF;
-import amf.client.environment.DefaultEnvironment;
-import amf.client.environment.Environment;
-import amf.client.model.document.BaseUnit;
-import amf.client.model.document.Document;
-import amf.client.model.domain.WebApi;
-import amf.client.parse.Parser;
-import amf.client.resolve.Raml10Resolver;
-import amf.client.validate.ValidationReport;
+import static java.util.stream.Collectors.toList;
+import static org.mule.amf.impl.AMFUtils.getPathAsUri;
+import static org.mule.amf.impl.DocumentParser.getParserForApi;
 
 public class AMFParser implements ApiParser {
 
@@ -62,23 +48,22 @@ public class AMFParser implements ApiParser {
   private Document consoleModel;
   private ExecutionEnvironment executionEnvironment;
 
-  public AMFParser(ApiReference apiRef, boolean validate, ScheduledExecutorService scheduler) throws ExecutionException, InterruptedException {
+  public AMFParser(ApiReference apiRef, boolean validate, ScheduledExecutorService scheduler) {
     initialize(apiRef, validate, new ExecutionEnvironment(scheduler));
   }
 
-  public AMFParser(ApiReference apiRef, boolean validate) throws ExecutionException, InterruptedException {
+  public AMFParser(ApiReference apiRef, boolean validate) {
     initialize(apiRef, validate, new ExecutionEnvironment());
   }
 
-  private void initialize(ApiReference apiRef, boolean validate, ExecutionEnvironment executionEnvironment) throws ExecutionException, InterruptedException {
-    AMF.init(executionEnvironment).get();
+  private void initialize(ApiReference apiRef, boolean validate, ExecutionEnvironment executionEnvironment) {
     this.executionEnvironment = executionEnvironment;
     this.apiRef = apiRef;
     this.parser = initParser(apiRef);
 
     Document document = buildDocument(validate);
     this.references = getReferences(document.references());
-    this.webApi = DocumentParser.getWebApi(document);
+    this.webApi = (WebApi) document.encodes();
   }
 
   private Parser initParser(ApiReference apiRef) {
@@ -127,41 +112,12 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiValidationReport validate() {
-    ValidationReport validationReport = generateValidationReport();
+    ValidationReport validationReport = DocumentParser.getParsingReport(parser, apiRef.getVendor());
     List<ApiValidationResult> results = new ArrayList<>(0);
     if (!validationReport.conforms()) {
       results = validationReport.results().stream().map(ApiValidationResultImpl::new).collect(toList());
     }
     return new DefaultApiValidationReport(results);
-  }
-
-  private ValidationReport generateValidationReport() {
-    final ValidationReport validationReport;
-    try {
-      validationReport = parser.reportValidation(apiVendorToProfileName(apiRef.getVendor())).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Unexpected error parsing API: " + e.getMessage(), e);
-    }
-    return validationReport;
-  }
-
-  private ProfileName apiVendorToProfileName(ApiVendor apiVendor) {
-    switch (apiVendor) {
-      case OAS:
-        return OAS();
-      case OAS_20:
-        return OAS20();
-      case OAS_30:
-        return OAS30();
-      case RAML:
-        return RAML();
-      case RAML_08:
-        return RAML08();
-      case RAML_10:
-        return RAML10();
-      default:
-        return AMF();
-    }
   }
 
   @Override
@@ -171,16 +127,14 @@ public class AMFParser implements ApiParser {
   }
 
   private Document getConsoleModel() {
-
     if (consoleModel == null) {
-      Document document = buildDocument(false);
-      consoleModel = (Document) new Raml10Resolver().resolve(document, "editing");
+      consoleModel = buildDocument(false);
     }
     return consoleModel;
   }
 
   private Document buildDocument(boolean validate) {
-    final URI uri = getPathAsUri(apiRef);
-    return DocumentParser.parseFile(parser, uri, validate);
+    return DocumentParser.parseFile(parser, apiRef, validate);
   }
+
 }

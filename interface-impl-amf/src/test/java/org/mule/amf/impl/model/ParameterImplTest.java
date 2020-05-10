@@ -6,16 +6,22 @@
  */
 package org.mule.amf.impl.model;
 
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.mule.amf.impl.AMFParser;
 import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -25,79 +31,114 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+@RunWith(Parameterized.class)
 public class ParameterImplTest {
 
-    private static final String RESOURCE = "/books";
+    private static final String BOOKS_RESOURCE = "/books";
     private static final String ACTION_GET = "GET";
     private static final String ISBN = "0321736079";
     private static final String ISBN_QUERY_PARAM = "isbn";
     private static final String TAGS_QUERY_PARAM = "tags";
     private static final String AUTHOR_QUERY_PARAM = "author";
     private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
-    private final String TEST_NULL_RESOURCE = "/testNull";
-    private final String MULTIPART_DOCUMENTS = "/documents";
-    private final String ACTION_POST = "POST";
-    private final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
-    private Map<String, Parameter> queryParams;
-    private Map<String, Parameter> testNullQueryParams;
-    private Map<String, List<Parameter>> formParameters;
+    private static final String TEST_NULL_RESOURCE = "/testNull";
+    private static final String MULTIPART_DOCUMENTS = "/documents";
+    private static final String ACTION_POST = "POST";
+    private static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
+
+    private static Map<String, Parameter> queryParams;
+    private static Map<String, Parameter> testNullQueryParams;
+    private static Map<String, List<Parameter>> formParameters;
+
+    @Parameterized.Parameter
+    public ApiVendor apiVendor;
+
+    @Parameterized.Parameter(1)
+    public ApiSpecification apiSpecification;
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection apiSpecifications() throws Exception {
+        String apiLocation = ParameterImplTest.class.getResource("../10-query-parameters/api.raml").toURI().toString();
+        ApiReference ramlApiRef = ApiReference.create(apiLocation);
+
+        // TODO uncomment after APIMF-2102 and APIMF-2084 are fixed
+//        apiLocation = ParameterImplTest.class.getResource("../oas20-query-parameters/api.yaml").toURI().toString();
+//        ApiReference oas20apiRef = ApiReference.create(apiLocation);
+//
+//        apiLocation = ParameterImplTest.class.getResource("../oas30-query-parameters/api.yaml").toURI().toString();
+//        ApiReference oas30apiRef = ApiReference.create(apiLocation);
+
+        return Arrays.asList(new Object[][]{
+                {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()}
+//                ,{ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
+//                {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
+        });
+    }
 
     @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("../10-query-parameters/api.raml").toURI().toString();
-        ApiReference apiRef = ApiReference.create(apiLocation);
-        ApiSpecification apiSpecification = new AMFParser(apiRef, true).parse();
-        ResourceImpl resource = (ResourceImpl) apiSpecification.getResource(RESOURCE);
+    public void setUp() {
+        ResourceImpl resource = (ResourceImpl) apiSpecification.getResource(BOOKS_RESOURCE);
         queryParams = resource.getAction(ACTION_GET).getQueryParameters();
-        testNullQueryParams =  apiSpecification.getResource(TEST_NULL_RESOURCE).getAction(ACTION_GET).getQueryParameters();
+        testNullQueryParams = apiSpecification.getResource(TEST_NULL_RESOURCE).getAction(ACTION_GET).getQueryParameters();
         formParameters = apiSpecification.getResource(MULTIPART_DOCUMENTS).getAction(ACTION_POST)
-            .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
+                .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
     }
 
     @Test
-    public void nonNullableInteger(){
+    public void nonNullableInteger() {
         final Parameter nonNullableInteger = testNullQueryParams.get("nonNullableInteger");
-        assertFalse(nonNullableInteger.validate(null));
-        assertEquals("expected type: Number, found: Null", nonNullableInteger.message(null));
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertFalse(nonNullableInteger.validate(null));
+            assertEquals("expected type: Number, found: Null", nonNullableInteger.message(null));
+        }
         assertTrue(nonNullableInteger.validate("123"));
     }
 
     @Test
-    public void nullableInteger(){
+    public void nullableInteger() {
         final Parameter nullableInteger = testNullQueryParams.get("nullableInteger");
-        assertTrue(nullableInteger.validate(null));
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertTrue(nullableInteger.validate(null));
+        }
         assertTrue(nullableInteger.validate("123"));
     }
 
     @Test
-    public void nonNullableString(){
+    public void nonNullableString() {
         final Parameter nonNullableString = testNullQueryParams.get("nonNullableString");
-        assertFalse(nonNullableString.validate(null));
-        assertEquals("expected type: String, found: Null", nonNullableString.message(null));
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertFalse(nonNullableString.validate(null));
+            assertEquals("expected type: String, found: Null", nonNullableString.message(null));
+        }
         assertTrue(nonNullableString.validate("123"));
     }
 
     @Test
-    public void nullableString(){
+    public void nullableString() {
         final Parameter nullableString = testNullQueryParams.get("nullableString");
-        assertTrue(nullableString.validate(null));
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertTrue(nullableString.validate(null));
+        }
         assertTrue(nullableString.validate("123"));
 
     }
 
     @Test
-    public void nullableArray(){
+    public void nullableArray() {
         final Parameter nullableArray = testNullQueryParams.get("nullableArray");
-        assertTrue(nullableArray.validate(null));
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertTrue(nullableArray.validate(null));
+        }
         assertTrue(nullableArray.validate("- \"Hola\"\n- \"Mundo\""));
     }
-
-
+    
     @Test
-    public void nonNullableArray(){
+    public void nonNullableArray() {
         final Parameter nonNullableString = testNullQueryParams.get("nonNullableArray");
-        assertFalse(nonNullableString.validate(null));
-        assertEquals("expected type: JSONArray, found: Null", nonNullableString.message(null));
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertFalse(nonNullableString.validate(null));
+            assertEquals("expected type: JSONArray, found: Null", nonNullableString.message(null));
+        }
         assertTrue(nonNullableString.validate("- \"Hola\"\n- \"Mundo\""));
     }
 
@@ -157,7 +198,9 @@ public class ParameterImplTest {
 
     @Test
     public void getDisplayNameTest() {
-        assertEquals("Author", queryParams.get(AUTHOR_QUERY_PARAM).getDisplayName());
+        if (ApiVendor.RAML.equals(apiVendor)) {
+            assertEquals("Author", queryParams.get(AUTHOR_QUERY_PARAM).getDisplayName());
+        }
     }
 
     @Test
@@ -175,7 +218,6 @@ public class ParameterImplTest {
     public void getExamplesTest() {
         assertEquals(0, queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExamples().size());
         assertEquals(2, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
-
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -215,18 +257,25 @@ public class ParameterImplTest {
     public void getFileProperties() {
         List<Parameter> parameters = formParameters.get("first");
         FileProperties fileProperties = parameters.get(0).getFileProperties().get();
-        assertThat(fileProperties.getMinLength(), equalTo(8));
-        assertThat(fileProperties.getMaxLength(), equalTo(5000));
-        assertThat(fileProperties.getFileTypes().contains("image/jpeg"), equalTo(true));
+        if (ApiVendor.RAML.equals(apiVendor)) {
+            assertThat(fileProperties.getMinLength(), equalTo(8));
+            assertThat(fileProperties.getMaxLength(), equalTo(5000));
+        }
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertThat(fileProperties.getFileTypes().contains("image/jpeg"), equalTo(true));
+        }
     }
 
     @Test
     public void fileParameterWithoutValues() {
         List<Parameter> parameters = formParameters.get("second");
-        FileProperties fileProperties = parameters.get(0).getFileProperties().get();
-        assertThat(fileProperties.getMinLength(), equalTo(0));
-        assertThat(fileProperties.getMaxLength(), equalTo(0));
-        assertThat(fileProperties.getFileTypes().isEmpty(), equalTo(true));
+        Optional<FileProperties> fileProperties = parameters.get(0).getFileProperties();
+        if (fileProperties.isPresent()) {
+            FileProperties props = fileProperties.get();
+            assertThat(props.getMinLength(), equalTo(0));
+            assertThat(props.getMaxLength(), equalTo(0));
+            assertThat(props.getFileTypes().isEmpty(), equalTo(true));
+        }
     }
 
     @Test

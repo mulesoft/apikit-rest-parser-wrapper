@@ -7,7 +7,7 @@
 package org.mule.amf.impl.model;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
 import org.mule.apikit.model.ApiSpecification;
@@ -57,9 +57,9 @@ public class MimeTypeImplTest {
     private static MimeTypeImpl inlineJsonMimeType;
     private static MimeTypeImpl unionJsonMimeType;
 
-    @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("../10-leagues/api.raml").toURI().toString();
+    @BeforeClass
+    public static void setUp() throws Exception {
+        String apiLocation = MimeTypeImpl.class.getResource("../leagues/raml10/api.raml").toURI().toString();
         ApiReference apiRef = ApiReference.create(apiLocation);
         ResourceImpl resource = (ResourceImpl) new AMFParser(apiRef, true).parse().getResource(LEAGUES_RESOURCE);
         Map<String, MimeType> mimeTypes = resource.getAction(GET_ACTION).getResponses().get(RESPONSE_200_CODE).getBody();
@@ -69,9 +69,9 @@ public class MimeTypeImplTest {
         jsonMimeTypeWithYamlExample = (MimeTypeImpl) leagueIdResource.getAction(GET_ACTION).getResponses().get(RESPONSE_200_CODE).getBody().get("application/yaml");
         formMimeType = (MimeTypeImpl) leagueIdResource.getResources().get(BADGE_RESOURCE).getAction(PUT_ACTION).getBody().get(MULTIPART);
         formMimeTypeWithoutFormParameters = (MimeTypeImpl) resource.getResources().get(LEAGUE_ID_RESOURCE).getResources().get(BADGE_RESOURCE)
-            .getAction(POST_ACTION).getBody().get(MULTIPART);
+                .getAction(POST_ACTION).getBody().get(MULTIPART);
 
-        apiLocation = this.getClass().getResource("../08-leagues/api.raml").toURI().toString();
+        apiLocation = MimeTypeImpl.class.getResource("../08-leagues/api.raml").toURI().toString();
         apiRef = ApiReference.create(apiLocation);
         ApiSpecification api = new AMFParser(apiRef, true).parse();
         resource = (ResourceImpl) api.getResource(TEAMS_RESOURCE);
@@ -81,7 +81,7 @@ public class MimeTypeImplTest {
         multilineJsonMimeType = (MimeTypeImpl) resource.getResources().get("/{homeTeamId}/{awayTeamId}").getAction(PUT_ACTION).getBody().get(APPLICATION_JSON);
         arrayJsonMimeType = (MimeTypeImpl) resource.getAction(GET_ACTION).getResponses().get(RESPONSE_200_CODE).getBody().get(APPLICATION_JSON);
 
-        apiLocation = this.getClass().getResource("../example-from-union/api.raml").toURI().toString();
+        apiLocation = MimeTypeImpl.class.getResource("../example-from-union/api.raml").toURI().toString();
         apiRef = ApiReference.create(apiLocation);
         api = new AMFParser(apiRef, true).parse();
         resource = (ResourceImpl) api.getResource(LEAGUES_RESOURCE);

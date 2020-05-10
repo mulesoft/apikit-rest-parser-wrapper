@@ -1,0 +1,12 @@
+Person:
+  required:
+    - firstName
+  properties:
+    firstName:
+      type: string
+    lastName:
+      type: string
+    address:
+      $ref: "person-schemas/address-schema.yaml#/Address"
+    phone:
+      $ref: "person-schemas/phone-schema.yml"

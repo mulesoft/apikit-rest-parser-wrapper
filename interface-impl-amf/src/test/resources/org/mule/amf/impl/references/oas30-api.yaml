@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Ref schema test
+  version: 1.0.0
+
+paths:
+  /user:
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+              examples:
+                userEx1:
+                  summary: User Example
+                  externalValue: 'examples/user-example.json'
+                userEx2:
+                  $ref: 'examples/user-example-for-oas30.json'
+      operationId: GET_users
+  /car:
+    post:
+      responses:
+        default:
+          description: ''
+      operationId: POST_car
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+            examples:
+              ferrari:
+                summary: Car Example
+                externalValue: 'examples/car-example.json'
+        required: true
+components:
+  schemas:
+    Car:
+      $ref: 'car-schemas/car-properties-schema.json#/definitions/color'
+    Person:
+      $ref: 'person-schema.yaml#/Person'

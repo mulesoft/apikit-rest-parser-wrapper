@@ -1,0 +1,133 @@
+swagger: '2.0'
+info:
+  title: Illustrate query parameter variations
+  version: ''
+definitions:
+  author:
+    properties:
+      name:
+        type: string
+      lastname:
+        type: string
+      addresses:
+        type: array
+        items:
+          type: string
+    required:
+      - name
+      - lastname
+    type: object
+    example:
+      name: John
+      lastname: Doe
+      addresses: [ 1st Street 125 ]
+paths:
+  /test:
+    post:
+      operationId: POST_author
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        default:
+          description: ''
+      parameters:
+        - name: author
+          in: body
+          schema:
+            $ref: '#/definitions/author'
+  /testNull:
+    get:
+      operationId: GET_testNull
+      responses:
+        default:
+          description: ''
+      parameters:
+        - name: nullableString
+          in: query
+          type: string
+        - name: nonNullableString
+          type: string
+          in: query
+          required: true
+        - name: nullableInteger
+          in: query
+          type: string
+        - name: nonNullableInteger
+          type: integer
+          in: query
+          required: true
+        - name: nullableArray
+          in: query
+          type: array
+          items:
+            type: string
+        - name: nonNullableArray
+          in: query
+          type: array
+          items:
+            type: string
+          required: true
+  /books:
+    get:
+      operationId: GET_books
+      responses:
+        default:
+          description: ''
+      parameters:
+        - name: author
+          description: An author's full name
+          in: query
+          type: string
+        - name: publicationYear
+          description: The year released for the first time in the US
+          type: number
+          in: query
+        - name: rating
+          description: Average rating (1-5) submitted by users
+          type: number
+          in: query
+        - name: isbn
+          minLength: 10
+          type: string
+          in: query
+          required: true
+        - name: tags
+          default: [General]
+          type: array
+          items:
+            type: string
+          in: query
+          required: true
+    delete:
+      description: Delete an item by Code.
+      operationId: DELETE_books
+      responses:
+        default:
+          description: ''
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: isbn
+          type: string
+          required: true
+  /documents:
+    post:
+      operationId: POST_documents
+      responses:
+        default:
+          description: ''
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: first
+          type: file
+          required: true
+        - in: formData
+          name: second
+          type: file
+          required: true

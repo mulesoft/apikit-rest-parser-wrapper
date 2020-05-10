@@ -1,0 +1,48 @@
+swagger: '2.0'
+info:
+  title: Test API
+  description: To test stuff
+  version: 2.0.0
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /test:
+    post:
+      description: adds stuff
+      operationId: POST_test
+      responses:
+        default:
+          description: ''
+      parameters:
+        - schema:
+            $ref: 'stuff.yaml'
+          in: body
+          name: body
+          required: true
+        - required: true
+          description: Access Token
+          type: string
+          in: query
+          name: access_token
+  /test/{testId}:
+    get:
+      description: uses dependency type
+      operationId: GET_test
+      responses:
+        '200':
+          description: a dependency type
+          schema:
+            $ref: 'moreStuff.yaml'
+      parameters:
+        - type: string
+          in: header
+          name: stringHeader
+          required: true
+        - type: string
+          in: path
+          name: uriId
+          required: true

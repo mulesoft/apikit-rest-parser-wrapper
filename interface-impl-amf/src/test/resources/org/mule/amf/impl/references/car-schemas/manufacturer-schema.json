@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "brand": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "brand"
+  ]
+}

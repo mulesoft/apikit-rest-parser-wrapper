@@ -22,8 +22,15 @@ import amf.client.parse.Parser;
 import amf.client.parse.Raml08Parser;
 import amf.client.parse.Raml10Parser;
 import amf.client.parse.RamlParser;
+import amf.client.resolve.Oas20Resolver;
+import amf.client.resolve.Oas30Resolver;
+import amf.client.resolve.Raml08Resolver;
+import amf.client.resolve.Raml10Resolver;
+import amf.client.resolve.Resolver;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
+import amf.core.remote.Vendor;
+import amf.plugins.document.webapi.resolution.pipelines.AmfResolutionPipeline;
 import amf.plugins.xml.XmlValidationPlugin;
 import org.apache.commons.io.IOUtils;
 import org.mule.amf.impl.exceptions.ParserException;
@@ -41,14 +48,22 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import static amf.ProfileNames.OAS;
+import static amf.ProfileNames.OAS20;
+import static amf.ProfileNames.OAS30;
+import static amf.ProfileNames.RAML;
+import static amf.ProfileNames.RAML08;
+import static amf.ProfileNames.RAML10;
 import static org.apache.commons.io.FilenameUtils.getExtension;
+import static org.mule.amf.impl.AMFUtils.getPathAsUri;
 
 
 public class DocumentParser {
 
   private static final Logger logger = LoggerFactory.getLogger(DocumentParser.class);
 
-  private DocumentParser() {}
+  private DocumentParser() {
+  }
 
   private static <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
     try {
@@ -59,17 +74,30 @@ public class DocumentParser {
   }
 
   public static Document parseFile(final Parser parser, final URI uri, final boolean validate) throws ParserException {
-    return parseFile(parser, uriToPath(uri), validate);
+    ApiReference apiReference = ApiReference.create(uri);
+    return parseFile(parser, apiReference, validate);
   }
 
   public static Document parseFile(final Parser parser, final String apiPath, final boolean validate)
-      throws ParserException {
-    final Document document = parseFile(parser, apiPath);
+          throws ParserException {
+    ApiReference apiReference = ApiReference.create(apiPath);
+    return parseFile(parser, apiReference, validate);
+  }
+
+  public static Document parseFile(final Parser parser, final ApiReference apiRef, final boolean validate) throws ParserException {
+    final URI uri = getPathAsUri(apiRef);
+    final ApiVendor apiVendor = apiRef.getVendor();
+    return parseFile(parser, uri, apiVendor, validate);
+  }
+
+  public static Document parseFile(final Parser parser, final URI uri, final ApiVendor apiVendor, final boolean validate)
+          throws ParserException {
+    Document document = parseFile(parser, uriToPath(uri));
+    Resolver resolver = getResolverByVendor(apiVendor);
+    document = (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
 
     if (validate) {
-      final ProfileName profile = parser instanceof Oas20Parser || parser instanceof Oas30Parser ?
-              ProfileNames.OAS() : ProfileNames.RAML();
-      final ValidationReport parsingReport = DocumentParser.getParsingReport(parser, profile);
+      final ValidationReport parsingReport = DocumentParser.getParsingReport(parser, apiVendor);
       if (!parsingReport.conforms()) {
         final List<ValidationResult> results = parsingReport.results();
         if (!results.isEmpty()) {
@@ -94,6 +122,8 @@ public class DocumentParser {
     init(executionEnvironment);
     final ApiVendor vendor = apiRef.getVendor();
     switch (vendor) {
+      case RAML_10:
+        return new Raml10Parser(environment);
       case OAS:
       case OAS_20:
         if ("JSON".equalsIgnoreCase(apiRef.getFormat()))
@@ -107,19 +137,19 @@ public class DocumentParser {
           return new Oas30YamlParser(environment);
       case RAML_08:
         return new Raml08Parser(environment);
-      case RAML_10:
-        return new Raml10Parser(environment);
       default:
         return new RamlParser(environment);
     }
   }
 
   public static WebApi getWebApi(final BaseUnit baseUnit) throws ParserException {
-    final Document document = (Document) AMF.resolveRaml10(baseUnit);
+    Resolver resolver = getResolverByVendor(baseUnit.sourceVendor().orElse(Vendor.RAML10()));
+    Document document = (Document) resolver.resolve(baseUnit, AmfResolutionPipeline.EDITING_PIPELINE());
     return (WebApi) document.encodes();
   }
 
-  public static ValidationReport getParsingReport(final Parser parser, final ProfileName profile) throws ParserException {
+  public static ValidationReport getParsingReport(final Parser parser, final ApiVendor apiVendor) throws ParserException {
+    final ProfileName profile = apiVendorToProfileName(apiVendor);
     return handleFuture(parser.reportValidation(profile));
   }
 
@@ -174,14 +204,64 @@ public class DocumentParser {
     }
     return "";
   }
+  
   private static void init(ExecutionEnvironment executionEnvironment){
     try {
-//      Why is this init called for second time?
-      AMF.init(executionEnvironment).get();
+      if (executionEnvironment != null) {
+        AMF.init(executionEnvironment).get();
+      } else {
+        AMF.init().get();
+      }
 //      AMFValidatorPlugin.withEnabledValidation(true);
       amf.core.AMF.registerPlugin(new XmlValidationPlugin());
     } catch (final Exception e) {
       logger.error("Error initializing AMF", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static Resolver getResolverByVendor(ApiVendor apiVendor) {
+    switch (apiVendor) {
+      case RAML_10:
+        return new Raml10Resolver();
+      case OAS_30:
+        return new Oas30Resolver();
+      case OAS:
+      case OAS_20:
+        return new Oas20Resolver();
+      default:
+        return new Raml08Resolver();
+    }
+  }
+
+  private static Resolver getResolverByVendor(Vendor vendor) {
+    if (Vendor.RAML10().equals(vendor)) {
+      return new Raml10Resolver();
+    } else if (Vendor.OAS().equals(vendor) || Vendor.OAS20().equals(vendor)) {
+      return new Oas20Resolver();
+    } else if (Vendor.OAS30().equals(vendor)) {
+      return new Oas30Resolver();
+    } else {
+      return new Raml08Resolver();
+    }
+  }
+
+  public static ProfileName apiVendorToProfileName(ApiVendor apiVendor) {
+    switch (apiVendor) {
+      case RAML_10:
+        return RAML10();
+      case OAS:
+        return OAS();
+      case OAS_20:
+        return OAS20();
+      case OAS_30:
+        return OAS30();
+      case RAML:
+        return RAML();
+      case RAML_08:
+        return RAML08();
+      default:
+        return ProfileNames.AMF();
     }
   }
 

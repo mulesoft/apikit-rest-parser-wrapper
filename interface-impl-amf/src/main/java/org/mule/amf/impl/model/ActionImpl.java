@@ -6,9 +6,10 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toMap;
-
+import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.Operation;
+import amf.client.model.domain.Request;
+import amf.client.model.domain.Shape;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.MimeType;
@@ -23,10 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.Operation;
-import amf.client.model.domain.Request;
-import amf.client.model.domain.Shape;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
 
 public class ActionImpl implements Action {
 
@@ -137,7 +136,8 @@ public class ActionImpl implements Action {
     final Map<String, Parameter> operationUriParams;
     if (operation.request() != null) {
       operationUriParams = operation.request().uriParameters().stream()
-          .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+              .filter(p -> !"version".equals(p.name().value())) // version is an special uri param so it is ignored
+              .collect(toMap(p -> p.name().value(), ParameterImpl::new));
     } else {
       operationUriParams = new HashMap<>();
     }
