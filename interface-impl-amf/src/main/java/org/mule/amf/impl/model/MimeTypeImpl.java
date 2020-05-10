@@ -7,6 +7,7 @@
 package org.mule.amf.impl.model;
 
 import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.Encoding;
 import amf.client.model.domain.Example;
 import amf.client.model.domain.NodeShape;
 import amf.client.model.domain.Payload;
@@ -19,14 +20,15 @@ import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.apikit.validation.ApiValidationResult;
+import org.mule.apikit.validation.ExceptionApiValidationResult;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import org.mule.apikit.validation.ExceptionApiValidationResult;
+import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
@@ -34,8 +36,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections.MapUtils.isNotEmpty;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
-import static org.mule.amf.impl.model.MediaType.APPLICATION_XML;
 import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
 public class MimeTypeImpl implements MimeType {
@@ -44,11 +47,13 @@ public class MimeTypeImpl implements MimeType {
   private final Shape shape;
   private final Map<String, PayloadValidator> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType;
+  private Map<String, List<Parameter>> formParameters;
 
   public MimeTypeImpl(final Payload payload) {
     this.payload = payload;
     this.shape = payload.schema();
     this.defaultMediaType = this.payload.mediaType().option().orElse(null);
+
   }
 
   @Override
@@ -69,6 +74,10 @@ public class MimeTypeImpl implements MimeType {
 
   @Override
   public Map<String, List<Parameter>> getFormParameters() {
+    if (isNotEmpty(formParameters)) {
+      return formParameters;
+    }
+
     String mediaType = payload.mediaType().value();
 
     if (mediaType.startsWith("multipart/") || mediaType.equals("application/x-www-form-urlencoded")) {
@@ -78,13 +87,16 @@ public class MimeTypeImpl implements MimeType {
       }
       NodeShape nodeShape = (NodeShape) shape;
 
-      Map<String, List<Parameter>> parameters = new LinkedHashMap<>();
+      Map<String, Set<String>> formParametersEncoding = getFormParametersEncoding();
 
+
+      formParameters = new LinkedHashMap<>();
       for (PropertyShape propertyShape : nodeShape.properties()) {
-        parameters.put(propertyShape.name().value(), singletonList(new ParameterImpl(propertyShape)));
+        String propertyName = propertyShape.name().value();
+        formParameters.put(propertyName, singletonList(new ParameterImpl(propertyShape, formParametersEncoding.get(propertyName))));
       }
 
-      return parameters;
+      return formParameters;
     }
 
     return emptyMap();
@@ -152,8 +164,8 @@ public class MimeTypeImpl implements MimeType {
     String mimeType = getMimeTypeForValue(payload);
 
     PayloadValidator payloadValidator = payloadValidatorMap.computeIfAbsent(mimeType,
-        payloadMimeType ->
-            getPayloadValidator(payloadMimeType).orElse(null));
+            payloadMimeType ->
+                    getPayloadValidator(payloadMimeType).orElse(null));
 
     if (payloadValidator != null) {
       return mapToValidationResult(payloadValidator.syncValidate(mimeType, payload));
@@ -171,6 +183,25 @@ public class MimeTypeImpl implements MimeType {
       return emptyList();
     }
     return validationReport.results().stream().map(ApiValidationResultImpl::new)
-          .collect(toList());
+            .collect(toList());
   }
+
+  private Map<String, Set<String>> getFormParametersEncoding() {
+    Map<String, Set<String>> formParametersEncoding = new LinkedHashMap<>();
+    List<Encoding> encodingList = payload.encoding();
+    if (isNotEmpty(encodingList)) {
+      encodingList.forEach(e -> formParametersEncoding.put(e.propertyName().value(), getContentTypeSet(e.contentType().value())));
+    }
+    return formParametersEncoding;
+  }
+
+  private Set<String> getContentTypeSet(String contentTypeCSV) {
+    String[] contentTypes = contentTypeCSV.split(",");
+    Set<String> contentTypeSet = new HashSet<>();
+    for (String contentType : contentTypes) {
+      contentTypeSet.add(contentType.trim());
+    }
+    return contentTypeSet;
+  }
+
 }
