@@ -16,7 +16,7 @@
     <properties>
         <licensePath>../LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
-        <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>../target/jacoco.exec</sonar.coverage.jacoco.xmlReportPaths>
 
         <amf.version>4.1.0-2</amf.version>
         <amf.xml.extension.version>1.6.0</amf.xml.extension.version>
