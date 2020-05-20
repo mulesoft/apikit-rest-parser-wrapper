@@ -133,9 +133,7 @@ public class ParserServiceTestCase {
     assertThat(warnings.size(), is(1));
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
     assertThat(errors.size(), is(2));
-    assertThat(errors.get(0).cause(), containsString("AMF: YAML map expected\n" +
-            "  Location: file:///Users/nkosacoff/Documents/apikit/apikit-projects/apikit-rest-parser-wrapper/parser-service/target/test-classes/with-invalid-errors.raml\n" +
-            "  Position: Line 15,  Column 6"));
+    assertThat(errors.get(0).cause(), containsString("AMF: YAML map expected"));
     assertThat(errors.get(1).cause(), containsString("Invalid element resource for /pet"));
   }
 
