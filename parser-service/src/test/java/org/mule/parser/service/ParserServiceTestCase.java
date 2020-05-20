@@ -51,6 +51,7 @@ public class ParserServiceTestCase {
     assertNotNull(wrapper);
     assertThat(wrapper.get().getType(), is(ApiType.RAML));
     assertThat(wrapper.get().getApiVendor(), is(RAML_10));
+
   }
 
   @Test
@@ -91,6 +92,7 @@ public class ParserServiceTestCase {
 
     assertNotNull(wrapper);
     assertNotNull(wrapper.get());
+    assertThat(wrapper.success(), is(true));
     assertThat(wrapper.getErrors().size(), is(0));
   }
 
@@ -101,12 +103,13 @@ public class ParserServiceTestCase {
 
     assertNotNull(wrapper);
     assertNotNull(wrapper.get());
+    assertThat(wrapper.success(), is(true));
     assertThat(wrapper.getErrors().size(), is(0));
   }
 
 
   @Test
-  public void fallbackParsingOASErrorRAMLOk() {
+  public void fallbackParsingAMFErrorRAMLOk() {
     ParserService parserService = new ParserService();
     ParseResult wrapper = parserService.parse(ApiReference.create(resource("/api-with-fallback-parser.raml")));
 
@@ -114,6 +117,8 @@ public class ParserServiceTestCase {
     List<ParsingIssue> warnings = wrapper.getWarnings();
     assertThat(warnings.size(), is(1));
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
+    assertThat(wrapper.success(), is(true));
+    assertThat(wrapper.getErrors().size(), is(0));
   }
 
   @Test
@@ -141,7 +146,9 @@ public class ParserServiceTestCase {
     ParserService parserService = new ParserService();
     ParseResult wrapper = parserService.parse(ApiReference.create(api));
     assertNotNull(wrapper);
+    assertThat(wrapper.success(), is(true));
     assertThat(wrapper.getErrors().size(), is(0));
+
   }
 
   @Test

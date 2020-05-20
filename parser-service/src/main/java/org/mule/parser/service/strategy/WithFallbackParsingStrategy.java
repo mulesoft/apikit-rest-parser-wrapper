@@ -37,9 +37,21 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
       ParseResult ramlResult = new RamlParsingStrategy(addExecutor(parseResult)).parse(ref);
       List<ParsingIssue> errors = joinErrors(parseResult.getErrors(), ramlResult.getErrors());
       List<ParsingIssue> warnings = joinErrors(parseResult.getWarnings(), ramlResult.getWarnings());
-      parseResult = new FallbackParseResult(new DefaultParseResult(ramlResult.get(), errors, warnings));
+      DefaultParseResult delegate = createDelegate(ramlResult, errors, warnings);
+      parseResult = new FallbackParseResult(delegate);
     }
     return parseResult;
+  }
+
+  private DefaultParseResult createDelegate(ParseResult ramlResult, List<ParsingIssue> sourceErrors, List<ParsingIssue> sourceWarnings) {
+    List<ParsingIssue> errors = new ArrayList<>();
+    List<ParsingIssue> warnings = new ArrayList<>();
+    if(!ramlResult.success()){
+      errors = sourceErrors;
+      warnings = sourceWarnings;
+    }
+    DefaultParseResult defaultParseResult = new DefaultParseResult(ramlResult.get(), errors, warnings);
+    return defaultParseResult;
   }
 
   private ReferencesResolver addExecutor(ParseResult amfResult) {
