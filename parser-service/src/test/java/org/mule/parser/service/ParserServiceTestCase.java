@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.slf4j.Logger;
 
 public class ParserServiceTestCase {
 
@@ -128,8 +127,6 @@ public class ParserServiceTestCase {
     List<ParsingIssue> errors = result.getErrors();
     List<ParsingIssue> warnings = result.getWarnings();
 
-    result.getErrors().forEach(parsingIssue -> {System.out.print(parsingIssue.cause());});
-
     assertThat(warnings.size(), is(1));
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
     assertThat(errors.size(), is(2));
@@ -151,7 +148,7 @@ public class ParserServiceTestCase {
 
   @Test
   public void fallbackParsingOASError() {
-    String api = resource("/oas/jira-2607.json");
+    String api = resource("/oas/with-invalid-url.json");
 
     ParserService parserService = new ParserService();
     ParseResult wrapper = parserService.parse(ApiReference.create(api));
