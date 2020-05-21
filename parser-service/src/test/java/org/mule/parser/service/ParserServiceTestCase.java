@@ -114,8 +114,9 @@ public class ParserServiceTestCase {
 
     assertNotNull(wrapper);
     List<ParsingIssue> warnings = wrapper.getWarnings();
-    assertThat(warnings.size(), is(1));
+    assertThat(warnings.size(), is(2));
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
+    assertThat(warnings.get(1).cause(), containsString("AMF: expected type: String, found: Integer"));
     assertThat(wrapper.success(), is(true));
     assertThat(wrapper.getErrors().size(), is(0));
   }

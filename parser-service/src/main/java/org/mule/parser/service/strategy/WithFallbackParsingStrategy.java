@@ -57,7 +57,7 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
     if (!ramlResult.success()) {
       return new DefaultParseResult(ramlResult.get(), sourceErrors, sourceWarnings);
     }
-    return new DefaultParseResult(ramlResult.get(), emptyList(), emptyList());
+    return new DefaultParseResult(ramlResult.get(), emptyList(), sourceErrors);
   }
 
   private ReferencesResolver createReferencesResolver(ParseResult amfResult) {
