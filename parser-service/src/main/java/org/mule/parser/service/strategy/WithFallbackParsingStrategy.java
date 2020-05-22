@@ -6,35 +6,72 @@
  */
 package org.mule.parser.service.strategy;
 
+
+import static java.util.Collections.emptyList;
+
 import java.util.concurrent.ScheduledExecutorService;
+
+import org.apache.commons.lang.StringUtils;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.references.ReferencesResolver;
+import org.mule.parser.service.result.DefaultParseResult;
 import org.mule.parser.service.result.DefaultParsingIssue;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.result.ParsingIssue;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 
 public class WithFallbackParsingStrategy implements ParsingStrategy {
   private static final AMFParsingStrategy AMF_DELEGATE = new AMFParsingStrategy();
   private ScheduledExecutorService executor;
+  private static final String RAML_FORMAT = "RAML";
+  private static final String AMF_TITLE = "AMF: ";
+  private static final String RAML_TITLE = "RAML: ";
 
   @Override
   public ParseResult parse(ApiReference ref) {
-    ParseResult amfResult = AMF_DELEGATE.parse(ref);
-    if (amfResult.success()) {
-      return amfResult;
+    ParseResult parseResult = AMF_DELEGATE.parse(ref);
+    if (!parseResult.success() && StringUtils.equals(ref.getFormat(), RAML_FORMAT)) {
+      ReferencesResolver referencesResolver = createReferencesResolver(parseResult);
+      ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
+      List<ParsingIssue> errors = joinParsingIssues(parseResult.getErrors(),
+          ramlResult.getErrors());
+      List<ParsingIssue> warnings = joinParsingIssues(parseResult.getWarnings(),
+          ramlResult.getWarnings());
+      return new FallbackParseResult(createDelegate(ramlResult, errors, warnings));
     }
-    ReferencesResolver referencesResolver = new ReferencesResolver(amfResult);
+    return parseResult;
+  }
 
-    if(executor != null){
+  /**
+   * @param sourceErrors previous errors incoming from AMF
+   * @param sourceWarnings previous warnings incoming from AMF
+   */
+  private DefaultParseResult createDelegate(ParseResult ramlResult, List<ParsingIssue> sourceErrors,
+      List<ParsingIssue> sourceWarnings) {
+    if (!ramlResult.success()) {
+      return new DefaultParseResult(ramlResult.get(), sourceErrors, sourceWarnings);
+    }
+    return new DefaultParseResult(ramlResult.get(), emptyList(), sourceErrors);
+  }
+
+  private ReferencesResolver createReferencesResolver(ParseResult amfResult) {
+    ReferencesResolver referencesResolver = new ReferencesResolver(amfResult);
+    if (executor != null) {
       referencesResolver.setExecutor(executor);
     }
-    ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
-    return new FallbackParseResult(ramlResult);
+    return referencesResolver;
+  }
+
+  private List<ParsingIssue> joinParsingIssues(List<ParsingIssue> amfIssues, List<ParsingIssue> ramlIssues) {
+    Stream<DefaultParsingIssue> amfIssuesWithTitle = amfIssues.stream().map(issue -> new DefaultParsingIssue(AMF_TITLE + issue.cause()));
+    Stream<DefaultParsingIssue> ramlIssuesWithTitle = ramlIssues.stream().map(issue -> new DefaultParsingIssue(RAML_TITLE + issue.cause()));
+    return Stream.concat(amfIssuesWithTitle, ramlIssuesWithTitle).collect(Collectors.toList());
   }
 
   @Override

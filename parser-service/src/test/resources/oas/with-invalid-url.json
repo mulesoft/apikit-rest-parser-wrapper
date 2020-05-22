@@ -1,0 +1,149 @@
+//error is on line 15, empty url
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Example API for Automation",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8081",
+  "basePath": "/gateway/proxy/v4/apikit",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "externalDocs": {
+    "url": "",
+    "description": "This application was created with the purpose of automating calls to an API through a proxy.\n",
+    "x-amf-title": "Example API"
+  },
+  "paths": {
+    "/v4/items": {
+      "x-amf-displayName": "Items",
+      "x-amf-description": "The collection of items",
+      "get": {
+        "description": "Get a list of all the available items.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "size",
+            "description": "Size of the item.\n",
+            "required": false,
+            "in": "query",
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ],
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All items retreived.",
+            "x-amf-mediaType": "application/json",
+            "schema": {
+              "example": {
+                "items": [
+                  {
+                    "size": "medium",
+                    "id": 123,
+                    "code": "AD-12",
+                    "description": "Borders in light blue",
+                    "color": "blue"
+                  },
+                  {
+                    "id": 321,
+                    "description": "Borders in red",
+                    "color": "pink",
+                    "size": "small",
+                    "code": "AD-13"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new item.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "x-amf-mediaType": "application/json",
+            "in": "body",
+            "name": "generated",
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "color": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "number"
+                      },
+                      "size": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "x-amf-requestPayloads": [
+          {
+            "mediaType": "multipart/form-data",
+            "schema": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "title": "Code",
+                  "description": "Code of the item to delete.",
+                  "example": "ASX-140",
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 12
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "x-amf-mediaType": "application/json",
+            "schema": {}
+          }
+        }
+      }
+    }
+  }
+}
