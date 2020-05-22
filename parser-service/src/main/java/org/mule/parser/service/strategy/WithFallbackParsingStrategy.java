@@ -30,8 +30,8 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
   private static final AMFParsingStrategy AMF_DELEGATE = new AMFParsingStrategy();
   private ScheduledExecutorService executor;
   private static final String RAML_FORMAT = "RAML";
-  private static final String AMF_TITLE = "\nAMF: ";
-  private static final String RAML_TITLE = "\nRAML: ";
+  private static final String AMF_TITLE = "AMF: ";
+  private static final String RAML_TITLE = "RAML: ";
 
   @Override
   public ParseResult parse(ApiReference ref) {
