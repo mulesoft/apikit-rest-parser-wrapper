@@ -50,6 +50,7 @@ public class ParserServiceTestCase {
     assertNotNull(wrapper);
     assertThat(wrapper.get().getType(), is(ApiType.RAML));
     assertThat(wrapper.get().getApiVendor(), is(RAML_10));
+
   }
 
   @Test
@@ -81,20 +82,47 @@ public class ParserServiceTestCase {
     assertThat(wrapper.get().getType(), is(ApiType.AMF));
     assertThat(wrapper.get().getApiVendor(), is(OAS_20));
   }
+// === PARSER AUTO ===
 
   @Test
-  public void fallbackParser() {
+  public void fallbackParsingValidRAML08WithAMFParser() {
+    ParserService parserService = new ParserService();
+    ParseResult wrapper = parserService.parse(ApiReference.create(resource("/api-08.raml")));
+
+    assertNotNull(wrapper);
+    assertNotNull(wrapper.get());
+    assertThat(wrapper.success(), is(true));
+    assertThat(wrapper.getErrors().size(), is(0));
+  }
+
+  @Test
+  public void fallbackParsingValidRAML10WithAMFParser() {
+    ParserService parserService = new ParserService();
+    ParseResult wrapper = parserService.parse(ApiReference.create(resource("/api-10.raml")));
+
+    assertNotNull(wrapper);
+    assertNotNull(wrapper.get());
+    assertThat(wrapper.success(), is(true));
+    assertThat(wrapper.getErrors().size(), is(0));
+  }
+
+
+  @Test
+  public void fallbackParsingAMFErrorRAMLOk() {
     ParserService parserService = new ParserService();
     ParseResult wrapper = parserService.parse(ApiReference.create(resource("/api-with-fallback-parser.raml")));
 
     assertNotNull(wrapper);
     List<ParsingIssue> warnings = wrapper.getWarnings();
-    assertThat(warnings.size(), is(1));
+    assertThat(warnings.size(), is(2));
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
+    assertThat(warnings.get(1).cause(), containsString("AMF: expected type: String, found: Integer"));
+    assertThat(wrapper.success(), is(true));
+    assertThat(wrapper.getErrors().size(), is(0));
   }
 
   @Test
-  public void invalidRAML() {
+  public void fallbackParsingOASErrorRAMLError() {
     ParserService parserService = new ParserService();
     ParseResult result = parserService.parse(ApiReference.create(resource("/with-invalid-errors.raml")));
     List<ParsingIssue> errors = result.getErrors();
@@ -102,9 +130,34 @@ public class ParserServiceTestCase {
 
     assertThat(warnings.size(), is(1));
     assertThat(warnings.get(0).cause(), containsString("AMF parsing failed, fallback into RAML parser"));
-    assertThat(errors.size(), is(1));
-    assertThat(errors.get(0).cause(), containsString("Invalid element resource for /pet"));
+    assertThat(errors.size(), is(2));
+    assertThat(errors.get(0).cause(), containsString("AMF: YAML map expected"));
+    assertThat(errors.get(1).cause(), containsString("Invalid element resource for /pet"));
   }
+
+  @Test
+  public void fallbackParsingOASResultOK() {
+    String api = resource("/oas/petstore.json");
+
+    ParserService parserService = new ParserService();
+    ParseResult wrapper = parserService.parse(ApiReference.create(api));
+    assertNotNull(wrapper);
+    assertThat(wrapper.success(), is(true));
+    assertThat(wrapper.getErrors().size(), is(0));
+
+  }
+
+  @Test
+  public void fallbackParsingOASError() {
+    String api = resource("/oas/with-invalid-url.json");
+
+    ParserService parserService = new ParserService();
+    ParseResult wrapper = parserService.parse(ApiReference.create(api));
+    assertNotNull(wrapper);
+    assertThat(wrapper.getErrors().size(), is(1));
+  }
+
+// ==================
 
   private static String resource(final String path) {
     return ResourcesUtils.resource(ParserServiceTestCase.class, path);
