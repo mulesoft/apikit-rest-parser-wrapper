@@ -11,6 +11,7 @@ import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.UnionShape;
 import com.google.common.collect.ImmutableSet;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Set;
 
@@ -21,16 +22,19 @@ class ParameterValidationStrategyFactory {
     throw new IllegalStateException("Utility class");
   }
 
-  static ParameterValidationStrategy getStrategy(AnyShape anyShape){
-    if(anyShape instanceof ArrayShape || anyShape instanceof UnionShape){
-      return new YamlParameterValidationStrategy(anyShape);
-    }
+  static ParameterValidationStrategy getStrategy(AnyShape anyShape) {
+    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape)
+            : new JsonParameterValidationStrategy(anyShape, needsQuotes(anyShape));
+  }
 
-    return new JsonParameterValidationStrategy(anyShape, needsQuotes(anyShape));
+  private static boolean isYamlValidationNeeded(AnyShape anyShape) {
+    return anyShape instanceof ArrayShape || anyShape instanceof UnionShape
+            || CollectionUtils.isNotEmpty(anyShape.or()) || CollectionUtils.isNotEmpty(anyShape.and())
+            || CollectionUtils.isNotEmpty(anyShape.xone()) || anyShape.not() != null;
   }
 
   private static boolean needsQuotes(AnyShape anyShape) {
-    if(!(anyShape instanceof ScalarShape)){
+    if (!(anyShape instanceof ScalarShape)) {
       return false;
     }
 
