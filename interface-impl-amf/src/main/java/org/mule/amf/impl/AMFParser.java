@@ -6,6 +6,7 @@
  */
 package org.mule.amf.impl;
 
+import amf.client.AMF;
 import amf.client.environment.DefaultEnvironment;
 import amf.client.environment.Environment;
 import amf.client.execution.ExecutionEnvironment;
@@ -14,6 +15,7 @@ import amf.client.model.document.Document;
 import amf.client.model.domain.WebApi;
 import amf.client.parse.Parser;
 import amf.client.validate.ValidationReport;
+import amf.plugins.xml.XmlValidationPlugin;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
@@ -25,6 +27,8 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
@@ -35,10 +39,13 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.stream.Collectors.toList;
-import static org.mule.amf.impl.AMFUtils.getPathAsUri;
 import static org.mule.amf.impl.DocumentParser.getParserForApi;
+import static org.mule.amf.impl.DocumentParser.getParsingReport;
+import static org.mule.amf.impl.URIUtils.getPathAsUri;
 
 public class AMFParser implements ApiParser {
+
+  private static final Logger logger = LoggerFactory.getLogger(DocumentParser.class);
 
   private ApiReference apiRef;
   private Parser parser;
@@ -68,6 +75,18 @@ public class AMFParser implements ApiParser {
 
   private Parser initParser(ApiReference apiRef) {
     final Environment environment = buildEnvironment(apiRef);
+    try {
+      if (executionEnvironment != null) {
+        AMF.init(executionEnvironment).get();
+      } else {
+        AMF.init().get();
+      }
+//      AMFValidatorPlugin.withEnabledValidation(true);
+      amf.core.AMF.registerPlugin(new XmlValidationPlugin());
+    } catch (final Exception e) {
+      logger.error("Error initializing AMF", e);
+      throw new RuntimeException(e);
+    }
     return getParserForApi(apiRef, environment, executionEnvironment);
   }
 
@@ -112,7 +131,7 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiValidationReport validate() {
-    ValidationReport validationReport = DocumentParser.getParsingReport(parser, apiRef.getVendor());
+    ValidationReport validationReport = getParsingReport(parser, apiRef.getVendor());
     List<ApiValidationResult> results = new ArrayList<>(0);
     if (!validationReport.conforms()) {
       results = validationReport.results().stream().map(ApiValidationResultImpl::new).collect(toList());
