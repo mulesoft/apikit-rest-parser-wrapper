@@ -73,24 +73,13 @@ public class DocumentParser {
     }
   }
 
-  public static Document parseFile(final Parser parser, final URI uri, final boolean validate) throws ParserException {
-    ApiReference apiReference = ApiReference.create(uri);
-    return parseFile(parser, apiReference, validate);
-  }
-
-  public static Document parseFile(final Parser parser, final String apiPath, final boolean validate)
-          throws ParserException {
-    ApiReference apiReference = ApiReference.create(apiPath);
-    return parseFile(parser, apiReference, validate);
-  }
-
   public static Document parseFile(final Parser parser, final ApiReference apiRef, final boolean validate) throws ParserException {
     final URI uri = getPathAsUri(apiRef);
     final ApiVendor apiVendor = apiRef.getVendor();
     return parseFile(parser, uri, apiVendor, validate);
   }
 
-  public static Document parseFile(final Parser parser, final URI uri, final ApiVendor apiVendor, final boolean validate)
+  private static Document parseFile(final Parser parser, final URI uri, final ApiVendor apiVendor, final boolean validate)
           throws ParserException {
     Document document = parseFile(parser, uriToPath(uri));
     Resolver resolver = getResolverByVendor(apiVendor);
