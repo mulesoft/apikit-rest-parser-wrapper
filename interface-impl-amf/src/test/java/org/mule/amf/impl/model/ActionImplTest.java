@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class ActionImplTest {
     private static final String TEST_RESOURCE = "/test";
-    private static final String TEST_ID_RESOURCE = "/{testId}";
+    private static final String TEST_ID_RESOURCE = "/{testId}/{version}";
     private static final String TEST_ID_COMPLETE_RESOURCE = TEST_RESOURCE + TEST_ID_RESOURCE;
     private static final String ACTION_GET = "GET";
     private static final String ACTION_POST = "POST";

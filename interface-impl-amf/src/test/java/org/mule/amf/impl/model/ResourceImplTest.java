@@ -161,6 +161,8 @@ public class ResourceImplTest {
     @Test
     public void getResolvedUriParametersTest() {
         assertEquals(1, leagueIdResource.getResolvedUriParameters().size());
+        // "version" is an special uri param so it is ignored
+        assertEquals(0, leaguesHistoryResource.getResolvedUriParameters().size());
     }
 
     @Test(expected = UnsupportedOperationException.class)

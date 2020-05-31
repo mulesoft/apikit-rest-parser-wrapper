@@ -29,6 +29,8 @@ import static java.util.stream.Collectors.toMap;
 
 public class ActionImpl implements Action {
 
+  private static final String VERSION = "version";
+
   private final ResourceImpl resource;
   private final Operation operation;
   private Map<String, MimeType> bodies;
@@ -136,7 +138,7 @@ public class ActionImpl implements Action {
     final Map<String, Parameter> operationUriParams;
     if (operation.request() != null) {
       operationUriParams = operation.request().uriParameters().stream()
-              .filter(p -> !"version".equals(p.name().value())) // version is an special uri param so it is ignored
+              .filter(p -> !VERSION.equals(p.name().value()))
               .collect(toMap(p -> p.name().value(), ParameterImpl::new));
     } else {
       operationUriParams = new HashMap<>();

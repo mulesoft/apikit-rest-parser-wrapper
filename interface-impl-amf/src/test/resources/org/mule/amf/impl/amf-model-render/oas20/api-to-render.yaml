@@ -28,7 +28,7 @@ paths:
           type: string
           in: query
           name: access_token
-  /test/{testId}:
+  /test/{testId}/{version}:
     get:
       description: uses dependency type
       operationId: GET_test
@@ -44,5 +44,5 @@ paths:
           required: true
         - type: string
           in: path
-          name: uriId
+          name: testId
           required: true
