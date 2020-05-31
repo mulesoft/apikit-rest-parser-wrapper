@@ -27,6 +27,15 @@ class ParameterValidationStrategyFactory {
             : new JsonParameterValidationStrategy(anyShape, needsQuotes(anyShape));
   }
 
+  /**
+   * Need to validate as YAML in case of
+   * - ArrayShape
+   * - UnionShape
+   * - AnyShape containing an aggregation of shapes for OAS 3.0 inheritance and polymorphism (oneOf, anyOf, allOf or not)
+   *
+   * @param anyShape
+   * @return whether YAML validation is needed
+   */
   private static boolean isYamlValidationNeeded(AnyShape anyShape) {
     return anyShape instanceof ArrayShape || anyShape instanceof UnionShape
             || CollectionUtils.isNotEmpty(anyShape.or()) || CollectionUtils.isNotEmpty(anyShape.and())
