@@ -8,7 +8,6 @@ package org.mule.amf.impl;
 
 import amf.ProfileName;
 import amf.client.environment.Environment;
-import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.document.Document;
 import amf.client.parse.Parser;
 import amf.client.resolve.Resolver;
@@ -16,6 +15,8 @@ import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import amf.plugins.document.webapi.resolution.pipelines.AmfResolutionPipeline;
 import org.mule.amf.impl.exceptions.ParserException;
+import org.mule.amf.impl.parser.factory.AMFParserWrapper;
+import org.mule.amf.impl.parser.factory.AMFParserWrapperFactory;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.api.ApiReference;
 
@@ -26,9 +27,6 @@ import java.util.concurrent.ExecutionException;
 
 import static org.mule.amf.impl.URIUtils.getPathAsUri;
 import static org.mule.amf.impl.URIUtils.uriToPath;
-import static org.mule.amf.impl.VendorUtils.getParserByVendor;
-import static org.mule.amf.impl.VendorUtils.getProfileNameByVendor;
-import static org.mule.amf.impl.VendorUtils.getResolverByVendor;
 
 
 public class DocumentParser {
@@ -36,20 +34,21 @@ public class DocumentParser {
   private DocumentParser() {
   }
 
-  public static Document parseFile(final Parser parser, final ApiReference apiRef, final boolean validate) throws ParserException {
+  public static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef, final boolean validate) throws ParserException {
     final URI uri = getPathAsUri(apiRef);
     final ApiVendor apiVendor = apiRef.getVendor();
-    return parseFile(parser, uri, apiVendor, validate);
+    return parseFile(parserWrapper, uri, apiVendor, validate);
   }
 
-  private static Document parseFile(final Parser parser, final URI uri, final ApiVendor apiVendor, final boolean validate)
+  private static Document parseFile(final AMFParserWrapper parserWrapper, final URI uri, final ApiVendor apiVendor, final boolean validate)
           throws ParserException {
+    Parser parser = parserWrapper.getParser();
     Document document = parseFile(parser, uriToPath(uri));
-    Resolver resolver = getResolverByVendor(apiVendor);
+    Resolver resolver = parserWrapper.getResolver();
     document = (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
 
     if (validate) {
-      final ValidationReport parsingReport = DocumentParser.getParsingReport(parser, apiVendor);
+      final ValidationReport parsingReport = getParsingReport(parser, parserWrapper.getProfileName());
       if (!parsingReport.conforms()) {
         final List<ValidationResult> results = parsingReport.results();
         if (!results.isEmpty()) {
@@ -65,13 +64,12 @@ public class DocumentParser {
     return handleFuture(parser.parseFileAsync(url));
   }
 
-  static Parser getParserForApi(final ApiReference apiRef, Environment environment, ExecutionEnvironment executionEnvironment) {
-    return getParserByVendor(apiRef, environment);
+  static AMFParserWrapper getParserForApi(final ApiReference apiRef, Environment environment) {
+    return AMFParserWrapperFactory.getParser(apiRef, environment);
   }
 
-  static ValidationReport getParsingReport(final Parser parser, final ApiVendor apiVendor) throws ParserException {
-    final ProfileName profile = getProfileNameByVendor(apiVendor);
-    return handleFuture(parser.reportValidation(profile));
+  static ValidationReport getParsingReport(final Parser parser, final ProfileName profileName) throws ParserException {
+    return handleFuture(parser.reportValidation(profileName));
   }
 
   private static <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {

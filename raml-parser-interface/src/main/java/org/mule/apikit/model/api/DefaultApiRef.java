@@ -7,14 +7,14 @@
 package org.mule.apikit.model.api;
 
 
+import org.apache.commons.io.FilenameUtils;
 import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.ApiFormat;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Optional;
-
-import org.apache.commons.io.FilenameUtils;
 
 class DefaultApiRef implements ApiReference {
 
@@ -36,8 +36,8 @@ class DefaultApiRef implements ApiReference {
   }
 
   @Override
-  public String getFormat() {
-    return FilenameUtils.getExtension(location).toUpperCase();
+  public ApiFormat getFormat() {
+    return ApiFormat.valueOf(FilenameUtils.getExtension(location).toUpperCase());
   }
 
   @Override

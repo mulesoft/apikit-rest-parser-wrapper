@@ -6,15 +6,17 @@
  */
 package org.mule.apikit.model.api;
 
-import static java.lang.String.format;
-
+import org.apache.commons.io.FilenameUtils;
 import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.loader.ApiSyncResourceLoader;
 import org.mule.apikit.loader.ClassPathResourceLoader;
 import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.ApiFormat;
 
 import java.io.InputStream;
 import java.util.Optional;
+
+import static java.lang.String.format;
 
 class ApiSyncApiRef implements ApiReference {
 
@@ -68,8 +70,8 @@ class ApiSyncApiRef implements ApiReference {
   }
 
   @Override
-  public String getFormat() {
-    return classifier.toUpperCase();
+  public ApiFormat getFormat() {
+    return ApiFormat.valueOf(FilenameUtils.getExtension(file).toUpperCase());
   }
 
   @Override

@@ -13,12 +13,12 @@ import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.document.BaseUnit;
 import amf.client.model.document.Document;
 import amf.client.model.domain.WebApi;
-import amf.client.parse.Parser;
 import amf.client.validate.ValidationReport;
 import amf.plugins.xml.XmlValidationPlugin;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
+import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiParser;
@@ -48,7 +48,7 @@ public class AMFParser implements ApiParser {
   private static final Logger logger = LoggerFactory.getLogger(DocumentParser.class);
 
   private ApiReference apiRef;
-  private Parser parser;
+  private AMFParserWrapper parser;
   private WebApi webApi;
   private List<String> references;
 
@@ -73,7 +73,7 @@ public class AMFParser implements ApiParser {
     this.webApi = (WebApi) document.encodes();
   }
 
-  private Parser initParser(ApiReference apiRef) {
+  private AMFParserWrapper initParser(ApiReference apiRef) {
     final Environment environment = buildEnvironment(apiRef);
     try {
       if (executionEnvironment != null) {
@@ -87,7 +87,7 @@ public class AMFParser implements ApiParser {
       logger.error("Error initializing AMF", e);
       throw new RuntimeException(e);
     }
-    return getParserForApi(apiRef, environment, executionEnvironment);
+    return getParserForApi(apiRef, environment);
   }
 
   private List<String> getReferences(List<BaseUnit> references) {
@@ -131,7 +131,7 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiValidationReport validate() {
-    ValidationReport validationReport = getParsingReport(parser, apiRef.getVendor());
+    ValidationReport validationReport = getParsingReport(parser.getParser(), parser.getProfileName());
     List<ApiValidationResult> results = new ArrayList<>(0);
     if (!validationReport.conforms()) {
       results = validationReport.results().stream().map(ApiValidationResultImpl::new).collect(toList());
