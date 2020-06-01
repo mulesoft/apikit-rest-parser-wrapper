@@ -16,6 +16,7 @@ import amf.client.model.domain.Shape;
 import amf.client.model.domain.UnionShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
+import org.apache.commons.collections.CollectionUtils;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.parameter.Parameter;
@@ -122,6 +123,13 @@ public class MimeTypeImpl implements MimeType {
 
     if (shape instanceof AnyShape) {
       return getExampleFromAnyShape((AnyShape) shape);
+    }
+
+    if (shape == null) {
+      List<Example> examplesList = payload.examples();
+      if (CollectionUtils.isNotEmpty(examplesList)) {
+        return getExampleValueByMediaType(examplesList.get(0));
+      }
     }
 
     return null;
