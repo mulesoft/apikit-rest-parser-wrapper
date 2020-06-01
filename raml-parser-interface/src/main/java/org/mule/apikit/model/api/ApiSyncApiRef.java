@@ -11,7 +11,6 @@ import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.loader.ApiSyncResourceLoader;
 import org.mule.apikit.loader.ClassPathResourceLoader;
 import org.mule.apikit.loader.ResourceLoader;
-import org.mule.apikit.model.ApiFormat;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -70,8 +69,8 @@ class ApiSyncApiRef implements ApiReference {
   }
 
   @Override
-  public ApiFormat getFormat() {
-    return ApiFormat.valueOf(FilenameUtils.getExtension(file).toUpperCase());
+  public String getFormat() {
+    return FilenameUtils.getExtension(file).toUpperCase();
   }
 
   @Override

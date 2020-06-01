@@ -49,16 +49,16 @@ public interface ApiReference {
 
   String getLocation();
 
-  ApiFormat getFormat();
+  String getFormat();
 
   InputStream resolve();
 
   Optional<ResourceLoader> getResourceLoader();
 
   default ApiVendor getVendor() {
-    final ApiFormat format = getFormat();
+    final String format = getFormat();
 
-    if (ApiFormat.RAML.equals(format)) {
+    if (ApiFormat.RAML.name().equalsIgnoreCase(format)) {
       final ApiVendor ramlVendor = getRamlVendor(resolve());
       return ramlVendor != null ? ramlVendor : RAML_10;
     }

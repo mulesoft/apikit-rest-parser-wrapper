@@ -19,6 +19,7 @@ import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
+import org.mule.amf.impl.parser.factory.AMFParserWrapperFactory;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiParser;
@@ -39,7 +40,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.stream.Collectors.toList;
-import static org.mule.amf.impl.DocumentParser.getParserForApi;
 import static org.mule.amf.impl.DocumentParser.getParsingReport;
 import static org.mule.amf.impl.URIUtils.getPathAsUri;
 
@@ -87,7 +87,7 @@ public class AMFParser implements ApiParser {
       logger.error("Error initializing AMF", e);
       throw new RuntimeException(e);
     }
-    return getParserForApi(apiRef, environment);
+    return AMFParserWrapperFactory.getParser(apiRef, environment);
   }
 
   private List<String> getReferences(List<BaseUnit> references) {

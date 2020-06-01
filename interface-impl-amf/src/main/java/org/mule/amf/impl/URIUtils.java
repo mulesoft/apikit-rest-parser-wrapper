@@ -12,7 +12,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 
 public class URIUtils {
 
@@ -26,11 +25,6 @@ public class URIUtils {
     } catch (URISyntaxException e) {
       return getUriFromFile(apiRef);
     }
-  }
-
-  static String uriToPath(final URI uri) {
-    final String path = uri.toString();
-    return URLDecoder.decode(path);
   }
 
   static URI getUriFromFile(ApiReference apiRef) {

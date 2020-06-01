@@ -33,7 +33,7 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
   @Override
   public ParseResult parse(ApiReference ref) {
     ParseResult parseResult = AMF_DELEGATE.parse(ref);
-    if (!parseResult.success() && ApiFormat.RAML.equals(ref.getFormat())) {
+    if (!parseResult.success() && ApiFormat.RAML.name().equalsIgnoreCase(ref.getFormat())) {
       ReferencesResolver referencesResolver = createReferencesResolver(parseResult);
       ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
       List<ParsingIssue> errors = joinParsingIssues(parseResult.getErrors(),

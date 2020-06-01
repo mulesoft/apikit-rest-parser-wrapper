@@ -36,16 +36,16 @@ public class AMFParserWrapperFactory {
 
     public static AMFParserWrapper getParser(ApiReference apiRef, Environment environment) {
         final ApiVendor apiVendor = apiRef.getVendor();
-        final ApiFormat apiFormat = apiRef.getFormat();
+        final String apiFormat = apiRef.getFormat();
         switch (apiVendor) {
             case RAML_10:
                 return new AMFParserWrapper(new Raml10Parser(environment), new Raml10Resolver(), RAML10());
             case OAS:
             case OAS_20:
-                Parser oas20Parser = ApiFormat.JSON.equals(apiFormat) ? new Oas20Parser(environment) : new Oas20YamlParser(environment);
+                Parser oas20Parser = ApiFormat.JSON.name().equalsIgnoreCase(apiFormat) ? new Oas20Parser(environment) : new Oas20YamlParser(environment);
                 return new AMFParserWrapper(oas20Parser, new Oas20Resolver(), OAS20());
             case OAS_30:
-                Parser oas30Parser = ApiFormat.JSON.equals(apiFormat) ? new Oas30Parser(environment) : new Oas30YamlParser(environment);
+                Parser oas30Parser = ApiFormat.JSON.name().equalsIgnoreCase(apiFormat) ? new Oas30Parser(environment) : new Oas30YamlParser(environment);
                 return new AMFParserWrapper(oas30Parser, new Oas30Resolver(), OAS30());
             case RAML_08:
                 return new AMFParserWrapper(new Raml08Parser(environment), new Raml08Resolver(), RAML08());
