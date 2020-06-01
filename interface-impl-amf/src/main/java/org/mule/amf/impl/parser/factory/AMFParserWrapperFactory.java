@@ -35,6 +35,9 @@ public class AMFParserWrapperFactory {
     }
 
     public static AMFParserWrapper getParser(ApiReference apiRef, Environment environment) {
+        if (environment == null) {
+            throw new RuntimeException("Environment is mandatory, please provide one.");
+        }
         final ApiVendor apiVendor = apiRef.getVendor();
         final String apiFormat = apiRef.getFormat();
         switch (apiVendor) {
