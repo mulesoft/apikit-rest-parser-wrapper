@@ -34,7 +34,7 @@ public class DocumentParser {
   private DocumentParser() {
   }
 
-  public static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef, final boolean validate) throws ParserException {
+  static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef, final boolean validate) throws ParserException {
     final URI uri = getPathAsUri(apiRef);
     final ApiVendor apiVendor = apiRef.getVendor();
     return parseFile(parserWrapper, uri, apiVendor, validate);
