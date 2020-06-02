@@ -134,6 +134,13 @@ public class ActionImpl implements Action {
     return resolvedUriParameters;
   }
 
+  /**
+   * Looks for all the uri parameters found either from the resource or from the operation's request (if any).
+   * "Version" is an special uri param so it is ignored.
+   *
+   * @param resource
+   * @return
+   */
   private static Map<String, Parameter> loadResolvedUriParameters(final Resource resource, Operation operation) {
     final Map<String, Parameter> operationUriParams;
     if (operation.request() != null) {

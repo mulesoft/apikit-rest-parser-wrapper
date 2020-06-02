@@ -101,6 +101,13 @@ public class ResourceImpl implements Resource {
     return resolvedUriParameters;
   }
 
+  /**
+   * Looks for all the uri parameters found either from the endpoint or the first operation's request (if any).
+   * "Version" is an special uri param so it is ignored.
+   *
+   * @param resource
+   * @return
+   */
   private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource) {
     Predicate<amf.client.model.domain.Parameter> notVersionPredicate = p -> !VERSION.equals(p.name().value());
     Map<String, Parameter> uriResourceParams = resource.parameters().stream()
