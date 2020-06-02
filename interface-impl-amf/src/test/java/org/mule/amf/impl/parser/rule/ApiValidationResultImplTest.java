@@ -22,7 +22,6 @@ import scala.Option;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 
@@ -84,7 +83,19 @@ public class ApiValidationResultImplTest {
 
         String actualMessage = apiValidationResult.getMessage();
         String expectedMessage = FULL_CUSTOM_ERROR_MESSAGE;
-        assertThat(actualMessage, is(expectedMessage));
+        assertEquals(actualMessage, expectedMessage);
+    }
+
+    @Test
+    public void testPartiallyDetails() throws Exception{
+        Position start = new Position(0, 0);
+        Option<String> location = Option.apply(CUSTOM_LOCATION);
+        String message = CUSTOM_ERROR_MESSAGE;
+        ValidationResult validationResult = createAMFValidationResult(message, start, location);
+        ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
+        String actualMessage = apiValidationResult.getMessage();
+        String expectedMessage = CUSTOM_ERROR_MESSAGE;
+        assertEquals(actualMessage, expectedMessage);
     }
 
     @Test
@@ -96,7 +107,7 @@ public class ApiValidationResultImplTest {
         ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
         String actualMessage = apiValidationResult.getMessage();
         String expectedMessage = CUSTOM_ERROR_MESSAGE;
-        assertThat(actualMessage, is(expectedMessage));
+        assertEquals(actualMessage, expectedMessage);
     }
 
     public ValidationResult createAMFValidationResult(String message, Position startPosition, Option<String> location){
