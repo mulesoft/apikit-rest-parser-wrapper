@@ -36,9 +36,9 @@ public class ApiValidationResultImpl implements ApiValidationResult {
   @Override
   public String getMessage() {
     String formattedErrorMessage =   format(validationResult.message());
-    Optional <String> location = validationResult.location();
+    Optional<String> location = validationResult.location();
     Range positionRange = validationResult.position();
-    if(!location.empty().isPresent() && !positionRange.start().isZero()) {
+    if(location.isPresent() && !positionRange.start().isZero()) {
       formattedErrorMessage = format(ERROR_FORMAT, validationResult.message(), URLDecoder.decode(location.get()), getPositionMessage(positionRange.start()));
     }
     return formattedErrorMessage;
