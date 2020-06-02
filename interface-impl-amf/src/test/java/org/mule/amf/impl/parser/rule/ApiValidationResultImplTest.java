@@ -19,6 +19,7 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.validation.ApiValidationResult;
 import scala.Option;
 
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +32,15 @@ public class ApiValidationResultImplTest {
     private static final String NO_VALID_RESOURCE_PATH = "not-valid-resource";
     private static final String ERROR_MESSAGE = "expected type: Integer, found: Double";
     public static final String CUSTOM_ERROR_MESSAGE = "This is an error message!";
+    public static final String CUSTOM_ENCODED_LOCATION = URLEncoder.encode("C://my-directory");
     public static final String CUSTOM_LOCATION = "Here is the error";
     public static final String FULL_CUSTOM_ERROR_MESSAGE = "This is an error message!\n" +
             "  Location: Here is the error\n" +
             "  Position: Line 1,  Column 1";
+    public static final String FULL_CUSTOM_ERROR_ENCODED_MESSAGE = "This is an error message!\n" +
+            "  Location: C://my-directory\n" +
+            "  Position: Line 1,  Column 1";
+
     private List<ApiValidationResult> invalidApiResults;
 
     @Before
@@ -96,6 +102,18 @@ public class ApiValidationResultImplTest {
         ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
         String actualMessage = apiValidationResult.getMessage();
         String expectedMessage = CUSTOM_ERROR_MESSAGE;
+        assertEquals(actualMessage, expectedMessage);
+    }
+
+    @Test
+    public void testEncodedMessage() throws Exception{
+        Position start = new Position(1, 1);
+        Option<String> location = Option.apply(CUSTOM_ENCODED_LOCATION);
+        String message = CUSTOM_ERROR_MESSAGE;
+        ValidationResult validationResult = createAMFValidationResult(message, start, location);
+        ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
+        String actualMessage = apiValidationResult.getMessage();
+        String expectedMessage = FULL_CUSTOM_ERROR_ENCODED_MESSAGE;
         assertEquals(actualMessage, expectedMessage);
     }
 
