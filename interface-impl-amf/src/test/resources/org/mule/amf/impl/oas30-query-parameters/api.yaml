@@ -1,0 +1,137 @@
+openapi: 3.0.0
+info:
+  title: Illustrate query parameter variations
+  version: undefined
+paths:
+  /testNull:
+    get:
+      responses:
+        default:
+          description: ''
+      operationId: GET_testNull
+      parameters:
+        - name: nullableString
+          in: query
+          schema:
+            nullable: true
+            type: string
+        - name: nonNullableString
+          in: query
+          schema:
+            type: string
+        - name: nullableInteger
+          in: query
+          schema:
+            nullable: true
+            type: integer
+        - name: nonNullableInteger
+          in: query
+          schema:
+            type: integer
+        - name: nullableArray
+          in: query
+          schema:
+            nullable: true
+            type: array
+            items:
+              type: string
+        - name: nonNullableArray
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+  /books:
+    get:
+      responses:
+        default:
+          description: ''
+      operationId: GET_books
+      parameters:
+        - name: author
+          in: query
+          description: An author's full name
+          schema:
+            $ref: '#/components/schemas/author'
+          examples:
+            author1:
+              summary: author1
+              value:
+                name: John
+                lastname: Doe
+            author2:
+              summary: author2
+              value:
+                name: Mary
+                lastname: Doe
+                addresses: [ 1st Street 125 ]
+        - name: publicationYear
+          in: query
+          description: The year released for the first time in the US
+          schema:
+            type: number
+        - name: rating
+          in: query
+          description: Average rating (1-5) submitted by users
+          schema:
+            type: number
+        - name: isbn
+          in: query
+          required: true
+          schema:
+            minLength: 10
+            type: string
+            example: '0321736079'
+        - name: tags
+          in: query
+          required: true
+          schema:
+            default: [General]
+            type: array
+            items:
+              type: string
+  /documents:
+    post:
+      responses:
+        default:
+          description: ''
+      operationId: POST_documents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                first:
+                  type: string
+                  format: binary
+                second:
+                  type: string
+                  format: binary
+                third:
+                  type: string
+                  format: binary
+              required:
+                - first
+                - second
+            encoding:
+              first:
+                contentType: image/png, image/jpeg
+        required: true
+components:
+  schemas:
+    author:
+      description: An author's full name
+      properties:
+        name:
+          type: string
+        lastname:
+          type: string
+        addresses:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - lastname
+      type: object

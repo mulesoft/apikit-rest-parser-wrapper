@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: Test API
+  version: 2.0.0
+  description: To test stuff
+servers: []
+paths:
+  /test:
+    post:
+      responses:
+        default:
+          description: ''
+      description: adds stuff
+      operationId: POST_test
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'stuff.yaml#/stuff'
+        required: true
+      parameters:
+        - name: access_token
+          in: query
+          required: true
+          description: Access Token
+          schema:
+            type: string
+  /test/{testId}/{version}:
+    get:
+      responses:
+        '200':
+          description: a dependency type
+          content:
+            application/json:
+              schema:
+                $ref: 'moreStuff.yaml#/moreStuff'
+      description: uses dependency type
+      operationId: GET_test
+      parameters:
+        - name: stringHeader
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string

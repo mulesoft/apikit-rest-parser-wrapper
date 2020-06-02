@@ -6,10 +6,6 @@
  */
 package org.mule.apikit.common;
 
-import static org.mule.apikit.model.ApiVendor.OAS_20;
-import static org.mule.apikit.model.ApiVendor.RAML_08;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
-
 import org.mule.apikit.model.ApiVendor;
 
 import java.io.BufferedReader;
@@ -17,8 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import static org.mule.apikit.model.ApiVendor.OAS_20;
+import static org.mule.apikit.model.ApiVendor.OAS_30;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
+
 public class ApiVendorUtils {
 
+  private static final String OPENAPI = "OPENAPI";
   private static final String SWAGGER = "SWAGGER";
   private static final String HEADER_RAML_10 = "#%RAML 1.0";
   private static final String HEADER_RAML_08 = "#%RAML 0.8";
@@ -26,7 +28,6 @@ public class ApiVendorUtils {
   private ApiVendorUtils() {}
 
   public static ApiVendor deduceApiVendor(final InputStream is) {
-
     try (BufferedReader in = new BufferedReader(new InputStreamReader(is))) {
 
       String inputLine = getFirstLine(in);
@@ -39,6 +40,8 @@ public class ApiVendorUtils {
       do {
         if (inputLine.toUpperCase().contains(SWAGGER))
           return OAS_20;
+        if (inputLine.toUpperCase().contains(OPENAPI))
+          return OAS_30;
         if (++lines == 10)
           break;
       } while ((inputLine = in.readLine()) != null);

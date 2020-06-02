@@ -1,0 +1,247 @@
+openapi: 3.0.0
+info:
+  title: Leagues API
+  version: v1
+servers:
+  - url: 'https://{apiDomain}.ec2.amazonaws.com/'
+    variables:
+      apiDomain:
+        default: apiDomain
+        description: The sub-domain at which the API is accessible.
+paths:
+  /leagues:
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            paginationEnabled:
+              required: false
+              schema:
+                type: boolean
+          content:
+            application/json:
+              schema:
+                example: foo
+              examples:
+                foo:
+                  summary: An foo example
+                  value: foo
+            text/xml:
+              schema:
+                example: <foo/>
+              examples:
+                foo:
+                  summary: An foo example
+                  value: <foo/>
+      operationId: GET_leagues
+    post:
+      responses:
+        '201':
+          description: league created
+      operationId: POST_leagues
+      requestBody:
+        content:
+          application/json:
+            examples:
+              liga:
+                value:
+                  name: liga criolla
+            schema:
+              $ref: '#/components/schemas/league-json'
+          text/xml:
+            schema:
+              $ref: '#/components/schemas/league-xml'
+        required: true
+  '/leagues/{leagueId}':
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/yaml:
+              examples:
+                liga:
+                  value:
+                    name: Example League
+                    description: This is an example league
+              schema:
+                $ref: '#/components/schemas/league-json'
+      operationId: GET_by_leagueID
+    put:
+      responses:
+        '204':
+          description: league modified
+      operationId: PUT_leagues-leagueId
+      requestBody:
+        content:
+          application/yaml:
+            examples:
+              liga:
+                value:
+                  name: Example League
+                  description: This is an example league
+            schema:
+              $ref: '#/components/schemas/league-json'
+        required: true
+    delete:
+      responses:
+        '204':
+          description: league deleted
+      operationId: DELETE_leagues-leagueId
+    parameters:
+      - name: leagueId
+        in: path
+        required: true
+        schema:
+          pattern: '[-a-zA-Z0-9+]*'
+          minLength: 1
+          maxLength: 20
+          type: string
+  '/leagues/{leagueId}/badge':
+    put:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                example: foo
+              examples:
+                foo:
+                  value: foo
+      operationId: PUT_leagues-leagueId-badge
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                description:
+                  type: string
+                image:
+                  type: string
+              required:
+                - description
+                - image
+              type: object
+        required: true
+    post:
+      responses:
+        default:
+          description: ''
+      operationId: POST_leagues-leagueId-badge
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              description: files
+              type: string
+        required: true
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            '*/*':
+              schema:
+                example: <foo/>
+              examples:
+                foo:
+                  value: <foo/>
+      operationId: GET_leagues-leagueId-badge
+    parameters:
+      - name: leagueId
+        in: path
+        required: true
+        schema:
+          pattern: '[-a-zA-Z0-9+]*'
+          minLength: 1
+          maxLength: 20
+          type: string
+  '/leagues/{leagueId}/teams':
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                example: foo
+              examples:
+                foo:
+                  value: foo
+      operationId: GET_leagues-leagueId-teams
+      parameters:
+        - name: preferred
+          in: header
+          required: true
+          description: preferred team
+          schema:
+            default: BCN
+            type: string
+        - name: offset
+          in: query
+          description: result set offset
+          schema:
+            default: 0
+            minimum: 0
+            type: integer
+        - name: limit
+          in: query
+          description: result set size
+          schema:
+            default: 5
+            minimum: 1
+            maximum: 10
+            type: integer
+    parameters:
+      - name: leagueId
+        in: path
+        required: true
+        schema:
+          pattern: '[-a-zA-Z0-9+]*'
+          minLength: 1
+          maxLength: 20
+          type: string
+  '/leagues/{leagueId}/teams/leader':
+    get:
+      responses:
+        default:
+          description: ''
+      operationId: GET_leagues-leagueId-teams-leader
+    parameters:
+      - name: leagueId
+        in: path
+        required: true
+        schema:
+          pattern: '[-a-zA-Z0-9+]*'
+          minLength: 1
+          maxLength: 20
+          type: string
+  '/history/{version}':
+    get:
+      responses:
+        '200':
+          description: ''
+      operationId: GET_history-version
+    parameters:
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+components:
+  schemas:
+    league-json:
+      $ref: '../league.json'
+    league-xml:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+      xml:
+        name: league

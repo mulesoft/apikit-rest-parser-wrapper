@@ -1,0 +1,16 @@
+Address:
+  required:
+    - name
+  properties:
+    name:
+      type: string
+    number:
+      type: integer
+    city:
+      type: string
+    state:
+      type: string
+    country:
+      type: string
+    zipcode:
+      type: string

@@ -13,9 +13,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class AMFUtils {
+public class URIUtils {
 
-  public static URI getPathAsUri(ApiReference apiRef) {
+  private URIUtils() {
+  }
+
+  static URI getPathAsUri(ApiReference apiRef) {
     try {
       final URI uri = new URI(apiRef.getLocation());
       return uri.isAbsolute() ? uri : getUriFromFile(apiRef);
@@ -24,7 +27,7 @@ public class AMFUtils {
     }
   }
 
-  private static URI getUriFromFile(ApiReference apiRef) {
+  static URI getUriFromFile(ApiReference apiRef) {
     final String location = apiRef.getLocation();
     if (apiRef.getResourceLoader().isPresent()) {
       final URI uri = apiRef.getResourceLoader().map(loader -> loader.getResource(location)).orElse(null);
@@ -47,4 +50,5 @@ public class AMFUtils {
     } else
       throw new RuntimeException("Couldn't load api in location: " + location);
   }
+
 }

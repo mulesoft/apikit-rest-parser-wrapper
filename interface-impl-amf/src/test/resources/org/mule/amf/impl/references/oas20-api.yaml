@@ -1,0 +1,41 @@
+swagger: "2.0"
+info:
+  title: Ref schema test
+  version: 1.0.0
+
+definitions:
+  Car:
+    $ref: 'car-schemas/car-properties-schema.json#/definitions/color'
+  User:
+    $ref: "person-schema.yaml#/Person"
+
+paths:
+  /user:
+    get:
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+          examples:
+            application/json:
+              username: rdoe
+              firstName: Rick
+              lastName: Doe
+  /car:
+    post:
+      operationId: POST_car
+      responses:
+        default:
+          description: ''
+      consumes:
+        - application/json
+      parameters:
+        - schema:
+            $ref: '#/definitions/Car'
+          in: body
+          name: body
+          required: true
+

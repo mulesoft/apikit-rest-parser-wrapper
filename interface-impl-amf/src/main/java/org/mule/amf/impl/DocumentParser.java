@@ -7,66 +7,40 @@
 package org.mule.amf.impl;
 
 import amf.ProfileName;
-import amf.ProfileNames;
-import amf.client.AMF;
-import amf.client.environment.Environment;
-import amf.client.execution.ExecutionEnvironment;
-import amf.client.model.document.BaseUnit;
 import amf.client.model.document.Document;
-import amf.client.model.domain.WebApi;
-import amf.client.parse.Oas20Parser;
-import amf.client.parse.Oas20YamlParser;
 import amf.client.parse.Parser;
-import amf.client.parse.Raml08Parser;
-import amf.client.parse.Raml10Parser;
-import amf.client.parse.RamlParser;
+import amf.client.resolve.Resolver;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
-import amf.plugins.xml.XmlValidationPlugin;
-import org.apache.commons.io.IOUtils;
+import amf.plugins.document.webapi.resolution.pipelines.AmfResolutionPipeline;
 import org.mule.amf.impl.exceptions.ParserException;
-import org.mule.apikit.model.ApiVendor;
+import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.apikit.model.api.ApiReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.commons.io.FilenameUtils.getExtension;
+import static org.mule.amf.impl.URIUtils.getPathAsUri;
 
 
 public class DocumentParser {
 
-  private static final Logger logger = LoggerFactory.getLogger(DocumentParser.class);
-
-  private DocumentParser() {}
-
-  private static <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
-    try {
-      return (U) f.get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new ParserException("An error happened while parsing the api. Message: " + e.getMessage(), e);
-    }
+  private DocumentParser() {
   }
 
-  public static Document parseFile(final Parser parser, final URI uri, final boolean validate) throws ParserException {
-    return parseFile(parser, uriToPath(uri), validate);
-  }
-
-  public static Document parseFile(final Parser parser, final String apiPath, final boolean validate)
-      throws ParserException {
-    final Document document = parseFile(parser, apiPath);
+  static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef, final boolean validate) throws ParserException {
+    Parser parser = parserWrapper.getParser();
+    final URI uri = getPathAsUri(apiRef);
+    final String url = URLDecoder.decode(uri.toString());
+    Document document = handleFuture(parser.parseFileAsync(url));
+    Resolver resolver = parserWrapper.getResolver();
+    document = (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
 
     if (validate) {
-      final ProfileName profile = parser instanceof Oas20Parser ? ProfileNames.OAS() : ProfileNames.RAML();
-      final ValidationReport parsingReport = DocumentParser.getParsingReport(parser, profile);
+      final ValidationReport parsingReport = getParsingReport(parser, parserWrapper.getProfileName());
       if (!parsingReport.conforms()) {
         final List<ValidationResult> results = parsingReport.results();
         if (!results.isEmpty()) {
@@ -78,102 +52,16 @@ public class DocumentParser {
     return document;
   }
 
-  private static String uriToPath(final URI uri) {
-    final String path = uri.toString();
-    return URLDecoder.decode(path);
+  static ValidationReport getParsingReport(final Parser parser, final ProfileName profileName) throws ParserException {
+    return handleFuture(parser.reportValidation(profileName));
   }
 
-  private static Document parseFile(final Parser parser, final String url) throws ParserException {
-    return handleFuture(parser.parseFileAsync(url));
-  }
-
-  public static Parser getParserForApi(final ApiReference apiRef, Environment environment, ExecutionEnvironment executionEnvironment) {
-    init(executionEnvironment);
-    final ApiVendor vendor = apiRef.getVendor();
-    switch (vendor) {
-      case OAS:
-      case OAS_20:
-        if ("JSON".equalsIgnoreCase(apiRef.getFormat()))
-          return new Oas20Parser(environment);
-        else
-          return new Oas20YamlParser(environment);
-      case RAML_08:
-        return new Raml08Parser(environment);
-      case RAML_10:
-        return new Raml10Parser(environment);
-      default:
-        return new RamlParser(environment);
-    }
-  }
-
-  public static WebApi getWebApi(final BaseUnit baseUnit) throws ParserException {
-    final Document document = (Document) AMF.resolveRaml10(baseUnit);
-    return (WebApi) document.encodes();
-  }
-
-  public static ValidationReport getParsingReport(final Parser parser, final ProfileName profile) throws ParserException {
-    return handleFuture(parser.reportValidation(profile));
-  }
-
-  public static VendorEx getVendor(final URI api) {
-    final String ext = getExtension(api.getPath());
-    return "RAML".equalsIgnoreCase(ext) ? VendorEx.RAML : deduceVendorFromContent(api);
-  }
-
-  private static VendorEx deduceVendorFromContent(final URI api) {
-
-    BufferedReader in = null;
+  private static <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
     try {
-      in = new BufferedReader(new InputStreamReader(api.toURL().openStream()));
-
-      final String firstLine = getFirstLine(in);
-
-      if (firstLine.toUpperCase().contains("#%RAML"))
-        return VendorEx.RAML;
-
-      final boolean isJson = firstLine.startsWith("{") || firstLine.startsWith("[");
-      // Some times swagger version is in the first line too, e.g. yaml files
-      if (firstLine.toUpperCase().contains("SWAGGER"))
-        return isJson ? VendorEx.OAS20_JSON : VendorEx.OAS20_YAML;
-
-      int lines = 0;
-      String inputLine;
-      while ((inputLine = in.readLine()) != null) {
-        if (inputLine.toUpperCase().contains("SWAGGER"))
-          return isJson ? VendorEx.OAS20_JSON : VendorEx.OAS20_YAML;
-        if (++lines == 10)
-          break;
-      }
-    } catch (final Exception ignore) {
-    } finally {
-      IOUtils.closeQuietly(in);
-    }
-
-    return VendorEx.RAML; // default value
-  }
-
-  private static String getFirstLine(BufferedReader in) throws IOException {
-    String line;
-    while ((line = in.readLine()) != null) {
-      if (line.trim().length() > 0)
-        return line;
-    }
-    return "";
-  }
-  private static void init(ExecutionEnvironment executionEnvironment){
-    try {
-//      Why is this init called for second time?
-      AMF.init(executionEnvironment).get();
-//      AMFValidatorPlugin.withEnabledValidation(true);
-      amf.core.AMF.registerPlugin(new XmlValidationPlugin());
-    } catch (final Exception e) {
-      logger.error("Error initializing AMF", e);
+      return (U) f.get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new ParserException("An error happened while parsing the api. Message: " + e.getMessage(), e);
     }
   }
 
-  public enum VendorEx {
-    RAML,
-    OAS20_JSON,
-    OAS20_YAML
-  }
 }

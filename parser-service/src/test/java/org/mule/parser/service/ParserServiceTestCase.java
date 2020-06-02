@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
 import static org.mule.apikit.model.ApiVendor.OAS_20;
+import static org.mule.apikit.model.ApiVendor.OAS_30;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
@@ -93,6 +94,16 @@ public class ParserServiceTestCase {
     assertNotNull(wrapper.get());
     assertThat(wrapper.success(), is(true));
     assertThat(wrapper.getErrors().size(), is(0));
+  }
+
+  @Test
+  public void oas3Yaml20Wrapper() {
+    String api = resource("/oas/oas3.yaml");
+
+    ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AMF);
+    assertNotNull(wrapper);
+    assertThat(wrapper.get().getType(), is(ApiType.AMF));
+    assertThat(wrapper.get().getApiVendor(), is(OAS_30));
   }
 
   @Test
