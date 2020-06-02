@@ -1,0 +1,30 @@
+#%RAML 1.0
+title: Ref schema test
+version: 1.0.0
+
+types:
+  Car:
+    type: !include car-schema.json#Car
+    examples:
+      ferrari: !include examples/car-example.json
+  Person:
+    type: !include person-schema.json#Person
+    examples:
+      userEx1:
+        value: !include examples/user-example.json
+      userEx2:
+        value: !include examples/user-example-for-raml.json
+
+/user:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: Person
+
+/car:
+  post:
+    body:
+      application/json:
+        type: Car

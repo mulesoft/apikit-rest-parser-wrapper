@@ -28,7 +28,7 @@ public class AMFImplTest {
 
     private static final String BASE_URI = "some.uri.com";
     private static final String RESOURCE = "/test";
-    private static final String ACTION = "GET";
+    private static final String ACTION = "POST";
     private static final String LEAGUES_RESOURCE = "/leagues";
     private static final String LEAGUES_API_BASE_URI = "https://{apiDomain}.ec2.amazonaws.com";
     private static final String LEAGUES_API_VERSION = "v1";
@@ -38,14 +38,14 @@ public class AMFImplTest {
 
     @Before
     public void setUp() throws Exception {
-        apiLocation = AMFImplTest.class.getResource("../10-leagues/api.raml").toURI();
+        apiLocation = AMFImplTest.class.getResource("../leagues/raml10/api.raml").toURI();
         ApiReference apiRef = ApiReference.create(apiLocation.toString());
         api = (AMFImpl) new AMFParser(apiRef, true).parse();
     }
 
     @Test
     public void amfImplSimpleApiCompleteTest() throws Exception {
-        String apiLocation = AMFImplTest.class.getResource("../amf-model-render/api-to-render.raml").toURI().toString();
+        String apiLocation = AMFImplTest.class.getResource("../amf-model-render/raml/api-to-render.raml").toURI().toString();
         ApiReference apiRef = ApiReference.create(apiLocation);
         AMFImpl simpleApi = (AMFImpl) new AMFParser(apiRef, true).parse();
 
@@ -60,17 +60,17 @@ public class AMFImplTest {
 
     private void assertSimpleApiResource(ResourceImpl resource) {
         assertEquals(RESOURCE, resource.toString());
-        assertEquals(2, resource.getActions().size());
+        assertEquals(1, resource.getActions().size());
         assertSimpleApiAction(resource.getAction(ACTION));
     }
 
     private void assertSimpleApiAction(Action action) {
-        assertEquals(0, action.getBody().size());
-        Assert.assertFalse(action.hasBody());
-        assertEquals(1, action.getResponses().size());
+        Assert.assertTrue(action.hasBody());
+        assertEquals(1, action.getBody().size());
+        assertEquals(0, action.getResponses().size());
         assertEquals(RESOURCE, action.getResource().toString());
-        assertEquals(0, action.getQueryParameters().size());
-        assertEquals(1, action.getHeaders().size());
+        assertEquals(1, action.getQueryParameters().size());
+        assertEquals(0, action.getHeaders().size());
         assertNull(action.queryString());
     }
 
@@ -99,7 +99,7 @@ public class AMFImplTest {
 
     @Test
     public void getLocationTest() {
-        assertTrue(api.getLocation().endsWith("10-leagues/api.raml".replace("/", File.separator)));
+        assertTrue(api.getLocation().endsWith("org/mule/amf/impl/leagues/raml10/api.raml".replace("/", File.separator)));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class AMFImplTest {
         assertFalse(api.dump(null).contains(BASE_URI));
 
         // Test OAS dump but there is not basePath replacement so far
-        String location = AMFImplTest.class.getResource("../oas/api.yaml").toURI().toString();
+        String location = AMFImplTest.class.getResource("../oas20-petstore/api.yaml").toURI().toString();
         ApiReference apiRef = ApiReference.create(location);
         AMFImpl oasApi = (AMFImpl) new AMFParser(apiRef, true).parse();
         assertFalse(oasApi.dump(BASE_URI).contains(BASE_URI));

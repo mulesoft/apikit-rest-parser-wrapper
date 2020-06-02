@@ -1,0 +1,10 @@
+moreStuff:
+  type: object
+  properties:
+    foo:
+      type: string
+    bar:
+      type: boolean
+  example:
+    foo: "bye"
+    bar: false

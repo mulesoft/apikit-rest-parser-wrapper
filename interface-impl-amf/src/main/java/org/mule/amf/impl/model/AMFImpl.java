@@ -12,6 +12,7 @@ import amf.client.model.domain.Server;
 import amf.client.model.domain.WebApi;
 import amf.client.render.AmfGraphRenderer;
 import amf.client.render.Oas20Renderer;
+import amf.client.render.Oas30Renderer;
 import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
 import amf.client.render.RenderOptions;
@@ -177,6 +178,9 @@ public class AMFImpl implements ApiSpecification {
         break;
       case OAS_20:
         renderer = new Oas20Renderer();
+        break;
+      case OAS_30:
+        renderer = new Oas30Renderer();
         break;
       default:
         renderer = new Raml10Renderer();

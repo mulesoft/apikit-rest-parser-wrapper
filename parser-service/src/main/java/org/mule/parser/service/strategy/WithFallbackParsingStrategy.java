@@ -7,11 +7,8 @@
 package org.mule.parser.service.strategy;
 
 
-import static java.util.Collections.emptyList;
-
-import java.util.concurrent.ScheduledExecutorService;
-
-import org.apache.commons.lang.StringUtils;
+import com.google.common.collect.ImmutableList;
+import org.mule.apikit.model.ApiFormat;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.references.ReferencesResolver;
@@ -21,28 +18,28 @@ import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.result.ParsingIssue;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
+import static java.util.Collections.emptyList;
 
 public class WithFallbackParsingStrategy implements ParsingStrategy {
   private static final AMFParsingStrategy AMF_DELEGATE = new AMFParsingStrategy();
   private ScheduledExecutorService executor;
-  private static final String RAML_FORMAT = "RAML";
   private static final String AMF_TITLE = "AMF: ";
   private static final String RAML_TITLE = "RAML: ";
 
   @Override
   public ParseResult parse(ApiReference ref) {
     ParseResult parseResult = AMF_DELEGATE.parse(ref);
-    if (!parseResult.success() && StringUtils.equals(ref.getFormat(), RAML_FORMAT)) {
+    if (!parseResult.success() && ApiFormat.RAML.name().equalsIgnoreCase(ref.getFormat())) {
       ReferencesResolver referencesResolver = createReferencesResolver(parseResult);
       ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
       List<ParsingIssue> errors = joinParsingIssues(parseResult.getErrors(),
-          ramlResult.getErrors());
+              ramlResult.getErrors());
       List<ParsingIssue> warnings = joinParsingIssues(parseResult.getWarnings(),
-          ramlResult.getWarnings());
+              ramlResult.getWarnings());
       return new FallbackParseResult(createDelegate(ramlResult, errors, warnings));
     }
     return parseResult;

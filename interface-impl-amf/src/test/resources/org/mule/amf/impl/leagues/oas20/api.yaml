@@ -1,0 +1,222 @@
+swagger: '2.0'
+info:
+  title: Leagues API
+  version: v1
+basePath: '/company.ec2.amazonaws.com'
+schemes:
+  - https
+definitions:
+  league-json:
+    $ref: '../league.json'
+  league-xml:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+    required:
+      - name
+    xml:
+      name: league
+paths:
+  /leagues:
+    get:
+      operationId: GET_leagues
+      produces:
+        - application/json
+        - text/xml
+      responses:
+        '200':
+          description: ''
+          headers:
+            paginationEnabled:
+              type: boolean
+          schema:
+            example: foo
+          examples:
+            application/json:
+              foo
+            text/xml:
+              <foo/>
+    post:
+      operationId: POST_leagues
+      produces:
+        - text/plain
+      responses:
+        '201':
+          description: league created
+      consumes:
+        - application/json
+        - text/xml
+      parameters:
+        - name: body
+          schema:
+            $ref: '#/definitions/league-xml'
+          in: body
+          required: true
+  '/leagues/{leagueId}':
+    parameters:
+      - name: leagueId
+        pattern: '[-a-zA-Z0-9+]*'
+        minLength: 1
+        maxLength: 20
+        type: string
+        in: path
+        required: true
+    get:
+      operationId: GET_by_leagueID
+      produces:
+        - application/yaml
+      responses:
+        '200':
+          description: ''
+          examples:
+            application/yaml:
+              name: Example League
+              description: This is an example league
+          schema:
+            $ref: '#/definitions/league-json'
+    put:
+      operationId: PUT_leagues-leagueId
+      responses:
+        '204':
+          description: league modified
+      consumes:
+        - application/yaml
+      parameters:
+        - name: body
+          schema:
+            $ref: '#/definitions/league-json'
+          in: body
+          required: true
+    delete:
+      operationId: DELETE_leagues-leagueId
+      responses:
+        '204':
+          description: league deleted
+  '/leagues/{leagueId}/badge':
+    put:
+      operationId: PUT_leagues-leagueId-badge
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            example: foo
+          examples:
+            application/json:
+              foo
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: description
+          type: string
+          required: true
+        - in: formData
+          name: image
+          type: file
+          required: true
+    post:
+      operationId: POST_leagues-leagueId-badge
+      responses:
+        default:
+          description: ''
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: formData
+          type: file
+          description: files
+          required: true
+    get:
+      operationId: GET_leagues-leagueId-badge
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: ''
+          schema:
+            example: <foo/>
+          examples:
+            '*/*':
+              <foo/>
+    parameters:
+      - pattern: '[-a-zA-Z0-9+]*'
+        minLength: 1
+        maxLength: 20
+        type: string
+        in: path
+        name: leagueId
+        required: true
+  '/leagues/{leagueId}/teams':
+    get:
+      operationId: GET_leagues-leagueId-teams
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            example: foo
+          examples:
+            application/json:
+              foo
+      parameters:
+        - default: BCN
+          description: preferred team
+          type: string
+          in: header
+          name: preferred
+          required: true
+        - default: 0
+          minimum: 0
+          description: result set offset
+          type: integer
+          in: query
+          name: offset
+        - default: 5
+          minimum: 1
+          maximum: 10
+          description: result set size
+          type: integer
+          in: query
+          name: limit
+    parameters:
+      - pattern: '[-a-zA-Z0-9+]*'
+        minLength: 1
+        maxLength: 20
+        type: string
+        in: path
+        name: leagueId
+        required: true
+  '/leagues/{leagueId}/teams/leader':
+    get:
+      operationId: GET_leagues-leagueId-teams-leader
+      responses:
+        default:
+          description: ''
+    parameters:
+      - pattern: '[-a-zA-Z0-9+]*'
+        minLength: 1
+        maxLength: 20
+        type: string
+        in: path
+        name: leagueId
+        required: true
+  '/history/{version}':
+    get:
+      operationId: GET_history-version
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+    parameters:
+      - type: string
+        in: path
+        name: version
+        required: true

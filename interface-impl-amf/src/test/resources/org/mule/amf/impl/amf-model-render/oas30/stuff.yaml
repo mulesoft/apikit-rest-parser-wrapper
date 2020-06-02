@@ -1,0 +1,10 @@
+stuff:
+  type: object
+  properties:
+    foo:
+      type: string
+    bar:
+      type: integer
+  example:
+    foo: "hello"
+    bar: 42

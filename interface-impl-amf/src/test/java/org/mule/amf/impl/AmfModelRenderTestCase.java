@@ -6,18 +6,17 @@
  */
 package org.mule.amf.impl;
 
-import static org.junit.Assert.assertEquals;
-
+import org.junit.Test;
 import org.mule.amf.impl.model.AMFImpl;
 import org.mule.apikit.model.api.ApiReference;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class AmfModelRenderTestCase {
 
   @Test
   public void amfGetLocationReturnsApiRefLocation() throws Exception {
-    String folderLocation = AmfModelRenderTestCase.class.getResource("").toURI() + "amf-model-render/";
+    String folderLocation = AmfModelRenderTestCase.class.getResource("").toURI() + "amf-model-render/raml/";
     String apiLocation = folderLocation + "api-to-render.raml";
     ApiReference apiRef = ApiReference.create(apiLocation);
 
@@ -25,8 +24,4 @@ public class AmfModelRenderTestCase {
     assertEquals(amfObj.getLocation(), apiRef.getLocation());
   }
 
-  private String sanitize(String model) {
-    return model.replace("\\r", "").replace("\\n", "")
-        .replaceAll("\\r", "").replaceAll("\\n", "");
-  }
 }

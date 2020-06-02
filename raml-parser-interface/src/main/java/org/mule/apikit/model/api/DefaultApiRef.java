@@ -7,14 +7,13 @@
 package org.mule.apikit.model.api;
 
 
+import org.apache.commons.io.FilenameUtils;
 import org.mule.apikit.loader.ResourceLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Optional;
-
-import org.apache.commons.io.FilenameUtils;
 
 class DefaultApiRef implements ApiReference {
 

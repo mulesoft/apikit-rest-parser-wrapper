@@ -10,17 +10,6 @@ uses:
   myLib : reused-fragment.raml
 
 /test:
-  get:
-    description: uses dependency type
-    headers:
-      stringHeader:
-    responses:
-      '200':
-        description: a dependency type
-        body:
-          application/json:
-            type: myLib.moreStuff
-
   post:
     description: adds stuff
     queryParameters:
@@ -32,3 +21,15 @@ uses:
     body:
       application/json:
         type: myLib.stuff
+  /{testId}/{version}:
+    get:
+      description: uses dependency type
+      headers:
+        stringHeader:
+      responses:
+        '200':
+          description: a dependency type
+          body:
+            application/json:
+              type: myLib.moreStuff
+

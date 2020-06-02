@@ -5,7 +5,10 @@
       "type": "object",
       "properties": {
         "color" : {
-          "$ref": "car-properties-schema.json#/definitions/color"
+          "$ref": "car-schemas/car-properties-schema.json#/definitions/color"
+        },
+        "manufacturer": {
+          "$ref": "car-schemas/manufacturer-schema.json"
         }
       },
       "required": ["color"]
