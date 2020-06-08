@@ -6,11 +6,8 @@
  */
 package org.mule.amf.impl.parser.rule;
 
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
-import static org.mule.apikit.validation.Severity.ERROR;
-
+import amf.core.parser.Position;
+import amf.core.parser.Range;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.Severity;
 
@@ -18,7 +15,10 @@ import java.net.URLDecoder;
 import java.util.List;
 import java.util.Optional;
 
-import amf.core.parser.Position;
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static org.mule.apikit.validation.Severity.ERROR;
 
 public class ApiValidationResultImpl implements ApiValidationResult {
 
@@ -35,9 +35,12 @@ public class ApiValidationResultImpl implements ApiValidationResult {
 
   @Override
   public String getMessage() {
-    return buildErrorMessage(validationResult.message(),
-                             validationResult.location().orElse(""),
-                             validationResult.position().start());
+    Optional<String> location = validationResult.location();
+    Range positionRange = validationResult.position();
+    if(location.isPresent() && !positionRange.start().isZero()) {
+      return format(ERROR_FORMAT, validationResult.message(), URLDecoder.decode(location.get()), getPositionMessage(positionRange.start()));
+    }
+    return validationResult.message();
   }
 
   @Override
@@ -54,10 +57,6 @@ public class ApiValidationResultImpl implements ApiValidationResult {
   public Severity getSeverity() {
     return !severities.contains(validationResult.level().toUpperCase()) ?
         ERROR : Severity.fromString(validationResult.level());
-  }
-
-  private static String buildErrorMessage(String message, String location, Position startPosition) {
-    return format(ERROR_FORMAT, message, URLDecoder.decode(location), getPositionMessage(startPosition));
   }
 
   private static String getPositionMessage(Position startPosition) {
