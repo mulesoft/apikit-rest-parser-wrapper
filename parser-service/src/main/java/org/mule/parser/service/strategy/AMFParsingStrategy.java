@@ -52,6 +52,6 @@ public class AMFParsingStrategy implements ParsingStrategy {
   }
 
   private AMFParser create(ApiReference ref) {
-    return new AMFParser(ref, false, executor);
+    return new AMFParser(ref, executor);
   }
 }

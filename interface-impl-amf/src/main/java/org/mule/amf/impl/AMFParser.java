@@ -55,20 +55,30 @@ public class AMFParser implements ApiParser {
   private Document consoleModel;
   private ExecutionEnvironment executionEnvironment;
 
+  @Deprecated
   public AMFParser(ApiReference apiRef, boolean validate, ScheduledExecutorService scheduler) {
-    initialize(apiRef, validate, new ExecutionEnvironment(scheduler));
+    initialize(apiRef, new ExecutionEnvironment(scheduler));
   }
 
+  @Deprecated
   public AMFParser(ApiReference apiRef, boolean validate) {
-    initialize(apiRef, validate, new ExecutionEnvironment());
+    initialize(apiRef, new ExecutionEnvironment());
   }
 
-  private void initialize(ApiReference apiRef, boolean validate, ExecutionEnvironment executionEnvironment) {
+  public AMFParser(ApiReference apiRef, ScheduledExecutorService scheduler) {
+    initialize(apiRef, new ExecutionEnvironment(scheduler));
+  }
+
+  public AMFParser(ApiReference apiRef) {
+    initialize(apiRef, new ExecutionEnvironment());
+  }
+
+  private void initialize(ApiReference apiRef, ExecutionEnvironment executionEnvironment) {
     this.executionEnvironment = executionEnvironment;
     this.apiRef = apiRef;
     this.parser = initParser(apiRef);
 
-    Document document = buildDocument(validate);
+    Document document = buildDocument();
     this.references = getReferences(document.references());
     this.webApi = (WebApi) document.encodes();
   }
@@ -81,7 +91,6 @@ public class AMFParser implements ApiParser {
       } else {
         AMF.init().get();
       }
-//      AMFValidatorPlugin.withEnabledValidation(true);
       amf.core.AMF.registerPlugin(new XmlValidationPlugin());
     } catch (final Exception e) {
       logger.error("Error initializing AMF", e);
@@ -147,13 +156,13 @@ public class AMFParser implements ApiParser {
 
   private Document getConsoleModel() {
     if (consoleModel == null) {
-      consoleModel = buildDocument(false);
+      consoleModel = buildDocument();
     }
     return consoleModel;
   }
 
-  private Document buildDocument(boolean validate) {
-    return DocumentParser.parseFile(parser, apiRef, validate);
+  private Document buildDocument() {
+    return DocumentParser.parseFile(parser, apiRef);
   }
 
 }

@@ -11,7 +11,6 @@ import amf.client.model.document.Document;
 import amf.client.parse.Parser;
 import amf.client.resolve.Resolver;
 import amf.client.validate.ValidationReport;
-import amf.client.validate.ValidationResult;
 import amf.plugins.document.webapi.resolution.pipelines.AmfResolutionPipeline;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
@@ -19,7 +18,6 @@ import org.mule.apikit.model.api.ApiReference;
 
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -31,25 +29,13 @@ public class DocumentParser {
   private DocumentParser() {
   }
 
-  static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef, final boolean validate) throws ParserException {
+  static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef) throws ParserException {
     Parser parser = parserWrapper.getParser();
     final URI uri = getPathAsUri(apiRef);
     final String url = URLDecoder.decode(uri.toString());
     Document document = handleFuture(parser.parseFileAsync(url));
     Resolver resolver = parserWrapper.getResolver();
-    document = (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
-
-    if (validate) {
-      final ValidationReport parsingReport = getParsingReport(parser, parserWrapper.getProfileName());
-      if (!parsingReport.conforms()) {
-        final List<ValidationResult> results = parsingReport.results();
-        if (!results.isEmpty()) {
-          final String message = results.get(0).message();
-          throw new ParserException(message);
-        }
-      }
-    }
-    return document;
+    return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
   }
 
   static ValidationReport getParsingReport(final Parser parser, final ProfileName profileName) throws ParserException {
