@@ -61,17 +61,16 @@ public class ParameterImplTest {
         String apiLocation = ParameterImplTest.class.getResource("../10-query-parameters/api.raml").toURI().toString();
         ApiReference ramlApiRef = ApiReference.create(apiLocation);
 
-        // TODO uncomment after APIMF-2102 and APIMF-2084 are fixed
-//        apiLocation = ParameterImplTest.class.getResource("../oas20-query-parameters/api.yaml").toURI().toString();
-//        ApiReference oas20apiRef = ApiReference.create(apiLocation);
-//
-//        apiLocation = ParameterImplTest.class.getResource("../oas30-query-parameters/api.yaml").toURI().toString();
-//        ApiReference oas30apiRef = ApiReference.create(apiLocation);
+        apiLocation = ParameterImplTest.class.getResource("../oas20-query-parameters/api.yaml").toURI().toString();
+        ApiReference oas20apiRef = ApiReference.create(apiLocation);
+
+        apiLocation = ParameterImplTest.class.getResource("../oas30-query-parameters/api.yaml").toURI().toString();
+        ApiReference oas30apiRef = ApiReference.create(apiLocation);
 
         return Arrays.asList(new Object[][]{
-                {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()}
-//                ,{ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
-//                {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
+                {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()},
+                {ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
+                {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
         });
     }
 
@@ -210,14 +209,20 @@ public class ParameterImplTest {
 
     @Test
     public void getExampleTest() {
-        assertEquals(ISBN, queryParams.get(ISBN_QUERY_PARAM).getExample());
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertEquals(ISBN, queryParams.get(ISBN_QUERY_PARAM).getExample());
+        }
         assertNull(queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExample());
     }
 
     @Test
     public void getExamplesTest() {
         assertEquals(0, queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExamples().size());
-        assertEquals(2, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertEquals(2, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
+        } else {
+            assertEquals(0, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
+        }
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -233,14 +238,22 @@ public class ParameterImplTest {
     @Test
     public void isScalarTest() {
         assertTrue(queryParams.get(ISBN_QUERY_PARAM).isScalar());
-        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isScalar());
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isScalar());
+        } else {
+            assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).isScalar());
+        }
     }
 
     @Test
     public void isFacetArrayTest() {
         assertFalse(queryParams.get(ISBN_QUERY_PARAM).isFacetArray(ISBN_QUERY_PARAM));
         assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("lastname"));
-        assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("addresses"));
+        if (!ApiVendor.OAS_20.equals(apiVendor)) {
+            assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("addresses"));
+        } else {
+            assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("addresses"));
+        }
     }
 
     @Test
