@@ -6,7 +6,9 @@
  */
 package org.mule.amf.impl;
 
+import amf.MessageStyle;
 import amf.ProfileName;
+import amf.client.AMF;
 import amf.client.model.document.Document;
 import amf.client.parse.Parser;
 import amf.client.resolve.Resolver;
@@ -29,17 +31,25 @@ public class DocumentParser {
   private DocumentParser() {
   }
 
+  public static Document parseFile(final Parser parser, final Resolver resolver, final URI uri) throws ParserException {
+    Document document = getDocument(parser, uri);
+    return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
+  }
+
   static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef) throws ParserException {
-    Parser parser = parserWrapper.getParser();
     final URI uri = getPathAsUri(apiRef);
-    final String url = URLDecoder.decode(uri.toString());
-    Document document = handleFuture(parser.parseFileAsync(url));
+    Document document = getDocument(parserWrapper.getParser(), uri);
     Resolver resolver = parserWrapper.getResolver();
     return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
   }
 
-  static ValidationReport getParsingReport(final Parser parser, final ProfileName profileName) throws ParserException {
-    return handleFuture(parser.reportValidation(profileName));
+  private static Document getDocument(Parser parser, URI uri) {
+    final String url = URLDecoder.decode(uri.toString());
+    return handleFuture(parser.parseFileAsync(url));
+  }
+
+  static ValidationReport getParsingReport(Document resolvedDoc, ProfileName profileName, MessageStyle messageStyle) throws ParserException {
+    return handleFuture(AMF.validateResolved(resolvedDoc, profileName, messageStyle));
   }
 
   private static <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
