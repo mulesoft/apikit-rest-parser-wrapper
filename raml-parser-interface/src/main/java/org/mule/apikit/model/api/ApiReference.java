@@ -6,20 +6,19 @@
  */
 package org.mule.apikit.model.api;
 
-import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
-import static org.mule.apikit.common.ApiVendorUtils.deduceApiVendor;
-import static org.mule.apikit.common.ApiVendorUtils.getRamlVendor;
-import static org.mule.apikit.model.ApiVendor.OAS_20;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
-
-import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.ApiFormat;
 import org.mule.apikit.model.ApiVendor;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
+
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
+import static org.mule.apikit.common.ApiVendorUtils.deduceApiVendor;
+import static org.mule.apikit.common.ApiVendorUtils.getRamlVendor;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 public interface ApiReference {
 
@@ -59,13 +58,10 @@ public interface ApiReference {
   default ApiVendor getVendor() {
     final String format = getFormat();
 
-    if ("RAML".equalsIgnoreCase(format)) {
+    if (ApiFormat.RAML.name().equalsIgnoreCase(format)) {
       final ApiVendor ramlVendor = getRamlVendor(resolve());
       return ramlVendor != null ? ramlVendor : RAML_10;
     }
-
-    if ("JSON".equalsIgnoreCase(format))
-      return OAS_20;
 
     return deduceApiVendor(resolve());
   }
