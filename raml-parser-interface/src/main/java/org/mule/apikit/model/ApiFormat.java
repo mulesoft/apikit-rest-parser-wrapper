@@ -6,11 +6,8 @@
  */
 package org.mule.apikit.model;
 
-public enum ApiVendor {
-  RAML,
-  RAML_08,
-  RAML_10,
-  OAS,
-  OAS_20,
-  OAS_30
+public enum ApiFormat {
+    RAML,
+    JSON,
+    YAML
 }
