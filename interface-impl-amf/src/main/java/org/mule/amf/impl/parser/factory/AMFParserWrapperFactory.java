@@ -6,6 +6,7 @@
  */
 package org.mule.amf.impl.parser.factory;
 
+import amf.MessageStyles;
 import amf.client.environment.Environment;
 import amf.client.parse.Oas20Parser;
 import amf.client.parse.Oas20YamlParser;
@@ -39,17 +40,17 @@ public class AMFParserWrapperFactory {
         final String apiFormat = apiRef.getFormat();
         switch (apiVendor) {
             case RAML_10:
-                return new AMFParserWrapper(new Raml10Parser(environment), new Raml10Resolver(), RAML10());
+                return new AMFParserWrapper(new Raml10Parser(environment), new Raml10Resolver(), RAML10(), MessageStyles.RAML());
             case RAML_08:
-                return new AMFParserWrapper(new Raml08Parser(environment), new Raml10Resolver(), RAML());
+                return new AMFParserWrapper(new Raml08Parser(environment), new Raml10Resolver(), RAML(), MessageStyles.RAML());
             case OAS:
             case OAS_20:
                 Parser oas20Parser = ApiFormat.JSON.name().equalsIgnoreCase(apiFormat) ? new Oas20Parser(environment) : new Oas20YamlParser(environment);
-                return new AMFParserWrapper(oas20Parser, new Oas20Resolver(), OAS20());
+                return new AMFParserWrapper(oas20Parser, new Oas20Resolver(), OAS20(), MessageStyles.OAS());
             case OAS_30:
                 throw new ParserException("API implementations based on OAS 3.0 specs are not supported at this time");
             default:
-                return new AMFParserWrapper(new RamlParser(environment), new Raml08Resolver(), AMF());
+                return new AMFParserWrapper(new RamlParser(environment), new Raml08Resolver(), AMF(), MessageStyles.AMF());
         }
     }
 }
