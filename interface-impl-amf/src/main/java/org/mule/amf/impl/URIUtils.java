@@ -18,7 +18,7 @@ public class URIUtils {
   private URIUtils() {
   }
 
-  static URI getPathAsUri(ApiReference apiRef) {
+  public static URI getPathAsUri(ApiReference apiRef) {
     try {
       final URI uri = new URI(apiRef.getLocation());
       return uri.isAbsolute() ? uri : getUriFromFile(apiRef);
