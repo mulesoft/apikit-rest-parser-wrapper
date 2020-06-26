@@ -16,14 +16,11 @@ import amf.client.validate.ValidationReport;
 import amf.plugins.document.webapi.resolution.pipelines.AmfResolutionPipeline;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
-import org.mule.apikit.model.api.ApiReference;
 
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
-import static org.mule.amf.impl.URIUtils.getPathAsUri;
 
 
 public class DocumentParser {
@@ -36,8 +33,7 @@ public class DocumentParser {
     return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
   }
 
-  static Document parseFile(final AMFParserWrapper parserWrapper, final ApiReference apiRef) throws ParserException {
-    final URI uri = getPathAsUri(apiRef);
+  static Document parseFile(final AMFParserWrapper parserWrapper, final URI uri) throws ParserException {
     Document document = getDocument(parserWrapper.getParser(), uri);
     Resolver resolver = parserWrapper.getResolver();
     return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());

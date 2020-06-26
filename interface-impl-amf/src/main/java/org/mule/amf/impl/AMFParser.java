@@ -73,7 +73,7 @@ public class AMFParser implements ApiParser {
   }
 
   private void initializeParser(ApiReference apiRef, ExecutionEnvironment executionEnvironment) {
-    this.document = new LazyValue<>(() -> DocumentParser.parseFile(parser, apiRef));
+    this.document = new LazyValue<>(() -> DocumentParser.parseFile(parser, apiUri.get()));
     this.webApi = new LazyValue<>(() -> (WebApi) document.get().encodes());
     this.apiUri = new LazyValue<>(() -> getPathAsUri(apiRef));
     this.executionEnvironment = executionEnvironment;
