@@ -21,6 +21,7 @@ import org.mule.amf.impl.model.AMFImpl;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.parser.factory.AMFParserWrapperFactory;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
+import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
@@ -48,10 +49,9 @@ public class AMFParser implements ApiParser {
 
   private ApiReference apiRef;
   private AMFParserWrapper parser;
-  private WebApi webApi;
-  private List<String> references;
-  private URI apiUri;
-  private Document document;
+  private LazyValue<WebApi> webApi;
+  private LazyValue<URI> apiUri;
+  private LazyValue<Document> document;
   private ExecutionEnvironment executionEnvironment;
 
   @Deprecated
@@ -73,24 +73,12 @@ public class AMFParser implements ApiParser {
   }
 
   private void initializeParser(ApiReference apiRef, ExecutionEnvironment executionEnvironment) {
-    this.document = null;
-    this.apiUri = null;
+    this.document = new LazyValue<>(() -> DocumentParser.parseFile(parser, apiRef));
+    this.webApi = new LazyValue<>(() -> (WebApi) document.get().encodes());
+    this.apiUri = new LazyValue<>(() -> getPathAsUri(apiRef));
     this.executionEnvironment = executionEnvironment;
     this.apiRef = apiRef;
     this.parser = initParser(apiRef);
-  }
-
-  private void initializeDocument() {
-    if (document == null) {
-      document = parseDocument();
-    }
-  }
-
-  private Document parseDocument() {
-    Document document = DocumentParser.parseFile(parser, apiRef);
-    this.references = getReferences(document.references());
-    this.webApi = (WebApi) document.encodes();
-    return document;
   }
 
   private AMFParserWrapper initParser(ApiReference apiRef) {
@@ -128,13 +116,11 @@ public class AMFParser implements ApiParser {
   }
 
   private Environment buildEnvironment(ApiReference apiRef) {
-    if (apiUri == null) {
-      apiUri = getPathAsUri(apiRef);
-    }
+    URI uri = apiUri.get();
 
     Environment environment = DefaultEnvironment.apply(executionEnvironment);
-    if (apiUri.getScheme() != null && apiUri.getScheme().startsWith("file")) {
-      final File file = new File(apiUri);
+    if (uri.getScheme() != null && uri.getScheme().startsWith("file")) {
+      final File file = new File(uri);
       final String rootDir = file.isDirectory() ? file.getPath() : file.getParent();
       environment = environment.add(new ExchangeDependencyResourceLoader(rootDir, executionEnvironment));
     }
@@ -147,14 +133,12 @@ public class AMFParser implements ApiParser {
   }
 
   public WebApi getWebApi() {
-    initializeDocument();
-    return webApi;
+    return webApi.get();
   }
 
   @Override
   public ApiValidationReport validate() {
-    initializeDocument();
-    ValidationReport validationReport = getParsingReport(document, parser.getProfileName(), parser.getMessageStyle());
+    ValidationReport validationReport = getParsingReport(document.get(), parser.getProfileName(), parser.getMessageStyle());
     List<ApiValidationResult> results = new ArrayList<>(0);
     if (!validationReport.conforms()) {
       results = validationReport.results().stream().map(ApiValidationResultImpl::new).collect(toList());
@@ -164,10 +148,9 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiSpecification parse() {
-    initializeDocument();
     // We are forced to create a brand new environment so this object (and therefore the original document) is not referenced anymore
     AMFParserWrapper parserWrapper = AMFParserWrapperFactory.getParser(apiRef, buildEnvironment(apiRef));
-    return new AMFImpl(webApi, references, apiRef.getVendor(), parserWrapper.getParser(), parserWrapper.getResolver(), apiRef);
+    return new AMFImpl(webApi.get(), getReferences(document.get().references()), apiRef.getVendor(), parserWrapper.getParser(), parserWrapper.getResolver(), apiRef);
   }
 
 }
