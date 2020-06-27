@@ -10,9 +10,11 @@ import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.ApiFormat;
 import org.mule.apikit.model.ApiVendor;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Optional;
 
 import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
@@ -64,5 +66,38 @@ public interface ApiReference {
     }
 
     return deduceApiVendor(resolve());
+  }
+
+  default URI getPathAsUri() {
+    try {
+      final URI uri = new URI(getLocation());
+      if (uri.isAbsolute()) {
+        return uri;
+      }
+    } catch (URISyntaxException e) {
+    }
+
+    final String location = getLocation();
+    if (getResourceLoader().isPresent()) {
+      final URI uri = getResourceLoader().map(loader -> loader.getResource(location)).orElse(null);
+      if (uri != null)
+        return uri;
+    }
+
+    final File file = new File(location);
+    if (file.exists())
+      return file.toURI();
+
+    final URL resource = Thread.currentThread().getContextClassLoader().getResource(location);
+
+    if (resource != null) {
+      try {
+        return resource.toURI();
+      } catch (URISyntaxException e1) {
+        throw new RuntimeException("Couldn't load api in location: " + location);
+      }
+    } else {
+      throw new RuntimeException("Couldn't load api in location: " + location);
+    }
   }
 }
