@@ -18,6 +18,7 @@ import static org.mule.amf.impl.model.ParameterImpl.quote;
 
 class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   private final boolean needsQuotes;
+  private final boolean isBoolean;
   private AnyShape anyShape;
 
   private final LazyValue<PayloadValidator> jsonValidator = new LazyValue<>(() -> anyShape.payloadValidator(APPLICATION_JSON)
@@ -30,9 +31,10 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
     return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   });
 
-  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes){
+  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes, boolean isBoolean){
     this.anyShape = anyShape;
     this.needsQuotes = needsQuotes;
+    this.isBoolean = isBoolean;
   }
 
   public ValidationReport validate(String value) {
@@ -40,8 +42,36 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
       return nullValidationReport.get();
     }
 
-    return jsonValidator.get().syncValidate(APPLICATION_JSON,  needsQuotes ?
-            quote(value.replaceAll("\"", "\\\\\"")) : value);
+    return jsonValidator.get().syncValidate(APPLICATION_JSON, getPayload(value));
+  }
+
+  private String getPayload(String value) {
+    if(needsQuotes)
+      return quote(value.replaceAll("\"", "\\\\\""));
+
+    if(isBoolean)
+      return value;
+
+    return removeLeadingZeros(value);
+  }
+
+  private String removeLeadingZeros(String value) {
+    if(!value.startsWith("0"))
+      return value;
+
+    int indexOfLastLeadingZero = 0;
+    for (; indexOfLastLeadingZero + 1 < value.length(); indexOfLastLeadingZero++){
+      char next = value.charAt(indexOfLastLeadingZero);
+
+      if(next == '.'){// '0.' should be valid
+        indexOfLastLeadingZero = indexOfLastLeadingZero - 1;
+        break;
+      } if(next != '0'){
+        break;
+      }
+    }
+
+    return value.substring(indexOfLastLeadingZero);
   }
 
 }

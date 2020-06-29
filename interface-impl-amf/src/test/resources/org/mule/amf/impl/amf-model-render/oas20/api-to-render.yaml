@@ -42,7 +42,7 @@ paths:
           in: header
           name: stringHeader
           required: true
-        - type: string
+        - type: number
           in: path
           name: testId
           required: true
