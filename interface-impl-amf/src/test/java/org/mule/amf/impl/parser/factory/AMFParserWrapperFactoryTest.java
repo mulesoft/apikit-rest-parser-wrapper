@@ -6,33 +6,18 @@
  */
 package org.mule.amf.impl.parser.factory;
 
-import amf.ProfileName;
-import amf.client.environment.Environment;
-import amf.client.parse.Oas20Parser;
-import amf.client.parse.Oas20YamlParser;
-import amf.client.parse.Oas30YamlParser;
-import amf.client.parse.Parser;
-import amf.client.parse.Raml08Parser;
-import amf.client.parse.Raml10Parser;
-import amf.client.parse.RamlParser;
-import amf.client.resolve.Oas20Resolver;
-import amf.client.resolve.Raml08Resolver;
-import amf.client.resolve.Raml10Resolver;
-import amf.client.resolve.Resolver;
+import amf.client.execution.ExecutionEnvironment;
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.apikit.model.ApiFormat;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.api.ApiReference;
 
-import static amf.ProfileNames.AMF;
-import static amf.ProfileNames.OAS20;
-import static amf.ProfileNames.RAML;
-import static amf.ProfileNames.RAML10;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
+import java.net.URI;
+import java.util.Optional;
+
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -47,22 +32,28 @@ public class AMFParserWrapperFactoryTest {
 
     @Test
     public void raml08ParserWrapperTest() {
-        assertRamlParserWrapper(ApiVendor.RAML_08, Raml08Parser.class, Raml10Resolver.class, RAML());
+        assertParserWrapper(ApiVendor.RAML_08, ApiFormat.RAML);
     }
 
     @Test
     public void raml10ParserWrapperTest() {
-        assertRamlParserWrapper(ApiVendor.RAML_10, Raml10Parser.class, Raml10Resolver.class, RAML10());
+        assertParserWrapper(ApiVendor.RAML_10, ApiFormat.RAML);
     }
 
     @Test
     public void oas20ParserWrapperTest() {
-        assertOasParserWrapper(ApiVendor.OAS_20, Oas20Parser.class, Oas20Resolver.class, OAS20());
+        assertParserWrapper(ApiVendor.OAS_20, ApiFormat.YAML);
+        assertParserWrapper(ApiVendor.OAS_20, ApiFormat.JSON);
+    }
+
+    @Test(expected = ParserException.class)
+    public void oas30ParserWrapperTest() {
+        assertParserWrapper(ApiVendor.OAS_30, ApiFormat.YAML);
     }
 
     @Test
     public void defaultParserWrapperTest() {
-        assertRamlParserWrapper(ApiVendor.RAML, RamlParser.class, Raml08Resolver.class, AMF());
+        assertParserWrapper(ApiVendor.RAML, ApiFormat.YAML);
     }
 
     @Test(expected = RuntimeException.class)
@@ -70,22 +61,12 @@ public class AMFParserWrapperFactoryTest {
         AMFParserWrapperFactory.getParser(apiRef, null);
     }
 
-    private void assertRamlParserWrapper(ApiVendor vendor, Class parserClass, Class resolverClass, ProfileName profileName) {
-        assertParserWrapper(vendor, ApiFormat.RAML, parserClass, resolverClass, profileName);
-    }
-
-    private void assertOasParserWrapper(ApiVendor vendor, Class parserClass, Class resolverClass, ProfileName profileName) {
-        assertParserWrapper(vendor, ApiFormat.JSON, parserClass, resolverClass, profileName);
-        Class clazz = ApiVendor.OAS_20.equals(vendor) ? Oas20YamlParser.class : Oas30YamlParser.class;
-        assertParserWrapper(vendor, ApiFormat.YAML, clazz, resolverClass, profileName);
-    }
-
-    private void assertParserWrapper(ApiVendor vendor, ApiFormat format, Class<Parser> parserClass, Class<Resolver> resolverClass, ProfileName profileName) {
+    private void assertParserWrapper(ApiVendor vendor, ApiFormat format) {
         doReturn(vendor).when(apiRef).getVendor();
         doReturn(format.name()).when(apiRef).getFormat();
-        AMFParserWrapper parserWrapper = AMFParserWrapperFactory.getParser(apiRef, new Environment());
-        assertThat(parserWrapper.getParser(), is(instanceOf(parserClass)));
-        assertThat(parserWrapper.getResolver(), is(instanceOf(resolverClass)));
-        assertEquals(parserWrapper.getProfileName(), profileName);
+        doReturn(URI.create("./invalid.raml")).when(apiRef).getPathAsUri();
+        doReturn(Optional.empty()).when(apiRef).getResourceLoader();
+        AMFParserWrapper parserWrapper = AMFParserWrapperFactory.getParser(apiRef, new ExecutionEnvironment());
+        assertNotNull(parserWrapper);
     }
 }

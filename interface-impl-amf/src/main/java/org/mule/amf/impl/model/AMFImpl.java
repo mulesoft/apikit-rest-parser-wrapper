@@ -10,15 +10,13 @@ import amf.client.model.document.Document;
 import amf.client.model.domain.EndPoint;
 import amf.client.model.domain.Server;
 import amf.client.model.domain.WebApi;
-import amf.client.parse.Parser;
 import amf.client.render.AmfGraphRenderer;
 import amf.client.render.Oas20Renderer;
 import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
 import amf.client.render.RenderOptions;
 import amf.client.render.Renderer;
-import amf.client.resolve.Resolver;
-import org.mule.amf.impl.DocumentParser;
+import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
@@ -26,7 +24,6 @@ import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
-import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +42,6 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
-import static org.mule.amf.impl.URIUtils.getPathAsUri;
 import static org.mule.apikit.ApiType.AMF;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
@@ -59,14 +55,13 @@ public class AMFImpl implements ApiSpecification {
   private final transient LazyValue<Document> consoleModel;
   private final String apiLocation;
 
-  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, Parser parser, Resolver resolver, ApiReference apiReference) {
+  public AMFImpl(WebApi webApi, List<String> references, AMFParserWrapper parser, ApiVendor vendor, String location, URI uri) {
     this.webApi = webApi;
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
-    this.apiVendor = apiVendor;
-    this.apiLocation = apiReference.getLocation();
-    final URI pathAsUri = getPathAsUri(apiReference);
-    this.consoleModel = new LazyValue<>(() -> DocumentParser.parseFile(parser, resolver, pathAsUri));
+    this.apiVendor = vendor;
+    this.apiLocation = location;
+    this.consoleModel = new LazyValue<>(() -> parser.parseApi(uri));
   }
 
   private Map<String, Map<String, Resource>> buildResources(final List<EndPoint> endPoints) {
