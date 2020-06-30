@@ -17,6 +17,7 @@ import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
 import amf.client.render.RenderOptions;
 import amf.client.render.Renderer;
+import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.ApiSpecification;
@@ -24,12 +25,12 @@ import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
-import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -53,15 +54,15 @@ public class AMFImpl implements ApiSpecification {
   private final List<String> references;
   private final ApiVendor apiVendor;
   private final transient LazyValue<Document> consoleModel;
-  private final ApiReference apiRef;
+  private final String apiLocation;
 
-  public AMFImpl(WebApi webApi, List<String> references, ApiVendor apiVendor, LazyValue<Document> console, ApiReference apiRef) {
+  public AMFImpl(WebApi webApi, List<String> references, AMFParserWrapper parser, ApiVendor vendor, String location, URI uri) {
     this.webApi = webApi;
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
-    this.apiVendor = apiVendor;
-    this.consoleModel = console;
-    this.apiRef = apiRef;
+    this.apiVendor = vendor;
+    this.apiLocation = location;
+    this.consoleModel = new LazyValue<>(() -> parser.parseApi(uri));
   }
 
   private Map<String, Map<String, Resource>> buildResources(final List<EndPoint> endPoints) {
@@ -105,7 +106,7 @@ public class AMFImpl implements ApiSpecification {
 
   @Override
   public String getLocation() {
-    return apiRef.getLocation();
+    return apiLocation;
   }
 
   private Optional<Server> getServer() {
@@ -189,7 +190,7 @@ public class AMFImpl implements ApiSpecification {
     try {
       return renderer.generateString(consoleModel.get()).get();
     } catch (final InterruptedException | ExecutionException e) {
-      LOGGER.error(format("Error render API '%s' to '%s'", apiRef.getLocation(), apiVendor.name()), e);
+      LOGGER.error(format("Error render API '%s' to '%s'", apiLocation, apiVendor.name()), e);
       return "";
     }
   }

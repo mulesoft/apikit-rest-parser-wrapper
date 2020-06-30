@@ -7,16 +7,12 @@
 package org.mule.amf.impl;
 
 import amf.client.AMF;
-import amf.client.environment.DefaultEnvironment;
-import amf.client.environment.Environment;
 import amf.client.execution.ExecutionEnvironment;
 import amf.client.model.document.BaseUnit;
 import amf.client.model.document.Document;
 import amf.client.model.domain.WebApi;
 import amf.client.validate.ValidationReport;
 import amf.plugins.xml.XmlValidationPlugin;
-import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
-import org.mule.amf.impl.loader.ProvidedResourceLoader;
 import org.mule.amf.impl.model.AMFImpl;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.parser.factory.AMFParserWrapperFactory;
@@ -31,7 +27,6 @@ import org.mule.apikit.validation.DefaultApiValidationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,63 +35,44 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.stream.Collectors.toList;
-import static org.mule.amf.impl.DocumentParser.getParsingReport;
-import static org.mule.amf.impl.URIUtils.getPathAsUri;
 
 public class AMFParser implements ApiParser {
 
-  private static final Logger logger = LoggerFactory.getLogger(DocumentParser.class);
+  private static final Logger logger = LoggerFactory.getLogger(AMFParser.class);
 
+  private URI apiUri;
   private ApiReference apiRef;
   private AMFParserWrapper parser;
-  private WebApi webApi;
-  private List<String> references;
-
-  private Document consoleModel;
+  private LazyValue<WebApi> webApi;
+  private LazyValue<Document> document;
   private ExecutionEnvironment executionEnvironment;
 
   @Deprecated
   public AMFParser(ApiReference apiRef, boolean validate, ScheduledExecutorService scheduler) {
-    initialize(apiRef, new ExecutionEnvironment(scheduler));
+    initializeParser(apiRef, new ExecutionEnvironment(scheduler));
   }
 
   @Deprecated
   public AMFParser(ApiReference apiRef, boolean validate) {
-    initialize(apiRef, new ExecutionEnvironment());
+    initializeParser(apiRef, new ExecutionEnvironment());
   }
 
   public AMFParser(ApiReference apiRef, ScheduledExecutorService scheduler) {
-    initialize(apiRef, new ExecutionEnvironment(scheduler));
+    initializeParser(apiRef, new ExecutionEnvironment(scheduler));
   }
 
   public AMFParser(ApiReference apiRef) {
-    initialize(apiRef, new ExecutionEnvironment());
+    initializeParser(apiRef, new ExecutionEnvironment());
   }
 
-  private void initialize(ApiReference apiRef, ExecutionEnvironment executionEnvironment) {
+  private void initializeParser(ApiReference apiRef, ExecutionEnvironment executionEnvironment) {
     this.executionEnvironment = executionEnvironment;
+    this.apiUri = apiRef.getPathAsUri();
+    this.document = new LazyValue<>(() -> parser.parseApi(apiUri));
+    this.webApi = new LazyValue<>(() -> (WebApi) document.get().encodes());
     this.apiRef = apiRef;
-    this.parser = initParser(apiRef);
-
-    Document document = buildDocument();
-    this.references = getReferences(document.references());
-    this.webApi = (WebApi) document.encodes();
-  }
-
-  private AMFParserWrapper initParser(ApiReference apiRef) {
-    final Environment environment = buildEnvironment(apiRef);
-    try {
-      if (executionEnvironment != null) {
-        AMF.init(executionEnvironment).get();
-      } else {
-        AMF.init().get();
-      }
-      amf.core.AMF.registerPlugin(new XmlValidationPlugin());
-    } catch (final Exception e) {
-      logger.error("Error initializing AMF", e);
-      throw new RuntimeException(e);
-    }
-    return AMFParserWrapperFactory.getParser(apiRef, environment);
+    initAMF();
+    this.parser = AMFParserWrapperFactory.getParser(apiRef, executionEnvironment);
   }
 
   private List<String> getReferences(List<BaseUnit> references) {
@@ -117,30 +93,13 @@ public class AMFParser implements ApiParser {
     }
   }
 
-  private Environment buildEnvironment(ApiReference apiRef) {
-    final URI uri = getPathAsUri(apiRef);
-
-    Environment environment = DefaultEnvironment.apply(executionEnvironment);
-    if (uri.getScheme() != null && uri.getScheme().startsWith("file")) {
-      final File file = new File(uri);
-      final String rootDir = file.isDirectory() ? file.getPath() : file.getParent();
-      environment = environment.add(new ExchangeDependencyResourceLoader(rootDir,executionEnvironment));
-    }
-
-    if (apiRef.getResourceLoader().isPresent()) {
-      environment = environment.add(new ProvidedResourceLoader(apiRef.getResourceLoader().get()));
-    }
-
-    return environment;
-  }
-
   public WebApi getWebApi() {
-    return webApi;
+    return webApi.get();
   }
 
   @Override
   public ApiValidationReport validate() {
-    ValidationReport validationReport = getParsingReport(parser.getParser(), parser.getProfileName());
+    ValidationReport validationReport = parser.getParsingReport(document.get());
     List<ApiValidationResult> results = new ArrayList<>(0);
     if (!validationReport.conforms()) {
       results = validationReport.results().stream().map(ApiValidationResultImpl::new).collect(toList());
@@ -150,19 +109,22 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiSpecification parse() {
-    return new AMFImpl(webApi, references, apiRef.getVendor(), new LazyValue<>(
-        this::getConsoleModel), apiRef);
+    // We are forced to create a brand new environment so this object (and therefore the original document) is not referenced anymore
+    AMFParserWrapper parserWrapper = AMFParserWrapperFactory.getParser(apiRef, executionEnvironment);
+    return new AMFImpl(webApi.get(), getReferences(document.get().references()), parserWrapper, apiRef.getVendor(), apiRef.getLocation(), apiUri);
   }
 
-  private Document getConsoleModel() {
-    if (consoleModel == null) {
-      consoleModel = buildDocument();
+  private void initAMF() {
+    try {
+      if (executionEnvironment != null) {
+        AMF.init(executionEnvironment).get();
+      } else {
+        AMF.init().get();
+      }
+      amf.core.AMF.registerPlugin(new XmlValidationPlugin());
+    } catch (final Exception e) {
+      logger.error("Error initializing AMF", e);
+      throw new RuntimeException(e);
     }
-    return consoleModel;
   }
-
-  private Document buildDocument() {
-    return DocumentParser.parseFile(parser, apiRef);
-  }
-
 }
