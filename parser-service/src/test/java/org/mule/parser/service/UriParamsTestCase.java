@@ -71,15 +71,15 @@ public class UriParamsTestCase {
     negativeAssert(doubleUriParam, negativeForAll);
   }
 
-  private static void positiveAssert(Parameter parameter, Set<String> values, String ... additionalValues){
+  private static void positiveAssert(Parameter parameter, Set<String> values, String... additionalValues){
     assertParameter(Assert::assertTrue,parameter,values, additionalValues);
   }
 
-  private static void negativeAssert(Parameter parameter, Set<String> values, String ... additionalValues){
+  private static void negativeAssert(Parameter parameter, Set<String> values, String... additionalValues){
     assertParameter(Assert::assertFalse,parameter,values, additionalValues);
   }
 
-  private static void assertParameter(Consumer<Boolean> assertion, Parameter parameter, Set<String> values, String ... additionalValues){
+  private static void assertParameter(Consumer<Boolean> assertion, Parameter parameter, Set<String> values, String... additionalValues){
     HashSet<String> valuesToAssert = new HashSet<>(asList(additionalValues));
     valuesToAssert.addAll(values);
 
