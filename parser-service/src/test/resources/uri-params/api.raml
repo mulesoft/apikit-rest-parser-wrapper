@@ -1,0 +1,32 @@
+#%RAML 1.0
+---
+title: Sample API
+
+/{long}:
+  uriParameters:
+    long:
+      type: integer
+      format: int64
+  get:
+
+/{integer}:
+  uriParameters:
+    integer:
+      type: integer
+      format: int32
+  get:
+
+/{double}:
+  uriParameters:
+    double:
+      type: number
+      format: double
+  get:
+
+/{float}:
+  uriParameters:
+    float:
+      type: number
+      format: float
+  get:
+

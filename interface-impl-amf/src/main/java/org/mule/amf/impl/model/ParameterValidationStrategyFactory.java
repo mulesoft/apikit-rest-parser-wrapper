@@ -16,7 +16,7 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.Set;
 
 class ParameterValidationStrategyFactory {
-  private static final Set<String> NOT_QUOTABLE_DATA_TYPES = ImmutableSet.of("integer", "float", "number", "boolean");
+  private static final Set<String> NUMBER_DATA_TYPES = ImmutableSet.of("integer", "float", "number", "long", "double");
 
   private ParameterValidationStrategyFactory() {
     throw new IllegalStateException("Utility class");
@@ -24,7 +24,20 @@ class ParameterValidationStrategyFactory {
 
   static ParameterValidationStrategy getStrategy(AnyShape anyShape) {
     return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape)
-            : new JsonParameterValidationStrategy(anyShape, needsQuotes(anyShape));
+            : getJsonParameterValidationStrategy(anyShape);
+  }
+
+  private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape) {
+    if (!(anyShape instanceof ScalarShape)) {
+      return new JsonParameterValidationStrategy(anyShape, false, false);
+    }
+
+    String dataType = ((ScalarShape) anyShape).dataType().value();
+    dataType = dataType.substring(dataType.lastIndexOf('#') + 1);
+
+    boolean isNumber = NUMBER_DATA_TYPES.contains(dataType);
+    boolean isBoolean = dataType.equals("boolean");
+    return new JsonParameterValidationStrategy(anyShape, !(isNumber || isBoolean), isBoolean);
   }
 
   /**
@@ -40,16 +53,5 @@ class ParameterValidationStrategyFactory {
     return anyShape instanceof ArrayShape || anyShape instanceof UnionShape
             || CollectionUtils.isNotEmpty(anyShape.or()) || CollectionUtils.isNotEmpty(anyShape.and())
             || CollectionUtils.isNotEmpty(anyShape.xone()) || anyShape.not() != null;
-  }
-
-  private static boolean needsQuotes(AnyShape anyShape) {
-    if (!(anyShape instanceof ScalarShape)) {
-      return false;
-    }
-
-    String dataType = ((ScalarShape) anyShape).dataType().value();
-    dataType = dataType.substring(dataType.lastIndexOf('#') + 1);
-
-    return !NOT_QUOTABLE_DATA_TYPES.contains(dataType);
   }
 }
