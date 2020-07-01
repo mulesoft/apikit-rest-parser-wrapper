@@ -46,12 +46,14 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   }
 
   private String getPayload(String value) {
-    if(needsQuotes)
+    if(needsQuotes) {
       return quote(value.replaceAll("\"", "\\\\\""));
+    }
 
-    if(isBoolean)
+    if(isBoolean) {
       return value;
-
+    }
+    
     return removeLeadingZeros(value);
   }
 

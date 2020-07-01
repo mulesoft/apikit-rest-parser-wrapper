@@ -6,6 +6,7 @@
  */
 package org.mule.parser.service;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -14,12 +15,14 @@ import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class UriParamsTestCase {
@@ -46,46 +49,40 @@ public class UriParamsTestCase {
   @Test
   public void testNumberUriParamsConstrains() {
     final Map<String, Resource> resources = api.getResources();
-    Parameter longUriParam = resources.get("/{long}").getAction(GET_ACTION).getResolvedUriParameters().get("long");
-    assertTrue(longUriParam.validate("00123"));
-    assertTrue(longUriParam.validate("0"));
-    assertTrue(longUriParam.validate(String.valueOf(Long.MAX_VALUE)));
+    Set<String> positiveForAll = new HashSet<>(Arrays.asList("00123", "0"));
+    Set<String> negativeForAll = new HashSet<>(Arrays.asList("hola", "000.xz", "01253a"));
 
-    assertFalse(longUriParam.validate("hola"));
-    assertFalse(longUriParam.validate("000.xz"));
-    assertFalse(longUriParam.validate("01253a"));
-    assertFalse(longUriParam.validate(Long.MAX_VALUE + "1"));
-    //assertFalse(longUriParam.validate("0.1")); TODO: uncomment when APIMF-2241 gets done
+    Parameter longUriParam = resources.get("/{long}").getAction(GET_ACTION).getResolvedUriParameters().get("long");
+    positiveAssert(longUriParam, positiveForAll, String.valueOf(Long.MAX_VALUE));
+    negativeAssert(longUriParam, negativeForAll, Long.MAX_VALUE + "1");
+
 
     Parameter integerUriParam = resources.get("/{integer}").getAction(GET_ACTION).getResolvedUriParameters().get("integer");
-    assertTrue(integerUriParam.validate(String.valueOf(Integer.MAX_VALUE)));
-    assertTrue(integerUriParam.validate("0"));
-    assertTrue(integerUriParam.validate("00123"));
+    positiveAssert(integerUriParam, positiveForAll, String.valueOf(Integer.MAX_VALUE));
+    negativeAssert(integerUriParam, negativeForAll, Long.MAX_VALUE + "1");
 
-    assertFalse(integerUriParam.validate("hola"));
-    assertFalse(integerUriParam.validate("000.xz"));
-    assertFalse(integerUriParam.validate("01253a"));
-    assertFalse(integerUriParam.validate(Long.MAX_VALUE + "1"));
 
     Parameter floatUriParam = resources.get("/{float}").getAction(GET_ACTION).getResolvedUriParameters().get("float");
-    assertTrue(floatUriParam.validate("0"));
-    assertTrue(floatUriParam.validate("00123"));
-    assertTrue(floatUriParam.validate("00.123"));
-    assertTrue(floatUriParam.validate(String.valueOf(Float.MAX_VALUE)));
-
-    assertFalse(floatUriParam.validate("hola"));
-    assertFalse(floatUriParam.validate("000.xz"));
-    assertFalse(floatUriParam.validate("01253a"));
+    positiveAssert(floatUriParam, positiveForAll, "00.123", "0.1", String.valueOf(Float.MAX_VALUE));
+    negativeAssert(floatUriParam, negativeForAll);
 
     Parameter doubleUriParam = resources.get("/{double}").getAction(GET_ACTION).getResolvedUriParameters().get("double");
-    assertTrue(doubleUriParam.validate("00123"));
-    assertTrue(doubleUriParam.validate("00.123"));
-    assertTrue(doubleUriParam.validate("0"));
-    assertTrue(doubleUriParam.validate(String.valueOf(Double.MAX_VALUE)));
-
-    assertFalse(doubleUriParam.validate("hola"));
-    assertFalse(doubleUriParam.validate("000.xz"));
-    assertFalse(doubleUriParam.validate("01253a"));
+    positiveAssert(doubleUriParam, positiveForAll, "00.123", "0.1", String.valueOf(Double.MAX_VALUE));
+    negativeAssert(doubleUriParam, negativeForAll);
   }
 
+  private static void positiveAssert(Parameter parameter, Set<String> values, String ... additionalValues){
+    assertParameter(Assert::assertTrue,parameter,values, additionalValues);
+  }
+
+  private static void negativeAssert(Parameter parameter, Set<String> values, String ... additionalValues){
+    assertParameter(Assert::assertFalse,parameter,values, additionalValues);
+  }
+
+  private static void assertParameter(Consumer<Boolean> assertion, Parameter parameter, Set<String> values, String ... additionalValues){
+    HashSet<String> valuesToAssert = new HashSet<>(asList(additionalValues));
+    valuesToAssert.addAll(values);
+
+    valuesToAssert.stream().forEach(value -> assertion.accept(parameter.validate(value)));
+  }
 }
