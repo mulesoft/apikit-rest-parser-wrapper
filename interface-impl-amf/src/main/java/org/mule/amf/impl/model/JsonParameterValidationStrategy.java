@@ -53,13 +53,14 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
     if(isBoolean) {
       return value;
     }
-    
+
     return removeLeadingZeros(value);
   }
 
   private String removeLeadingZeros(String value) {
-    if(!value.startsWith("0"))
+    if(!value.startsWith("0")) {
       return value;
+    }
 
     int indexOfLastLeadingZero = 0;
     for (; indexOfLastLeadingZero + 1 < value.length(); indexOfLastLeadingZero++){
