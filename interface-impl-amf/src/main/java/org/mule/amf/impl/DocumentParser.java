@@ -101,7 +101,8 @@ public class DocumentParser {
         return new Raml08Parser(environment);
       case RAML_10:
         return new Raml10Parser(environment);
-      case OAS_30: throw new ParserException("OAS3 is not supported");
+      case OAS_30:
+        throw new ParserException("API implementations based on OAS 3.0 specs are not supported at this time");
       default:
         return new RamlParser(environment);
     }
