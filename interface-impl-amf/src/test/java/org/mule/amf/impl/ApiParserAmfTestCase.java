@@ -65,9 +65,9 @@ public class ApiParserAmfTestCase {
     if (ApiVendor.RAML.equals(apiVendor)) {
       assertEquals(9, references.size());
     } else if (ApiVendor.OAS_20.equals(apiVendor)) {
-      assertEquals(2, references.size());
-    } else if (ApiVendor.RAML.equals(apiVendor)) {
-      assertEquals(3, references.size());
+      assertEquals(4, references.size());
+    } else if (ApiVendor.OAS_30.equals(apiVendor)) {
+      assertEquals(5, references.size());
     }
     assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/car-schemas/car-properties-schema.json")));
     if (ApiVendor.RAML.equals(apiVendor)) {
@@ -75,16 +75,14 @@ public class ApiParserAmfTestCase {
       assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/car-schemas/manufacturer-schema.json")));
       assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/car-schema.json")));
       assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/examples/user-example-for-raml.json")));
-      // AMF is not resolving references of references for OAS 20 and 30 so far
-      // TODO move the following two assertions outside the if after APIMF-2102 and APIMF-2084 are fixed.
-      assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/person-schemas/phone-schema.yml")));
-      assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/person-schemas/address-schema.yaml")));
       // AMF does not support the externalValue facet of examples as a reference for the time being. They are treated as a string.
       // ExternalValue facet is not supported for OAS 20
       // TODO the following two assertions should be done for OAS30 once externalValue facet is supported.
       assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/examples/car-example.json")));
       assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/examples/user-example.json")));
     } else {
+      assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/person-schemas/phone-schema.yml")));
+      assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/person-schemas/address-schema.yaml")));
       assertTrue(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/references/person-schema.yaml")));
     }
     if (ApiVendor.OAS_30.equals(apiVendor)) {
