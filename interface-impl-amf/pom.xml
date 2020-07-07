@@ -19,7 +19,7 @@
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
         <amf.version>4.1.2</amf.version>
-        <amf.xml.extension.version>1.6.0</amf.xml.extension.version>
+        <amf.xml.extension.version>1.6.1</amf.xml.extension.version>
     </properties>
 
     <dependencies>
