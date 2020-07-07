@@ -17,8 +17,8 @@
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
-        <raml.parser.version>0.8.39</raml.parser.version>
-        <commons.io.version>2.6</commons.io.version>
+        <raml.parser.version>0.8.40</raml.parser.version>
+        <commons.io.version>2.7</commons.io.version>
     </properties>
 
     <dependencies>
