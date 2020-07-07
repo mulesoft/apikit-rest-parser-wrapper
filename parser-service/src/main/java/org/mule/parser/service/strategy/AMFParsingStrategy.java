@@ -6,11 +6,6 @@
  */
 package org.mule.parser.service.strategy;
 
-import static java.util.Collections.emptyList;
-import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
-import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
-
-import java.util.concurrent.ScheduledExecutorService;
 import org.mule.amf.impl.AMFParser;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.api.ApiReference;
@@ -19,7 +14,11 @@ import org.mule.parser.service.result.DefaultParseResult;
 import org.mule.parser.service.result.ExceptionParseResult;
 import org.mule.parser.service.result.ParseResult;
 
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static java.util.Collections.emptyList;
+import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
+import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
 public class AMFParsingStrategy implements ParsingStrategy {
   private final boolean validate;
@@ -53,10 +52,6 @@ public class AMFParsingStrategy implements ParsingStrategy {
   }
 
   private AMFParser create(ApiReference ref) {
-    try {
-      return new AMFParser(ref, false, executor);
-    } catch (ExecutionException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+    return new AMFParser(ref, executor);
   }
 }
