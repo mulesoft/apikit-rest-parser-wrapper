@@ -132,8 +132,8 @@ public class AMFImpl implements ApiSpecification {
   @Override
   public Map<String, Parameter> getBaseUriParameters() {
     return getServer().<Map<String, Parameter>>map(server -> server.variables().stream()
-      .collect(toMap(p -> p.name().value(), ParameterImpl::new)))
-      .orElseGet(Collections::emptyMap);
+        .collect(toMap(p -> p.name().value(), ParameterImpl::new)))
+        .orElseGet(Collections::emptyMap);
   }
 
   @Override
@@ -209,10 +209,11 @@ public class AMFImpl implements ApiSpecification {
   public String dumpAmf() {
     try {
       return new AmfGraphRenderer().generateString(consoleModel.get(),
-          new RenderOptions()
-              .withoutSourceMaps()
-              .withoutPrettyPrint()
-              .withCompactUris()).get();
+                                                   new RenderOptions()
+                                                       .withoutSourceMaps()
+                                                       .withoutPrettyPrint()
+                                                       .withCompactUris())
+          .get();
     } catch (InterruptedException | ExecutionException e) {
       return e.getMessage();
     }

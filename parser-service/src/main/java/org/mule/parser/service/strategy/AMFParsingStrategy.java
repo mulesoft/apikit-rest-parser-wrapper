@@ -21,6 +21,7 @@ import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
 import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
 public class AMFParsingStrategy implements ParsingStrategy {
+
   private final boolean validate;
   private ScheduledExecutorService executor;
 

@@ -28,10 +28,11 @@ public class ExceptionParsingIssue implements ParsingIssue {
     return stackTrace;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return "ExceptionParsingIssue {" +
-      "cause='" + cause + '\'' +
-      ", stackTrace='" + stackTrace + '\'' +
-      '}';
+        "cause='" + cause + '\'' +
+        ", stackTrace='" + stackTrace + '\'' +
+        '}';
   }
 }

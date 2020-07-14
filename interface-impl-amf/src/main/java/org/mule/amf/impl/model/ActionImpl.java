@@ -145,8 +145,8 @@ public class ActionImpl implements Action {
     final Map<String, Parameter> operationUriParams;
     if (operation.request() != null) {
       operationUriParams = operation.request().uriParameters().stream()
-              .filter(p -> !VERSION.equals(p.name().value()))
-              .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+          .filter(p -> !VERSION.equals(p.name().value()))
+          .collect(toMap(p -> p.name().value(), ParameterImpl::new));
     } else {
       operationUriParams = new HashMap<>();
     }

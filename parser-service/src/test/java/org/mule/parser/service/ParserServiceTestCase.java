@@ -83,7 +83,7 @@ public class ParserServiceTestCase {
     assertThat(wrapper.get().getType(), is(ApiType.AMF));
     assertThat(wrapper.get().getApiVendor(), is(OAS_20));
   }
-// === PARSER AUTO ===
+  // === PARSER AUTO ===
 
   @Test
   public void fallbackParsingValidRAML08WithAMFParser() {
@@ -168,7 +168,7 @@ public class ParserServiceTestCase {
     assertThat(wrapper.getErrors().size(), is(1));
   }
 
-// ==================
+  // ==================
 
   private static String resource(final String path) {
     return ResourcesUtils.resource(ParserServiceTestCase.class, path);
