@@ -16,6 +16,7 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.Set;
 
 class ParameterValidationStrategyFactory {
+
   private static final Set<String> NUMBER_DATA_TYPES = ImmutableSet.of("integer", "float", "number", "long", "double");
 
   private ParameterValidationStrategyFactory() {
@@ -24,7 +25,7 @@ class ParameterValidationStrategyFactory {
 
   static ParameterValidationStrategy getStrategy(AnyShape anyShape) {
     return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape)
-            : getJsonParameterValidationStrategy(anyShape);
+        : getJsonParameterValidationStrategy(anyShape);
   }
 
   private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape) {

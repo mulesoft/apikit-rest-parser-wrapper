@@ -25,60 +25,61 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ResponseImplTest {
-    private static final String RESOURCE = "/leagues";
-    private static final String ACTION = "GET";
-    private static final String APPLICATION_XML = "application/xml";
-    private static final String CONTENT_TYPE = "content-type";
-    private Response response;
 
-    @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("../10-leagues/api.raml").toURI().toString();
-        ApiReference apiRef = ApiReference.create(apiLocation);
-        ResourceImpl resource = (ResourceImpl) new AMFParser(apiRef, true).parse().getResource(RESOURCE);
-        response = resource.getAction(ACTION).getResponses().get("200");
-    }
+  private static final String RESOURCE = "/leagues";
+  private static final String ACTION = "GET";
+  private static final String APPLICATION_XML = "application/xml";
+  private static final String CONTENT_TYPE = "content-type";
+  private Response response;
 
-    @Test
-    public void getBodyTest() {
-        assertEquals(2, response.getBody().size());
-    }
+  @Before
+  public void setUp() throws Exception {
+    String apiLocation = this.getClass().getResource("../10-leagues/api.raml").toURI().toString();
+    ApiReference apiRef = ApiReference.create(apiLocation);
+    ResourceImpl resource = (ResourceImpl) new AMFParser(apiRef, true).parse().getResource(RESOURCE);
+    response = resource.getAction(ACTION).getResponses().get("200");
+  }
 
-    @Test
-    public void setBodyTest() {
-        Map<String, MimeType> body = new HashMap<>();
-        body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
-        response.setBody(body);
-        // Assert that it does nothing
-        assertEquals(2, response.getBody().size());
-    }
+  @Test
+  public void getBodyTest() {
+    assertEquals(2, response.getBody().size());
+  }
 
-    @Test
-    public void hasBodyTest() {
-        assertTrue(response.hasBody());
-    }
+  @Test
+  public void setBodyTest() {
+    Map<String, MimeType> body = new HashMap<>();
+    body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
+    response.setBody(body);
+    // Assert that it does nothing
+    assertEquals(2, response.getBody().size());
+  }
 
-    @Test
-    public void getHeadersTest() {
-        assertNull(response.getHeaders());
-    }
+  @Test
+  public void hasBodyTest() {
+    assertTrue(response.hasBody());
+  }
 
-    @Test
-    public void setHeadersTest() {
-        Map<String, Parameter> headers = new HashMap<>();
-        headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
-        response.setHeaders(headers);
-        // Assert that it does nothing
-        assertNull(response.getHeaders());
-    }
+  @Test
+  public void getHeadersTest() {
+    assertNull(response.getHeaders());
+  }
 
-    @Test
-    public void getInstanceTest() {
-        assertNull(response.getInstance());
-    }
+  @Test
+  public void setHeadersTest() {
+    Map<String, Parameter> headers = new HashMap<>();
+    headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
+    response.setHeaders(headers);
+    // Assert that it does nothing
+    assertNull(response.getHeaders());
+  }
 
-    @Test
-    public void getExamplesTest() {
-        assertEquals(2, response.getExamples().size());
-    }
+  @Test
+  public void getInstanceTest() {
+    assertNull(response.getInstance());
+  }
+
+  @Test
+  public void getExamplesTest() {
+    assertEquals(2, response.getExamples().size());
+  }
 }

@@ -26,7 +26,7 @@ public class ApiParserAmfTestCase {
   @Before
   public void setup() throws Exception {
     String pathAsUri =
-            requireNonNull(getClass().getClassLoader().getResource("org/mule/amf/impl/ref-json-schema/input.raml")).toString();
+        requireNonNull(getClass().getClassLoader().getResource("org/mule/amf/impl/ref-json-schema/input.raml")).toString();
     amfApiParser = new AMFParser(ApiReference.create(pathAsUri), true);
   }
 
@@ -37,7 +37,7 @@ public class ApiParserAmfTestCase {
     assertThat(references.size(), is(2));
     assertThat(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/ref-json-schema/car-schema.json")), is(true));
     assertThat(references.stream().anyMatch(ref -> ref.endsWith("org/mule/amf/impl/ref-json-schema/car-properties-schema.json")),
-            is(true));
+               is(true));
   }
 
   @Test

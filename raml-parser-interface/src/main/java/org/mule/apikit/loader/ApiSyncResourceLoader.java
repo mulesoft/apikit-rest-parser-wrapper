@@ -37,11 +37,9 @@ public class ApiSyncResourceLoader implements ResourceLoader {
     resourcePath = resourcePath.replace("%20", " ");
     if (isExchangeModules(resourcePath)) {
       return resourceLoader.getResource(toApiSyncResource(resourcePath));
-    }
-    else if (isSyncProtocol(path)) {
+    } else if (isSyncProtocol(path)) {
       return resourceLoader.getResource(resourcePath);
-    }
-    else {
+    } else {
       return resourceLoader.getResource(rootResource + resourcePath);
     }
   }

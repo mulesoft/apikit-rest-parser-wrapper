@@ -29,8 +29,8 @@ public class ValidationReportHelper {
 
   private static List<ParsingIssue> getBySeverity(ApiValidationReport report, Severity severity) {
     return report.getResults()
-      .stream()
-      .filter(result -> severity.equals(result.getSeverity()))
-      .map(result -> new DefaultParsingIssue(result.toString())).collect(toList());
+        .stream()
+        .filter(result -> severity.equals(result.getSeverity()))
+        .map(result -> new DefaultParsingIssue(result.toString())).collect(toList());
   }
 }

@@ -19,65 +19,66 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class MimeTypeImplTest {
-    private static final String APPLICATION_JSON = "application/json";
-    private static final String MULTIPART_FORM_DATA = "multipart/form-data";
-    private static final String ACTION_POST = "POST";
-    private static final String ACTION_PUT = "PUT";
 
-    private static final String EXAMPLE = "          {\n" +
-            "            \"name\": \"Barcelona\",\n" +
-            "            \"id\": \"BAR\",\n" +
-            "            \"homeCity\": \"Barcelona\",\n" +
-            "            \"stadium\": \"Camp Nou\"\n" +
-            "          }";
+  private static final String APPLICATION_JSON = "application/json";
+  private static final String MULTIPART_FORM_DATA = "multipart/form-data";
+  private static final String ACTION_POST = "POST";
+  private static final String ACTION_PUT = "PUT";
 
-
-    private MimeTypeImpl jsonMimeType;
-    private MimeTypeImpl formMimeType;
-
-    @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("/apis/08-leagues/api.raml").toURI().toString();
-        RamlImplV1 api = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
-        jsonMimeType = (MimeTypeImpl) api.getResource("/teams").getAction(ACTION_POST).getBody().get(APPLICATION_JSON);
-        formMimeType = (MimeTypeImpl) api.getResource("/badge").getAction(ACTION_PUT).getBody().get(MULTIPART_FORM_DATA);
-    }
+  private static final String EXAMPLE = "          {\n" +
+      "            \"name\": \"Barcelona\",\n" +
+      "            \"id\": \"BAR\",\n" +
+      "            \"homeCity\": \"Barcelona\",\n" +
+      "            \"stadium\": \"Camp Nou\"\n" +
+      "          }";
 
 
-    @Test
-    public void getCompiledSchemaTest() {
-        assertTrue(jsonMimeType.getCompiledSchema().toString().endsWith("apis/08-leagues/schemas/teams-schema-output.json"));
-    }
+  private MimeTypeImpl jsonMimeType;
+  private MimeTypeImpl formMimeType;
 
-    @Test
-    public void getSchemaTest() {
-        assertTrue(jsonMimeType.getSchema().contains("Name of the city to which this team belongs"));
-    }
+  @Before
+  public void setUp() throws Exception {
+    String apiLocation = this.getClass().getResource("/apis/08-leagues/api.raml").toURI().toString();
+    RamlImplV1 api = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
+    jsonMimeType = (MimeTypeImpl) api.getResource("/teams").getAction(ACTION_POST).getBody().get(APPLICATION_JSON);
+    formMimeType = (MimeTypeImpl) api.getResource("/badge").getAction(ACTION_PUT).getBody().get(MULTIPART_FORM_DATA);
+  }
 
-    @Test
-    public void getFormParametersTest() {
-        assertNull(jsonMimeType.getFormParameters());
-        assertEquals(2, formMimeType.getFormParameters().size());
-    }
 
-    @Test
-    public void getTypeTest() {
-        assertEquals(APPLICATION_JSON, jsonMimeType.getType());
+  @Test
+  public void getCompiledSchemaTest() {
+    assertTrue(jsonMimeType.getCompiledSchema().toString().endsWith("apis/08-leagues/schemas/teams-schema-output.json"));
+  }
 
-    }
+  @Test
+  public void getSchemaTest() {
+    assertTrue(jsonMimeType.getSchema().contains("Name of the city to which this team belongs"));
+  }
 
-    @Test
-    public void getExampleTest() {
-        assertTrue(jsonMimeType.getExample().contains("Camp Nou"));
-    }
+  @Test
+  public void getFormParametersTest() {
+    assertNull(jsonMimeType.getFormParameters());
+    assertEquals(2, formMimeType.getFormParameters().size());
+  }
 
-    @Test
-    public void getInstanceTest() {
-        assertNotNull(jsonMimeType.getInstance());
-    }
+  @Test
+  public void getTypeTest() {
+    assertEquals(APPLICATION_JSON, jsonMimeType.getType());
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void validateTest() {
-        jsonMimeType.validate(EXAMPLE);
-    }
+  }
+
+  @Test
+  public void getExampleTest() {
+    assertTrue(jsonMimeType.getExample().contains("Camp Nou"));
+  }
+
+  @Test
+  public void getInstanceTest() {
+    assertNotNull(jsonMimeType.getInstance());
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void validateTest() {
+    jsonMimeType.validate(EXAMPLE);
+  }
 }

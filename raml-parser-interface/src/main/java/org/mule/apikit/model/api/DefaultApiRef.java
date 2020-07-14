@@ -44,8 +44,7 @@ class DefaultApiRef implements ApiReference {
   public InputStream resolve() {
     if (resourceLoader != null) {
       return resourceLoader.getResourceAsStream(location);
-    }
-    else {
+    } else {
       File file = new File(location);
       if (file.exists()) {
         try {
