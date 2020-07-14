@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import static java.util.Collections.emptyList;
 
 public class WithFallbackParsingStrategy implements ParsingStrategy {
+
   private static final AMFParsingStrategy AMF_DELEGATE = new AMFParsingStrategy();
   private ScheduledExecutorService executor;
   private static final String AMF_TITLE = "AMF: ";
@@ -37,9 +38,9 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
       ReferencesResolver referencesResolver = createReferencesResolver(parseResult);
       ParseResult ramlResult = new RamlParsingStrategy(referencesResolver).parse(ref);
       List<ParsingIssue> errors = joinParsingIssues(parseResult.getErrors(),
-              ramlResult.getErrors());
+                                                    ramlResult.getErrors());
       List<ParsingIssue> warnings = joinParsingIssues(parseResult.getWarnings(),
-              ramlResult.getWarnings());
+                                                      ramlResult.getWarnings());
       return new FallbackParseResult(createDelegate(ramlResult, errors, warnings));
     }
     return parseResult;
@@ -50,7 +51,7 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
    * @param sourceWarnings previous warnings incoming from AMF
    */
   private DefaultParseResult createDelegate(ParseResult ramlResult, List<ParsingIssue> sourceErrors,
-      List<ParsingIssue> sourceWarnings) {
+                                            List<ParsingIssue> sourceWarnings) {
     if (!ramlResult.success()) {
       return new DefaultParseResult(ramlResult.get(), sourceErrors, sourceWarnings);
     }
@@ -66,8 +67,10 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
   }
 
   private List<ParsingIssue> joinParsingIssues(List<ParsingIssue> amfIssues, List<ParsingIssue> ramlIssues) {
-    Stream<DefaultParsingIssue> amfIssuesWithTitle = amfIssues.stream().map(issue -> new DefaultParsingIssue(AMF_TITLE + issue.cause()));
-    Stream<DefaultParsingIssue> ramlIssuesWithTitle = ramlIssues.stream().map(issue -> new DefaultParsingIssue(RAML_TITLE + issue.cause()));
+    Stream<DefaultParsingIssue> amfIssuesWithTitle =
+        amfIssues.stream().map(issue -> new DefaultParsingIssue(AMF_TITLE + issue.cause()));
+    Stream<DefaultParsingIssue> ramlIssuesWithTitle =
+        ramlIssues.stream().map(issue -> new DefaultParsingIssue(RAML_TITLE + issue.cause()));
     return Stream.concat(amfIssuesWithTitle, ramlIssuesWithTitle).collect(Collectors.toList());
   }
 
@@ -103,8 +106,8 @@ public class WithFallbackParsingStrategy implements ParsingStrategy {
     @Override
     public List<ParsingIssue> getWarnings() {
       return ImmutableList.<ParsingIssue>builder()
-        .add(new DefaultParsingIssue("AMF parsing failed, fallback into RAML parser"))
-        .addAll(delegate.getWarnings()).build();
+          .add(new DefaultParsingIssue("AMF parsing failed, fallback into RAML parser"))
+          .addAll(delegate.getWarnings()).build();
     }
   }
 }

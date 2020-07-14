@@ -40,7 +40,7 @@ public class UriParamsTestCase {
     ApiReference ramlApiRef = ApiReference.create("uri-params/api.raml");
     ParserService parserService = new ParserService();
 
-    return asList(new Object[][]{
+    return asList(new Object[][] {
         {ParserMode.AMF, parserService.parse(ramlApiRef, ParserMode.AMF).get()},
         {ParserMode.RAML, parserService.parse(ramlApiRef, ParserMode.RAML).get()}
     });
@@ -71,15 +71,16 @@ public class UriParamsTestCase {
     negativeAssert(doubleUriParam, negativeForAll);
   }
 
-  private static void positiveAssert(Parameter parameter, Set<String> values, String... additionalValues){
-    assertParameter(Assert::assertTrue,parameter,values, additionalValues);
+  private static void positiveAssert(Parameter parameter, Set<String> values, String... additionalValues) {
+    assertParameter(Assert::assertTrue, parameter, values, additionalValues);
   }
 
-  private static void negativeAssert(Parameter parameter, Set<String> values, String... additionalValues){
-    assertParameter(Assert::assertFalse,parameter,values, additionalValues);
+  private static void negativeAssert(Parameter parameter, Set<String> values, String... additionalValues) {
+    assertParameter(Assert::assertFalse, parameter, values, additionalValues);
   }
 
-  private static void assertParameter(Consumer<Boolean> assertion, Parameter parameter, Set<String> values, String... additionalValues){
+  private static void assertParameter(Consumer<Boolean> assertion, Parameter parameter, Set<String> values,
+                                      String... additionalValues) {
     HashSet<String> valuesToAssert = new HashSet<>(asList(additionalValues));
     valuesToAssert.addAll(values);
 

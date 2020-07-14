@@ -21,35 +21,36 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class ApiSyncResourceLoaderTest {
-    private static final String EXCHANGE_NOTATION = "exchange_modules/org.mule.parser/references/1.0.0/";
-    private static final String APISYNC_NOTATION = "resource::org.mule.parser:references:1.0.0:raml-fragment:zip:";
-    private static final String APIS_10_LEAGUES_API_RAML = "/apis/10-leagues/api.raml";
-    private ApiSyncResourceLoader apiSyncResourceLoader;
 
-    @Before
-    public void setUp() throws Exception {
-        ResourceLoader resourceLoader = mock(ResourceLoader.class);
-        doReturn(getInputStream(APIS_10_LEAGUES_API_RAML)).when(resourceLoader).fetchResource("api.raml");
-        doReturn(getInputStream("/apis/10-leagues/league.json")).when(resourceLoader).fetchResource(APISYNC_NOTATION + "league.json");
-        apiSyncResourceLoader = new ApiSyncResourceLoader(APIS_10_LEAGUES_API_RAML, resourceLoader);
+  private static final String EXCHANGE_NOTATION = "exchange_modules/org.mule.parser/references/1.0.0/";
+  private static final String APISYNC_NOTATION = "resource::org.mule.parser:references:1.0.0:raml-fragment:zip:";
+  private static final String APIS_10_LEAGUES_API_RAML = "/apis/10-leagues/api.raml";
+  private ApiSyncResourceLoader apiSyncResourceLoader;
 
-    }
+  @Before
+  public void setUp() throws Exception {
+    ResourceLoader resourceLoader = mock(ResourceLoader.class);
+    doReturn(getInputStream(APIS_10_LEAGUES_API_RAML)).when(resourceLoader).fetchResource("api.raml");
+    doReturn(getInputStream("/apis/10-leagues/league.json")).when(resourceLoader).fetchResource(APISYNC_NOTATION + "league.json");
+    apiSyncResourceLoader = new ApiSyncResourceLoader(APIS_10_LEAGUES_API_RAML, resourceLoader);
 
-    private InputStream getInputStream(String s) throws IOException {
-        return this.getClass().getResource(s).openStream();
-    }
+  }
 
-    @Test
-    public void fetchResourceTest() {
-        assertNotNull(apiSyncResourceLoader.fetchResource("api.raml"));
-        assertNotNull(apiSyncResourceLoader.fetchResource("/api.raml"));
-        assertNotNull(apiSyncResourceLoader.fetchResource(APISYNC_NOTATION + "league.json"));
-        assertNotNull(apiSyncResourceLoader.fetchResource(EXCHANGE_NOTATION + "league.json"));
-        assertNull(apiSyncResourceLoader.fetchResource(EXCHANGE_NOTATION + "not-valid-resource.json"));
-    }
+  private InputStream getInputStream(String s) throws IOException {
+    return this.getClass().getResource(s).openStream();
+  }
 
-    @Test
-    public void defaultResourceLoaderTest() {
-        assertNotNull(new ApiSyncResourceLoader(APIS_10_LEAGUES_API_RAML).fetchResource(APIS_10_LEAGUES_API_RAML));
-    }
+  @Test
+  public void fetchResourceTest() {
+    assertNotNull(apiSyncResourceLoader.fetchResource("api.raml"));
+    assertNotNull(apiSyncResourceLoader.fetchResource("/api.raml"));
+    assertNotNull(apiSyncResourceLoader.fetchResource(APISYNC_NOTATION + "league.json"));
+    assertNotNull(apiSyncResourceLoader.fetchResource(EXCHANGE_NOTATION + "league.json"));
+    assertNull(apiSyncResourceLoader.fetchResource(EXCHANGE_NOTATION + "not-valid-resource.json"));
+  }
+
+  @Test
+  public void defaultResourceLoaderTest() {
+    assertNotNull(new ApiSyncResourceLoader(APIS_10_LEAGUES_API_RAML).fetchResource(APIS_10_LEAGUES_API_RAML));
+  }
 }

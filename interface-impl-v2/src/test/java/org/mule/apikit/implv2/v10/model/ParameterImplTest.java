@@ -26,142 +26,143 @@ import static org.junit.Assert.assertTrue;
 
 public class ParameterImplTest {
 
-    private static final String RESOURCE = "/books";
-    private static final String RESOURCE_DOCUMENTS = "/documents";
-    private static final String ACTION_GET = "GET";
-    private static final String ACTION_POST = "POST";
-    private static final String ISBN = "0321736079";
-    private static final String ISBN_QUERY_PARAM = "isbn";
-    private static final String TAGS_QUERY_PARAM = "tags";
-    private static final String AUTHOR_QUERY_PARAM = "author";
-    private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
-    private final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
-    private Map<String, Parameter> queryParams;
-    private Map<String, List<Parameter>> formParameters;
+  private static final String RESOURCE = "/books";
+  private static final String RESOURCE_DOCUMENTS = "/documents";
+  private static final String ACTION_GET = "GET";
+  private static final String ACTION_POST = "POST";
+  private static final String ISBN = "0321736079";
+  private static final String ISBN_QUERY_PARAM = "isbn";
+  private static final String TAGS_QUERY_PARAM = "tags";
+  private static final String AUTHOR_QUERY_PARAM = "author";
+  private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
+  private final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
+  private Map<String, Parameter> queryParams;
+  private Map<String, List<Parameter>> formParameters;
 
-    @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("/apis/10-query-parameters/api.raml").toURI().toString();
-        RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
-        ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION_GET);
-        queryParams = action.getQueryParameters();
-        formParameters = parser.getResources().get(RESOURCE_DOCUMENTS).getAction(ACTION_POST)
-            .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
-    }
+  @Before
+  public void setUp() throws Exception {
+    String apiLocation = this.getClass().getResource("/apis/10-query-parameters/api.raml").toURI().toString();
+    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION_GET);
+    queryParams = action.getQueryParameters();
+    formParameters = parser.getResources().get(RESOURCE_DOCUMENTS).getAction(ACTION_POST)
+        .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
+  }
 
-    @Test
-    public void validateTest() {
-        assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).validate("{ \"name\": \"Jose\", \"lastname\": \"Perez\" }"));
-        assertFalse(queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).validate("Not valid value"));
-        assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate(ISBN));
-        assertFalse(queryParams.get(TAGS_QUERY_PARAM).validate("<tagExample>Not valid value</tagExample>"));
-    }
+  @Test
+  public void validateTest() {
+    assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).validate("{ \"name\": \"Jose\", \"lastname\": \"Perez\" }"));
+    assertFalse(queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).validate("Not valid value"));
+    assertTrue(queryParams.get(ISBN_QUERY_PARAM).validate(ISBN));
+    assertFalse(queryParams.get(TAGS_QUERY_PARAM).validate("<tagExample>Not valid value</tagExample>"));
+  }
 
-    @Test
-    public void messageTest() {
-        assertEquals("Invalid type String, expected Float", queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).message("Not valid value"));
-    }
+  @Test
+  public void messageTest() {
+    assertEquals("Invalid type String, expected Float", queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).message("Not valid value"));
+  }
 
-    @Test
-    public void isRequiredTest() {
-        assertTrue(queryParams.get(ISBN_QUERY_PARAM).isRequired());
-        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isRequired());
-    }
+  @Test
+  public void isRequiredTest() {
+    assertTrue(queryParams.get(ISBN_QUERY_PARAM).isRequired());
+    assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isRequired());
+  }
 
-    @Test
-    public void getDefaultValueTest() {
-        assertNull(queryParams.get(ISBN_QUERY_PARAM).getDefaultValue());
-        assertNotNull(queryParams.get(TAGS_QUERY_PARAM).getDefaultValue());
-    }
+  @Test
+  public void getDefaultValueTest() {
+    assertNull(queryParams.get(ISBN_QUERY_PARAM).getDefaultValue());
+    assertNotNull(queryParams.get(TAGS_QUERY_PARAM).getDefaultValue());
+  }
 
-    @Test
-    public void isRepeatTest() {
-        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isRepeat());
-//        assertTrue(queryParams.get(TAGS_QUERY_PARAM).isRepeat()); Check difference with amf
-    }
+  @Test
+  public void isRepeatTest() {
+    assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isRepeat());
+    //        assertTrue(queryParams.get(TAGS_QUERY_PARAM).isRepeat()); Check difference with amf
+  }
 
-    @Test
-    public void isArrayTest() {
-        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isArray());
-        assertTrue(queryParams.get(TAGS_QUERY_PARAM).isArray());
-    }
+  @Test
+  public void isArrayTest() {
+    assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isArray());
+    assertTrue(queryParams.get(TAGS_QUERY_PARAM).isArray());
+  }
 
-    @Test
-    public void getDisplayNameTest() {
-        assertEquals("Author", queryParams.get(AUTHOR_QUERY_PARAM).getDisplayName());
-    }
+  @Test
+  public void getDisplayNameTest() {
+    assertEquals("Author", queryParams.get(AUTHOR_QUERY_PARAM).getDisplayName());
+  }
 
-    @Test
-    public void getDescriptionTest() {
-        assertEquals("An author's full name", queryParams.get(AUTHOR_QUERY_PARAM).getDescription());
-    }
+  @Test
+  public void getDescriptionTest() {
+    assertEquals("An author's full name", queryParams.get(AUTHOR_QUERY_PARAM).getDescription());
+  }
 
-    @Test
-    public void getExampleTest() {
-        assertEquals(ISBN, queryParams.get(ISBN_QUERY_PARAM).getExample());
-        assertNull(queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExample());
-    }
+  @Test
+  public void getExampleTest() {
+    assertEquals(ISBN, queryParams.get(ISBN_QUERY_PARAM).getExample());
+    assertNull(queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExample());
+  }
 
-    @Test
-    public void getExamplesTest() {
-        assertEquals(0, queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExamples().size());
-        assertEquals(2, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
-    }
+  @Test
+  public void getExamplesTest() {
+    assertEquals(0, queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExamples().size());
+    assertEquals(2, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getInstanceTest() {
-        queryParams.get(AUTHOR_QUERY_PARAM).getInstance();
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void getInstanceTest() {
+    queryParams.get(AUTHOR_QUERY_PARAM).getInstance();
+  }
 
-    @Test //TODO: APIKIT-2509 check difference with amf
-    public void getMetadataTest() {
-        assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).getMetadata().getMetadataFormat().getValidMimeTypes().contains("application/json"));
-    }
+  @Test //TODO: APIKIT-2509 check difference with amf
+  public void getMetadataTest() {
+    assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).getMetadata().getMetadataFormat().getValidMimeTypes()
+        .contains("application/json"));
+  }
 
-    @Test
-    public void isScalarTest() {
-        assertTrue(queryParams.get(ISBN_QUERY_PARAM).isScalar());//TODO: APIKIT-2509 check difference with amf
-        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isScalar());
-    }
+  @Test
+  public void isScalarTest() {
+    assertTrue(queryParams.get(ISBN_QUERY_PARAM).isScalar());//TODO: APIKIT-2509 check difference with amf
+    assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isScalar());
+  }
 
-    @Test
-    public void isFacetArrayTest() {
-        assertFalse(queryParams.get(ISBN_QUERY_PARAM).isFacetArray(ISBN_QUERY_PARAM));
-        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("lastname"));
-        assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("addresses"));
-    }
+  @Test
+  public void isFacetArrayTest() {
+    assertFalse(queryParams.get(ISBN_QUERY_PARAM).isFacetArray(ISBN_QUERY_PARAM));
+    assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("lastname"));
+    assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).isFacetArray("addresses"));
+  }
 
-    @Test
-    public void surroundWithQuotesIfNeededTest() {
-        String value = "*321736079";
-        assertEquals("\"" + value + "\"", queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
-        value = ISBN;
-        assertEquals(value, queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
-        value = "Comedy";
-        assertEquals("\"" + value + "\"", queryParams.get(TAGS_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
-    }
+  @Test
+  public void surroundWithQuotesIfNeededTest() {
+    String value = "*321736079";
+    assertEquals("\"" + value + "\"", queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    value = ISBN;
+    assertEquals(value, queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    value = "Comedy";
+    assertEquals("\"" + value + "\"", queryParams.get(TAGS_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+  }
 
-    @Test
-    public void getFileProperties() {
-        List<Parameter> parameters = formParameters.get("first");
-        FileProperties fileProperties = parameters.get(0).getFileProperties().get();
-        assertThat(fileProperties.getMinLength(), equalTo(8));
-        assertThat(fileProperties.getMaxLength(), equalTo(5000));
-        assertThat(fileProperties.getFileTypes().contains("image/jpeg"), equalTo(true));
-    }
+  @Test
+  public void getFileProperties() {
+    List<Parameter> parameters = formParameters.get("first");
+    FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+    assertThat(fileProperties.getMinLength(), equalTo(8));
+    assertThat(fileProperties.getMaxLength(), equalTo(5000));
+    assertThat(fileProperties.getFileTypes().contains("image/jpeg"), equalTo(true));
+  }
 
-    @Test
-    public void fileParameterWithoutValues() {
-        List<Parameter> parameters = formParameters.get("second");
-        FileProperties fileProperties = parameters.get(0).getFileProperties().get();
-        assertThat(fileProperties.getMinLength(), equalTo(0));
-        assertThat(fileProperties.getMaxLength(), equalTo(0));
-        assertThat(fileProperties.getFileTypes().isEmpty(), equalTo(true));
-    }
+  @Test
+  public void fileParameterWithoutValues() {
+    List<Parameter> parameters = formParameters.get("second");
+    FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+    assertThat(fileProperties.getMinLength(), equalTo(0));
+    assertThat(fileProperties.getMaxLength(), equalTo(0));
+    assertThat(fileProperties.getFileTypes().isEmpty(), equalTo(true));
+  }
 
-    @Test
-    public void filePropertiesIsEmptyWhenParameterIsNotFile() {
-        assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).getFileProperties().isPresent());
-    }
+  @Test
+  public void filePropertiesIsEmptyWhenParameterIsNotFile() {
+    assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).getFileProperties().isPresent());
+  }
 
 }

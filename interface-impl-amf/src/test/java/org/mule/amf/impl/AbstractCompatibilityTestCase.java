@@ -99,7 +99,8 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
 
   static ApiParser createJavaParserWrapper(final String apiPath, final boolean isRaml08) {
 
-    final ApiParser ramlWrapper = isRaml08 ? new ParserWrapperV1(apiPath, Collections.emptyList()) : new ParserWrapperV2(apiPath, Collections.emptyList());
+    final ApiParser ramlWrapper =
+        isRaml08 ? new ParserWrapperV1(apiPath, Collections.emptyList()) : new ParserWrapperV2(apiPath, Collections.emptyList());
     ramlWrapper.validate();
     return ramlWrapper;
   }

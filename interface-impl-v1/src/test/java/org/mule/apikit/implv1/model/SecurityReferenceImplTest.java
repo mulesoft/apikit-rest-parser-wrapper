@@ -16,21 +16,21 @@ import static org.junit.Assert.assertNotNull;
 
 public class SecurityReferenceImplTest {
 
-    private static final String SECURITY_REFERENCE_NAME = "securityReference";
-    private SecurityReferenceImpl securityReferenceImpl;
+  private static final String SECURITY_REFERENCE_NAME = "securityReference";
+  private SecurityReferenceImpl securityReferenceImpl;
 
-    @Before
-    public void setUp() {
-        securityReferenceImpl = new SecurityReferenceImpl(new SecurityReference(SECURITY_REFERENCE_NAME));
-    }
+  @Before
+  public void setUp() {
+    securityReferenceImpl = new SecurityReferenceImpl(new SecurityReference(SECURITY_REFERENCE_NAME));
+  }
 
-    @Test
-    public void getNamTest() {
-        assertEquals(SECURITY_REFERENCE_NAME, securityReferenceImpl.getName());
-    }
+  @Test
+  public void getNamTest() {
+    assertEquals(SECURITY_REFERENCE_NAME, securityReferenceImpl.getName());
+  }
 
-    @Test
-    public void getInstanceTest() {
-        assertNotNull(securityReferenceImpl.getInstance());
-    }
+  @Test
+  public void getInstanceTest() {
+    assertNotNull(securityReferenceImpl.getInstance());
+  }
 }

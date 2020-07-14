@@ -18,106 +18,107 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RamlImpl10V2Test {
-    private static final String NEW_BASE_URI = "http://localhost/api/{version}";
-    private static final String BASE_URI_PARAM = "apiDomain";
-    private static final String BASE_URI = "https://{" + BASE_URI_PARAM + "}.ec2.amazonaws.com";
-    private static final String APIS_10_LEAGUES_API_RAML_PATH = "/apis/10-leagues/api.raml";
-    private static final String APIS_10_SCHEMAS_API_RAML_PATH = "/apis/10-schemas/api.raml";
-    private RamlImpl10V2 api;
 
-    @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource(APIS_10_LEAGUES_API_RAML_PATH).toURI().toString();
-        api = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
-    }
+  private static final String NEW_BASE_URI = "http://localhost/api/{version}";
+  private static final String BASE_URI_PARAM = "apiDomain";
+  private static final String BASE_URI = "https://{" + BASE_URI_PARAM + "}.ec2.amazonaws.com";
+  private static final String APIS_10_LEAGUES_API_RAML_PATH = "/apis/10-leagues/api.raml";
+  private static final String APIS_10_SCHEMAS_API_RAML_PATH = "/apis/10-schemas/api.raml";
+  private RamlImpl10V2 api;
 
-    @Test
-    public void getResourcesTest() {
-        assertEquals(2, api.getResources().size());
-    }
+  @Before
+  public void setUp() throws Exception {
+    String apiLocation = this.getClass().getResource(APIS_10_LEAGUES_API_RAML_PATH).toURI().toString();
+    api = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+  }
 
-    @Test
-    public void getBaseUriTest() {
-        assertEquals(BASE_URI, api.getBaseUri());
-    }
+  @Test
+  public void getResourcesTest() {
+    assertEquals(2, api.getResources().size());
+  }
 
-    @Test
-    public void getLocationTest() {
-        assertTrue(api.getLocation().endsWith(APIS_10_LEAGUES_API_RAML_PATH));
-    }
+  @Test
+  public void getBaseUriTest() {
+    assertEquals(BASE_URI, api.getBaseUri());
+  }
 
-    @Test
-    public void getVersionTest() {
-        assertEquals("v1", api.getVersion());
-    }
+  @Test
+  public void getLocationTest() {
+    assertTrue(api.getLocation().endsWith(APIS_10_LEAGUES_API_RAML_PATH));
+  }
 
-    @Test
-    public void getSchemasTest() throws Exception {
-        assertEquals(1, api.getSchemas().size());
-        assertTrue(api.getSchemas().get(0).containsKey("league-json"));
-        assertTrue(api.getSchemas().get(0).containsKey("league-xml"));
+  @Test
+  public void getVersionTest() {
+    assertEquals("v1", api.getVersion());
+  }
 
-        String apiLocation = this.getClass().getResource(APIS_10_SCHEMAS_API_RAML_PATH).toURI().toString();
-        RamlImpl10V2 schemasParser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
-        assertEquals(1, schemasParser.getSchemas().size());
-        assertTrue(schemasParser.getSchemas().get(0).containsKey("jsonSchema"));
-        assertTrue(schemasParser.getSchemas().get(0).containsKey("xmlSchema"));
-    }
+  @Test
+  public void getSchemasTest() throws Exception {
+    assertEquals(1, api.getSchemas().size());
+    assertTrue(api.getSchemas().get(0).containsKey("league-json"));
+    assertTrue(api.getSchemas().get(0).containsKey("league-xml"));
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getResourceTest() {
-        api.getResource("/leagues");//Check difference with amf parser
-    }
+    String apiLocation = this.getClass().getResource(APIS_10_SCHEMAS_API_RAML_PATH).toURI().toString();
+    RamlImpl10V2 schemasParser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    assertEquals(1, schemasParser.getSchemas().size());
+    assertTrue(schemasParser.getSchemas().get(0).containsKey("jsonSchema"));
+    assertTrue(schemasParser.getSchemas().get(0).containsKey("xmlSchema"));
+  }
 
-    @Test
-    public void getConsolidatedSchemasTest() {
-        assertEquals(0, api.getConsolidatedSchemas().size());
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void getResourceTest() {
+    api.getResource("/leagues");//Check difference with amf parser
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getCompiledSchemasTest() {
-        api.getCompiledSchemas();
-    }
+  @Test
+  public void getConsolidatedSchemasTest() {
+    assertEquals(0, api.getConsolidatedSchemas().size());
+  }
 
-    @Test
-    public void getBaseUriParametersTest() {
-        assertEquals(1, api.getBaseUriParameters().size());
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void getCompiledSchemasTest() {
+    api.getCompiledSchemas();
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getSecuritySchemesTest() {
-        api.getSecuritySchemes();
-    }
+  @Test
+  public void getBaseUriParametersTest() {
+    assertEquals(1, api.getBaseUriParameters().size());
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getTraitsTest() {
-        api.getTraits();
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void getSecuritySchemesTest() {
+    api.getSecuritySchemes();
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getUriTest() {
-        api.getUri();
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void getTraitsTest() {
+    api.getTraits();
+  }
 
-    @Test
-    public void getAllReferencesTest() {
-        assertEquals(0, api.getAllReferences().size());
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void getUriTest() {
+    api.getUri();
+  }
 
-    @Test
-    public void getTypeTest() {
-        assertEquals("RAML", api.getType().name());
-    }
+  @Test
+  public void getAllReferencesTest() {
+    assertEquals(0, api.getAllReferences().size());
+  }
 
-    @Test
-    public void getApiVendorTest() {
-        assertEquals("RAML_10", api.getApiVendor().name());
-    }
+  @Test
+  public void getTypeTest() {
+    assertEquals("RAML", api.getType().name());
+  }
 
-    @Test
-    public void dumpTest() {
-        assertTrue(api.dump(NEW_BASE_URI).contains(NEW_BASE_URI));
-        assertFalse(api.dump(StringUtils.EMPTY).contains(NEW_BASE_URI));
-        assertFalse(api.dump(null).contains(NEW_BASE_URI));
-    }
+  @Test
+  public void getApiVendorTest() {
+    assertEquals("RAML_10", api.getApiVendor().name());
+  }
+
+  @Test
+  public void dumpTest() {
+    assertTrue(api.dump(NEW_BASE_URI).contains(NEW_BASE_URI));
+    assertFalse(api.dump(StringUtils.EMPTY).contains(NEW_BASE_URI));
+    assertFalse(api.dump(null).contains(NEW_BASE_URI));
+  }
 }

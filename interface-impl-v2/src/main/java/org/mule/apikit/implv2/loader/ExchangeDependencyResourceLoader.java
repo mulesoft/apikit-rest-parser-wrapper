@@ -19,6 +19,7 @@ import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.DEPENDENCY_PA
 import static org.mule.apikit.implv2.utils.ExchangeDependencyUtils.getExchangeModulePath;
 
 public class ExchangeDependencyResourceLoader implements ResourceLoader {
+
   private final File workingFolder;
   private final ResourceLoader resourceLoader;
 
@@ -38,12 +39,12 @@ public class ExchangeDependencyResourceLoader implements ResourceLoader {
       return null;
     }
 
-    if(workingFolder != null){
+    if (workingFolder != null) {
       final String resourceName;
       final Matcher matcher = DEPENDENCY_PATH_PATTERN.matcher(path);
       if (matcher.find()) {
         final int dependencyIndex = path.lastIndexOf(matcher.group(0));
-          resourceName = dependencyIndex <= 0 ? path : path.substring(dependencyIndex);
+        resourceName = dependencyIndex <= 0 ? path : path.substring(dependencyIndex);
       } else {
         resourceName = path;
       }

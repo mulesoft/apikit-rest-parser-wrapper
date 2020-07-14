@@ -22,51 +22,51 @@ import static org.mockito.Mockito.mock;
 
 public class AMFParserWrapperFactoryTest {
 
-    private ApiReference apiRef;
+  private ApiReference apiRef;
 
-    @Before
-    public void init() {
-        apiRef = mock(ApiReference.class);
-    }
+  @Before
+  public void init() {
+    apiRef = mock(ApiReference.class);
+  }
 
-    @Test
-    public void raml08ParserWrapperTest() {
-        assertParserWrapper(ApiVendor.RAML_08, ApiFormat.RAML);
-    }
+  @Test
+  public void raml08ParserWrapperTest() {
+    assertParserWrapper(ApiVendor.RAML_08, ApiFormat.RAML);
+  }
 
-    @Test
-    public void raml10ParserWrapperTest() {
-        assertParserWrapper(ApiVendor.RAML_10, ApiFormat.RAML);
-    }
+  @Test
+  public void raml10ParserWrapperTest() {
+    assertParserWrapper(ApiVendor.RAML_10, ApiFormat.RAML);
+  }
 
-    @Test
-    public void oas20ParserWrapperTest() {
-        assertParserWrapper(ApiVendor.OAS_20, ApiFormat.YAML);
-        assertParserWrapper(ApiVendor.OAS_20, ApiFormat.JSON);
-    }
+  @Test
+  public void oas20ParserWrapperTest() {
+    assertParserWrapper(ApiVendor.OAS_20, ApiFormat.YAML);
+    assertParserWrapper(ApiVendor.OAS_20, ApiFormat.JSON);
+  }
 
-    @Test
-    public void oas30ParserWrapperTest() {
-        assertParserWrapper(ApiVendor.OAS_30, ApiFormat.YAML);
-        assertParserWrapper(ApiVendor.OAS_30, ApiFormat.JSON);
-    }
+  @Test
+  public void oas30ParserWrapperTest() {
+    assertParserWrapper(ApiVendor.OAS_30, ApiFormat.YAML);
+    assertParserWrapper(ApiVendor.OAS_30, ApiFormat.JSON);
+  }
 
-    @Test
-    public void defaultParserWrapperTest() {
-        assertParserWrapper(ApiVendor.RAML, ApiFormat.YAML);
-    }
+  @Test
+  public void defaultParserWrapperTest() {
+    assertParserWrapper(ApiVendor.RAML, ApiFormat.YAML);
+  }
 
-    @Test(expected = RuntimeException.class)
-    public void nullEnvironmentTest() {
-        AMFParserWrapperFactory.getParser(apiRef, null);
-    }
+  @Test(expected = RuntimeException.class)
+  public void nullEnvironmentTest() {
+    AMFParserWrapperFactory.getParser(apiRef, null);
+  }
 
-    private void assertParserWrapper(ApiVendor vendor, ApiFormat format) {
-        doReturn(vendor).when(apiRef).getVendor();
-        doReturn(format.name()).when(apiRef).getFormat();
-        doReturn(URI.create("./invalid.raml")).when(apiRef).getPathAsUri();
-        doReturn(Optional.empty()).when(apiRef).getResourceLoader();
-        AMFParserWrapper parserWrapper = AMFParserWrapperFactory.getParser(apiRef, new ExecutionEnvironment());
-        Assert.assertNotNull(parserWrapper);
-    }
+  private void assertParserWrapper(ApiVendor vendor, ApiFormat format) {
+    doReturn(vendor).when(apiRef).getVendor();
+    doReturn(format.name()).when(apiRef).getFormat();
+    doReturn(URI.create("./invalid.raml")).when(apiRef).getPathAsUri();
+    doReturn(Optional.empty()).when(apiRef).getResourceLoader();
+    AMFParserWrapper parserWrapper = AMFParserWrapperFactory.getParser(apiRef, new ExecutionEnvironment());
+    Assert.assertNotNull(parserWrapper);
+  }
 }

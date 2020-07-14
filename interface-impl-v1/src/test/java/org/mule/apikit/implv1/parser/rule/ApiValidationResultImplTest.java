@@ -18,36 +18,36 @@ import static org.junit.Assert.assertTrue;
 
 public class ApiValidationResultImplTest {
 
-    private ApiValidationResultImpl result;
+  private ApiValidationResultImpl result;
 
-    @Before
-    public void setUp() throws Exception {
-        ParserWrapperV1 parserWrapper = new ParserWrapperV1( "not-valid-resource", Collections.emptyList());
-        result = (ApiValidationResultImpl) parserWrapper.validate().getResults().iterator().next();
-    }
+  @Before
+  public void setUp() throws Exception {
+    ParserWrapperV1 parserWrapper = new ParserWrapperV1("not-valid-resource", Collections.emptyList());
+    result = (ApiValidationResultImpl) parserWrapper.validate().getResults().iterator().next();
+  }
 
-    @Test
-    public void getMessageTest() {
-        assertEquals("RAML resource not found", result.getMessage());
-    }
+  @Test
+  public void getMessageTest() {
+    assertEquals("RAML resource not found", result.getMessage());
+  }
 
-    @Test
-    public void getLineTest() {
-        assertEquals(-1, result.getLine().get().intValue());
-    }
+  @Test
+  public void getLineTest() {
+    assertEquals(-1, result.getLine().get().intValue());
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getPathTest() {
-        result.getPath();
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void getPathTest() {
+    result.getPath();
+  }
 
-    @Test
-    public void getSeverityTest() {
-        assertEquals("ERROR", result.getSeverity().name());
-    }
+  @Test
+  public void getSeverityTest() {
+    assertEquals("ERROR", result.getSeverity().name());
+  }
 
-    @Test
-    public void toStringTest() {
-        assertTrue(result.toString().contains("ERROR"));
-    }
+  @Test
+  public void toStringTest() {
+    assertTrue(result.toString().contains("ERROR"));
+  }
 }

@@ -15,19 +15,21 @@ import org.mule.amf.impl.util.LazyValue;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 
 class YamlParameterValidationStrategy implements ParameterValidationStrategy {
+
   private AnyShape anyShape;
 
-  private final LazyValue<PayloadValidator> parameterValidator = new LazyValue<>(() -> anyShape.parameterValidator(APPLICATION_YAML)
+  private final LazyValue<PayloadValidator> parameterValidator =
+      new LazyValue<>(() -> anyShape.parameterValidator(APPLICATION_YAML)
           .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape)));
 
-  YamlParameterValidationStrategy(AnyShape anyShape){
+  YamlParameterValidationStrategy(AnyShape anyShape) {
     this.anyShape = anyShape;
   }
 
   @Override
   public ValidationReport validate(String value) {
-    String payload = value != null ? value : "null" ;
+    String payload = value != null ? value : "null";
 
-    return parameterValidator.get().syncValidate(APPLICATION_YAML,payload);
+    return parameterValidator.get().syncValidate(APPLICATION_YAML, payload);
   }
 }
