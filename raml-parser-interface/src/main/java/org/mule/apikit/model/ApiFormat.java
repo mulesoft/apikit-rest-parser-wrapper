@@ -7,7 +7,7 @@
 package org.mule.apikit.model;
 
 public enum ApiFormat {
-    RAML,
-    JSON,
-    YAML
+  RAML,
+  JSON,
+  YAML
 }

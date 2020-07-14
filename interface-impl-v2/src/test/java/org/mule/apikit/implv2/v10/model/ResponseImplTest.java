@@ -18,50 +18,51 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ResponseImplTest {
-    private static final String RESOURCE = "/leagues";
-    private static final String ACTION = "GET";
-    private Response response;
 
-    @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
-        RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
-        ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION);
-        response = action.getResponses().get("200");
-    }
+  private static final String RESOURCE = "/leagues";
+  private static final String ACTION = "GET";
+  private Response response;
 
-    @Test
-    public void getBodyTest() {
-        assertEquals(2, response.getBody().size());
-    }
+  @Before
+  public void setUp() throws Exception {
+    String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
+    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION);
+    response = action.getResponses().get("200");
+  }
 
-    @Test
-    public void hasBodyTest() {
-        assertTrue(response.hasBody());
-    }
+  @Test
+  public void getBodyTest() {
+    assertEquals(2, response.getBody().size());
+  }
 
-    @Test
-    public void getHeadersTest() {
-        assertEquals(1, response.getHeaders().size());//TODO: APIKIT-2509 check difference with amf
-    }
+  @Test
+  public void hasBodyTest() {
+    assertTrue(response.hasBody());
+  }
 
-    @Test(expected = UnsupportedOperationException.class)//TODO: APIKIT-2509 check difference with amf
-    public void getInstanceTest() {
-        response.getInstance();
-    }
+  @Test
+  public void getHeadersTest() {
+    assertEquals(1, response.getHeaders().size());//TODO: APIKIT-2509 check difference with amf
+  }
 
-    @Test
-    public void getExamplesTest() {
-        assertEquals(2, response.getExamples().size());
-    }
+  @Test(expected = UnsupportedOperationException.class) //TODO: APIKIT-2509 check difference with amf
+  public void getInstanceTest() {
+    response.getInstance();
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void setBodyTest() {
-        response.setBody(MapUtils.EMPTY_MAP);
-    }
+  @Test
+  public void getExamplesTest() {
+    assertEquals(2, response.getExamples().size());
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void setHeadersTest() {
-        response.setHeaders(MapUtils.EMPTY_MAP);
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void setBodyTest() {
+    response.setBody(MapUtils.EMPTY_MAP);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void setHeadersTest() {
+    response.setHeaders(MapUtils.EMPTY_MAP);
+  }
 }

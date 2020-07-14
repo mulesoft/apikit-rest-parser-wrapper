@@ -65,14 +65,12 @@ public class RamlParsingStrategy implements ParsingStrategy {
   }
 
   private ParserWrapperV1 createParserV1(String path, ResourceLoader loader, List<String> refs) {
-    return loader != null ?
-        new ParserWrapperV1(path, singletonList(loader::getResourceAsStream), refs) :
-        new ParserWrapperV1(path, refs);
+    return loader != null ? new ParserWrapperV1(path, singletonList(loader::getResourceAsStream), refs)
+        : new ParserWrapperV1(path, refs);
   }
 
   private ParserWrapperV2 createRamlV2(String path, ResourceLoader loader, List<String> refs) {
-    return loader != null ?
-        new ParserWrapperV2(path, singletonList(loader::getResourceAsStream), refs) :
-        new ParserWrapperV2(path, refs);
+    return loader != null ? new ParserWrapperV2(path, singletonList(loader::getResourceAsStream), refs)
+        : new ParserWrapperV2(path, refs);
   }
 }

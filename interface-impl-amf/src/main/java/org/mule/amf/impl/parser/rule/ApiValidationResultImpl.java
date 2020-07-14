@@ -37,8 +37,9 @@ public class ApiValidationResultImpl implements ApiValidationResult {
   public String getMessage() {
     Optional<String> location = validationResult.location();
     Range positionRange = validationResult.position();
-    if(location.isPresent() && !positionRange.start().isZero()) {
-      return format(ERROR_FORMAT, validationResult.message(), URLDecoder.decode(location.get()), getPositionMessage(positionRange.start()));
+    if (location.isPresent() && !positionRange.start().isZero()) {
+      return format(ERROR_FORMAT, validationResult.message(), URLDecoder.decode(location.get()),
+                    getPositionMessage(positionRange.start()));
     }
     return validationResult.message();
   }
@@ -55,8 +56,7 @@ public class ApiValidationResultImpl implements ApiValidationResult {
 
   @Override
   public Severity getSeverity() {
-    return !severities.contains(validationResult.level().toUpperCase()) ?
-        ERROR : Severity.fromString(validationResult.level());
+    return !severities.contains(validationResult.level().toUpperCase()) ? ERROR : Severity.fromString(validationResult.level());
   }
 
   private static String getPositionMessage(Position startPosition) {

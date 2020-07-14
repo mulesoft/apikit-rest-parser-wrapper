@@ -23,42 +23,43 @@ import java.util.concurrent.CompletableFuture;
 
 public class AMFParserWrapper {
 
-    private Environment environment;
-    private Parser parser;
-    private Resolver resolver;
-    private ProfileName profileName;
-    private MessageStyle messageStyle;
+  private Environment environment;
+  private Parser parser;
+  private Resolver resolver;
+  private ProfileName profileName;
+  private MessageStyle messageStyle;
 
-    public AMFParserWrapper(Environment environment, Parser parser, Resolver resolver, ProfileName profileName, MessageStyle messageStyle) {
-        this.environment = environment;
-        this.parser = parser;
-        this.resolver = resolver;
-        this.profileName = profileName;
-        this.messageStyle = messageStyle;
-    }
+  public AMFParserWrapper(Environment environment, Parser parser, Resolver resolver, ProfileName profileName,
+                          MessageStyle messageStyle) {
+    this.environment = environment;
+    this.parser = parser;
+    this.resolver = resolver;
+    this.profileName = profileName;
+    this.messageStyle = messageStyle;
+  }
 
-    public Document parseApi(final URI uri) throws ParserException {
-        final String url = URLDecoder.decode(uri.toString());
-        Document document = handleFuture(parser.parseFileAsync(url));
-        return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
-    }
+  public Document parseApi(final URI uri) throws ParserException {
+    final String url = URLDecoder.decode(uri.toString());
+    Document document = handleFuture(parser.parseFileAsync(url));
+    return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
+  }
 
-    public ValidationReport getParsingReport(Document resolvedDoc) throws ParserException {
-        return handleFuture(AMF.validateResolved(resolvedDoc, profileName, messageStyle, environment));
-    }
+  public ValidationReport getParsingReport(Document resolvedDoc) throws ParserException {
+    return handleFuture(AMF.validateResolved(resolvedDoc, profileName, messageStyle, environment));
+  }
 
-    private <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
-        try {
-            return (U) f.get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw getParseException(e);
-        } catch (Exception e) {
-            throw getParseException(e);
-        }
+  private <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
+    try {
+      return (U) f.get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw getParseException(e);
+    } catch (Exception e) {
+      throw getParseException(e);
     }
+  }
 
-    private static ParserException getParseException(Exception e) {
-        throw new ParserException("An error happened while parsing the api. Message: " + e.getMessage(), e);
-    }
+  private static ParserException getParseException(Exception e) {
+    throw new ParserException("An error happened while parsing the api. Message: " + e.getMessage(), e);
+  }
 }

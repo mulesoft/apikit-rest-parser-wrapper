@@ -14,13 +14,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class TemplateImplTest {
-    private static final String TEMPLATE = "template";
 
-    @Test
-    public void getDisplayNameTest() {
-        TemplateImpl template = new TemplateImpl(new Template());
-        assertNull(template.getDisplayName());
-        template.setDisplayName(TEMPLATE);
-        assertEquals(TEMPLATE, template.getDisplayName());
-    }
+  private static final String TEMPLATE = "template";
+
+  @Test
+  public void getDisplayNameTest() {
+    TemplateImpl template = new TemplateImpl(new Template());
+    assertNull(template.getDisplayName());
+    template.setDisplayName(TEMPLATE);
+    assertEquals(TEMPLATE, template.getDisplayName());
+  }
 }

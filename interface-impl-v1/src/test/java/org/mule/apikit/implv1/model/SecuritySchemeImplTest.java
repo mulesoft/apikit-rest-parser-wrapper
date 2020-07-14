@@ -14,9 +14,9 @@ import static org.junit.Assert.assertNotNull;
 
 public class SecuritySchemeImplTest {
 
-    @Test
-    public void getInstanceTest() {
-        SecuritySchemeImpl securitySchemeImpl = new SecuritySchemeImpl(new SecurityScheme());
-        assertNotNull(securitySchemeImpl.getInstance());
-    }
+  @Test
+  public void getInstanceTest() {
+    SecuritySchemeImpl securitySchemeImpl = new SecuritySchemeImpl(new SecurityScheme());
+    assertNotNull(securitySchemeImpl.getInstance());
+  }
 }

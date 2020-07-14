@@ -40,6 +40,8 @@ public class DefaultParseResult implements ParseResult {
   }
 
   @Override
-  public List<ParsingIssue> getWarnings() { return warns;}
+  public List<ParsingIssue> getWarnings() {
+    return warns;
+  }
 
 }
