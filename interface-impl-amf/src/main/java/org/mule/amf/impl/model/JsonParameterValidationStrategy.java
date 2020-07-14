@@ -17,28 +17,29 @@ import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 import static org.mule.amf.impl.model.ParameterImpl.quote;
 
 class JsonParameterValidationStrategy implements ParameterValidationStrategy {
+
   private final boolean needsQuotes;
   private final boolean isBoolean;
   private AnyShape anyShape;
 
   private final LazyValue<PayloadValidator> jsonValidator = new LazyValue<>(() -> anyShape.payloadValidator(APPLICATION_JSON)
-          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape)));
+      .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape)));
 
   private final LazyValue<ValidationReport> nullValidationReport = new LazyValue<>(() -> {
     final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML)
-            .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
+        .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
 
     return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   });
 
-  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes, boolean isBoolean){
+  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes, boolean isBoolean) {
     this.anyShape = anyShape;
     this.needsQuotes = needsQuotes;
     this.isBoolean = isBoolean;
   }
 
   public ValidationReport validate(String value) {
-    if(value == null){
+    if (value == null) {
       return nullValidationReport.get();
     }
 
@@ -46,11 +47,11 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   }
 
   private String getPayload(String value) {
-    if(needsQuotes) {
+    if (needsQuotes) {
       return quote(value.replaceAll("\"", "\\\\\""));
     }
 
-    if(isBoolean) {
+    if (isBoolean) {
       return value;
     }
 
@@ -58,18 +59,19 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   }
 
   private String removeLeadingZeros(String value) {
-    if(!value.startsWith("0")) {
+    if (!value.startsWith("0")) {
       return value;
     }
 
     int indexOfLastLeadingZero = 0;
-    for (; indexOfLastLeadingZero + 1 < value.length(); indexOfLastLeadingZero++){
+    for (; indexOfLastLeadingZero + 1 < value.length(); indexOfLastLeadingZero++) {
       char next = value.charAt(indexOfLastLeadingZero);
 
-      if(next == '.'){// '0.' should be valid
+      if (next == '.') {// '0.' should be valid
         indexOfLastLeadingZero = indexOfLastLeadingZero - 1;
         break;
-      } if(next != '0'){
+      }
+      if (next != '0') {
         break;
       }
     }

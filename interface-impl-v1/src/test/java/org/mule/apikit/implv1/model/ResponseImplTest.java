@@ -27,58 +27,58 @@ import static org.junit.Assert.assertTrue;
 
 public class ResponseImplTest {
 
-    private static final String APPLICATION_JSON = "application/json";
-    private static final String APPLICATION_XML = "application/xml";
-    private static final String CONTENT_TYPE = "Content-type";
+  private static final String APPLICATION_JSON = "application/json";
+  private static final String APPLICATION_XML = "application/xml";
+  private static final String CONTENT_TYPE = "Content-type";
 
-    private ResponseImpl response;
+  private ResponseImpl response;
 
-    @Before
-    public void setUp() throws Exception {
-        String apiLocation = this.getClass().getResource("/apis/08-leagues/api.raml").toURI().toString();
-        RamlImplV1 parser = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
-        response = (ResponseImpl) parser.getResource("/positions").getAction("GET").getResponses().get("200");
-    }
+  @Before
+  public void setUp() throws Exception {
+    String apiLocation = this.getClass().getResource("/apis/08-leagues/api.raml").toURI().toString();
+    RamlImplV1 parser = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
+    response = (ResponseImpl) parser.getResource("/positions").getAction("GET").getResponses().get("200");
+  }
 
-    @Test
-    public void getBodyTest() {
-        assertEquals(APPLICATION_JSON, response.getBody().get(APPLICATION_JSON).getType());
-    }
+  @Test
+  public void getBodyTest() {
+    assertEquals(APPLICATION_JSON, response.getBody().get(APPLICATION_JSON).getType());
+  }
 
-    @Test
-    public void hasBodyTest() {
-        assertTrue(response.hasBody());
-    }
+  @Test
+  public void hasBodyTest() {
+    assertTrue(response.hasBody());
+  }
 
-    @Test
-    public void getHeadersTest() {
-        assertEquals(0, response.getHeaders().size());
-    }
+  @Test
+  public void getHeadersTest() {
+    assertEquals(0, response.getHeaders().size());
+  }
 
-    @Test
-    public void getInstanceTest() {
-        assertNotNull(response.getInstance());
-    }
+  @Test
+  public void getInstanceTest() {
+    assertNotNull(response.getInstance());
+  }
 
-    @Test
-    public void setBodyTest() {
-        Map<String, MimeType> body = response.getBody();
-        assertNotNull(body);
-        assertNotNull(body.get(APPLICATION_JSON));
-        body = new HashMap<>();
-        body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
-        response.setBody(body);
-        assertNotNull(response.getBody());
-        assertNull(response.getBody().get(APPLICATION_JSON));
-    }
+  @Test
+  public void setBodyTest() {
+    Map<String, MimeType> body = response.getBody();
+    assertNotNull(body);
+    assertNotNull(body.get(APPLICATION_JSON));
+    body = new HashMap<>();
+    body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
+    response.setBody(body);
+    assertNotNull(response.getBody());
+    assertNull(response.getBody().get(APPLICATION_JSON));
+  }
 
-    @Test
-    public void setHeadersTest() {
-        assertEquals(MapUtils.EMPTY_MAP, response.getHeaders());
-        Map<String, Parameter> headers = new HashMap<>();
-        headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
-        response.setHeaders(headers);
-        assertNotNull(response.getHeaders().get(CONTENT_TYPE));
-    }
+  @Test
+  public void setHeadersTest() {
+    assertEquals(MapUtils.EMPTY_MAP, response.getHeaders());
+    Map<String, Parameter> headers = new HashMap<>();
+    headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
+    response.setHeaders(headers);
+    assertNotNull(response.getHeaders().get(CONTENT_TYPE));
+  }
 
 }

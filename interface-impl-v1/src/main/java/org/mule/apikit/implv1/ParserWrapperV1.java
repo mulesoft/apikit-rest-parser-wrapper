@@ -55,8 +55,8 @@ public class ParserWrapperV1 implements ApiParser {
     this.ramlPath = findRamlPath(ramlPath).orElse(ramlPath);
     this.references = references;
     this.resourceLoader = new CompositeResourceLoader(builder().addAll(loaders)
-                                                        .add(getResourceLoaderForPath(this.ramlPath))
-                                                        .build().toArray(new ResourceLoader[0]));
+        .add(getResourceLoaderForPath(this.ramlPath))
+        .build().toArray(new ResourceLoader[0]));
   }
 
   public static ResourceLoader getResourceLoaderForPath(String ramlPath) {

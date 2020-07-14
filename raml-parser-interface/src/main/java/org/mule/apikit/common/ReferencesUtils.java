@@ -17,15 +17,15 @@ public class ReferencesUtils {
   public static URI toURI(String path) {
     URI uri;
     if (isWindows()) {
-      uri = URI.create(path.replaceAll("\\s+","%20").replaceAll("\\\\", "/"));
+      uri = URI.create(path.replaceAll("\\s+", "%20").replaceAll("\\\\", "/"));
     } else {
-      uri = URI.create(path.replaceAll("\\s+","%20"));
+      uri = URI.create(path.replaceAll("\\s+", "%20"));
     }
     return uri;
   }
 
   public static String getOsName() {
-    if(OS == null) {
+    if (OS == null) {
       OS = System.getProperty("os.name");
     }
     return OS;

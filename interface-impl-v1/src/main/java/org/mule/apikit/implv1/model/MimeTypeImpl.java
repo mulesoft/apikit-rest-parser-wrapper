@@ -41,7 +41,7 @@ public class MimeTypeImpl implements MimeType {
     Map<String, List<Parameter>> map = new LinkedHashMap<>();
     for (Map.Entry<String, List<FormParameter>> entry : mimeType.getFormParameters().entrySet()) {
       List<Parameter> list = new ArrayList<>();
-      entry.getValue().stream().forEach( formParameter -> list.add(new ParameterImpl(formParameter)));
+      entry.getValue().stream().forEach(formParameter -> list.add(new ParameterImpl(formParameter)));
       map.put(entry.getKey(), list);
     }
     return map;

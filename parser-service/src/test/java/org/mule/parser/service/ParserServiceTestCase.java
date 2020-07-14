@@ -31,12 +31,13 @@ public class ParserServiceTestCase {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void oas3FailGracefully(){
+  public void oas3FailGracefully() {
     String api = resource("/oas/oas3.yaml");
     ApiReference apiReference = ApiReference.create(api);
     ParseResult parseResult = new ParserService().parse(apiReference);
     assertEquals(1, parseResult.getErrors().size());
-    assertEquals("Error while parsing API: API implementations based on OAS 3.0 specs are not supported at this time", parseResult.getErrors().get(0).cause());
+    assertEquals("Error while parsing API: API implementations based on OAS 3.0 specs are not supported at this time",
+                 parseResult.getErrors().get(0).cause());
   }
 
   @Test
@@ -92,7 +93,7 @@ public class ParserServiceTestCase {
     assertThat(wrapper.get().getType(), is(ApiType.AMF));
     assertThat(wrapper.get().getApiVendor(), is(OAS_20));
   }
-// === PARSER AUTO ===
+  // === PARSER AUTO ===
 
   @Test
   public void fallbackParsingValidRAML08WithAMFParser() {
@@ -167,7 +168,7 @@ public class ParserServiceTestCase {
     assertThat(wrapper.getErrors().size(), is(1));
   }
 
-// ==================
+  // ==================
 
   private static String resource(final String path) {
     return ResourcesUtils.resource(ParserServiceTestCase.class, path);
