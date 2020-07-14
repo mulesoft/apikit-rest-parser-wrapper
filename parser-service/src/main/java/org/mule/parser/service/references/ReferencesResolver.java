@@ -20,8 +20,7 @@ public class ReferencesResolver {
   private ParseResult amfParseResult;
   private static final AMFParsingStrategy amfParsingStrategy = new AMFParsingStrategy(false);
 
-  public ReferencesResolver() {
-  }
+  public ReferencesResolver() {}
 
   public ReferencesResolver(ParseResult amfParseResult) {
     this.amfParseResult = amfParseResult;

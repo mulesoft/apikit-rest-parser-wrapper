@@ -32,82 +32,83 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class ResponseImplTest {
-    private static final String RESOURCE = "/leagues";
-    private static final String ACTION = "GET";
-    private static final String APPLICATION_XML = "application/xml";
-    private static final String CONTENT_TYPE = "content-type";
-    private Response response;
 
-    @Parameterized.Parameter
-    public ApiVendor apiVendor;
+  private static final String RESOURCE = "/leagues";
+  private static final String ACTION = "GET";
+  private static final String APPLICATION_XML = "application/xml";
+  private static final String CONTENT_TYPE = "content-type";
+  private Response response;
 
-    @Parameterized.Parameter(1)
-    public ApiSpecification apiSpecification;
+  @Parameterized.Parameter
+  public ApiVendor apiVendor;
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection apiSpecifications() throws Exception {
-        String apiLocation = ResponseImplTest.class.getResource("../leagues/raml10/api.raml").toURI().toString();
-        ApiReference ramlApiRef = ApiReference.create(apiLocation);
+  @Parameterized.Parameter(1)
+  public ApiSpecification apiSpecification;
 
-        apiLocation = ResponseImplTest.class.getResource("../leagues/oas20/api.yaml").toURI().toString();
-        ApiReference oas20apiRef = ApiReference.create(apiLocation);
+  @Parameterized.Parameters(name = "{0}")
+  public static Collection apiSpecifications() throws Exception {
+    String apiLocation = ResponseImplTest.class.getResource("../leagues/raml10/api.raml").toURI().toString();
+    ApiReference ramlApiRef = ApiReference.create(apiLocation);
 
-        apiLocation = ResponseImplTest.class.getResource("../leagues/oas30/api.yaml").toURI().toString();
-        ApiReference oas30apiRef = ApiReference.create(apiLocation);
+    apiLocation = ResponseImplTest.class.getResource("../leagues/oas20/api.yaml").toURI().toString();
+    ApiReference oas20apiRef = ApiReference.create(apiLocation);
 
-        return Arrays.asList(new Object[][]{
-                {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()},
-                {ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
-                {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
-        });
-    }
+    apiLocation = ResponseImplTest.class.getResource("../leagues/oas30/api.yaml").toURI().toString();
+    ApiReference oas30apiRef = ApiReference.create(apiLocation);
 
-    @Before
-    public void setUp() {
-        ResourceImpl resource = (ResourceImpl) apiSpecification.getResource(RESOURCE);
-        response = resource.getAction(ACTION).getResponses().get("200");
-    }
+    return Arrays.asList(new Object[][] {
+        {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()},
+        {ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
+        {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
+    });
+  }
 
-    @Test
-    public void getBodyTest() {
-        assertEquals(2, response.getBody().size());
-    }
+  @Before
+  public void setUp() {
+    ResourceImpl resource = (ResourceImpl) apiSpecification.getResource(RESOURCE);
+    response = resource.getAction(ACTION).getResponses().get("200");
+  }
 
-    @Test
-    public void setBodyTest() {
-        Map<String, MimeType> body = new HashMap<>();
-        body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
-        response.setBody(body);
-        // Assert that it does nothing
-        assertEquals(2, response.getBody().size());
-    }
+  @Test
+  public void getBodyTest() {
+    assertEquals(2, response.getBody().size());
+  }
 
-    @Test
-    public void hasBodyTest() {
-        assertTrue(response.hasBody());
-    }
+  @Test
+  public void setBodyTest() {
+    Map<String, MimeType> body = new HashMap<>();
+    body.put(APPLICATION_XML, new MimeTypeImpl(new org.raml.model.MimeType()));
+    response.setBody(body);
+    // Assert that it does nothing
+    assertEquals(2, response.getBody().size());
+  }
 
-    @Test
-    public void getHeadersTest() {
-        assertNull(response.getHeaders());
-    }
+  @Test
+  public void hasBodyTest() {
+    assertTrue(response.hasBody());
+  }
 
-    @Test
-    public void setHeadersTest() {
-        Map<String, Parameter> headers = new HashMap<>();
-        headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
-        response.setHeaders(headers);
-        // Assert that it does nothing
-        assertNull(response.getHeaders());
-    }
+  @Test
+  public void getHeadersTest() {
+    assertNull(response.getHeaders());
+  }
 
-    @Test
-    public void getInstanceTest() {
-        assertNull(response.getInstance());
-    }
+  @Test
+  public void setHeadersTest() {
+    Map<String, Parameter> headers = new HashMap<>();
+    headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
+    response.setHeaders(headers);
+    // Assert that it does nothing
+    assertNull(response.getHeaders());
+  }
 
-    @Test
-    public void getExamplesTest() {
-        assertEquals(2, response.getExamples().size());
-    }
+  @Test
+  public void getInstanceTest() {
+    assertNull(response.getInstance());
+  }
+
+  @Test
+  public void getExamplesTest() {
+    assertEquals(2, response.getExamples().size());
+  }
 }

@@ -18,7 +18,7 @@ public class FileProperties {
 
 
   public FileProperties(Integer minLength, Integer maxLength,
-      Set<String> fileTypes) {
+                        Set<String> fileTypes) {
     this.minLength = minLength;
     this.maxLength = maxLength;
     this.fileTypes = fileTypes;

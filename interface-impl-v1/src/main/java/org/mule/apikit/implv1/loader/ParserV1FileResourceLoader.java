@@ -14,6 +14,7 @@ import java.io.InputStream;
  * for version 0.8 apis with spaces in the path
  */
 public class ParserV1FileResourceLoader extends org.raml.parser.loader.FileResourceLoader {
+
   public ParserV1FileResourceLoader(File path) {
     super(path);
   }

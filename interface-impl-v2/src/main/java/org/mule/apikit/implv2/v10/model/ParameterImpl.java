@@ -164,12 +164,9 @@ public class ParameterImpl implements Parameter {
   public Optional<FileProperties> getFileProperties() {
     if (typeDeclaration instanceof FileTypeDeclaration) {
       FileTypeDeclaration fileTypeDeclaration = (FileTypeDeclaration) typeDeclaration;
-      Integer minLength = fileTypeDeclaration.minLength() != null ?
-          fileTypeDeclaration.minLength().intValue() : 0;
-      Integer maxLength = fileTypeDeclaration.maxLength() != null ?
-          fileTypeDeclaration.maxLength().intValue() : 0;
-      List<String> fileTypes = fileTypeDeclaration.fileTypes() != null ?
-          fileTypeDeclaration.fileTypes() : emptyList();
+      Integer minLength = fileTypeDeclaration.minLength() != null ? fileTypeDeclaration.minLength().intValue() : 0;
+      Integer maxLength = fileTypeDeclaration.maxLength() != null ? fileTypeDeclaration.maxLength().intValue() : 0;
+      List<String> fileTypes = fileTypeDeclaration.fileTypes() != null ? fileTypeDeclaration.fileTypes() : emptyList();
 
       return of(new FileProperties(minLength, maxLength, new HashSet<>(fileTypes)));
     }

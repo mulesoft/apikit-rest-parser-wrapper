@@ -82,8 +82,9 @@ public class GetAllReferencesTestCase {
   public void getAllReferencesWithAPISync() throws Exception {
     String[] groups = apiPath.split("/");
     CompositeResourceLoader composite = new CompositeResourceLoader(new ApiSyncTestResourceLoader(),
-        new ClassPathResourceLoader());
-    assertReferences(ApiReference.create(format("resource::%s:%s:%s:raml:zip:%s", groups[0], groups[1], groups[2], groups[3]), composite));
+                                                                    new ClassPathResourceLoader());
+    assertReferences(ApiReference.create(format("resource::%s:%s:%s:raml:zip:%s", groups[0], groups[1], groups[2], groups[3]),
+                                         composite));
   }
 
   private void assertReferences(ApiReference apiReference) throws Exception {
@@ -95,10 +96,10 @@ public class GetAllReferencesTestCase {
     }
     List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).collect(toList());
     List<URI> expected = getAllReferencesExpected(apiPath);
-    for (URI uri: expected) {
+    for (URI uri : expected) {
       assertTrue(uri.toString(), refs.contains(uri));
     }
-    for (URI uri: refs) {
+    for (URI uri : refs) {
       assertTrue(uri.toString(), expected.contains(uri));
     }
     assertEquals(expected.size(), refs.size());
@@ -134,7 +135,7 @@ public class GetAllReferencesTestCase {
       ResourceLoader[] var3 = this.resourceLoaders;
       int var4 = var3.length;
 
-      for(int var5 = 0; var5 < var4; ++var5) {
+      for (int var5 = 0; var5 < var4; ++var5) {
         ResourceLoader loader = var3[var5];
         result = loader.getResourceAsStream(res);
         if (result != null) {
@@ -151,7 +152,7 @@ public class GetAllReferencesTestCase {
       ResourceLoader[] var3 = this.resourceLoaders;
       int var4 = var3.length;
 
-      for(int var5 = 0; var5 < var4; ++var5) {
+      for (int var5 = 0; var5 < var4; ++var5) {
         ResourceLoader loader = var3[var5];
         result = loader.getResource(resourceName);
         if (result != null) {

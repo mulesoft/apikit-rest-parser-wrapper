@@ -48,9 +48,9 @@ public class RamlParsingTestCase {
   @Parameters(name = "Parser {0} - RAML Version {1}")
   public static Iterable<Object[]> data() {
     return asList(new Object[][] {
-      {RAML, "08"},
-      {RAML, "10"},
-      {AMF, "10"}
+        {RAML, "08"},
+        {RAML, "10"},
+        {AMF, "10"}
     });
   }
 
@@ -82,9 +82,9 @@ public class RamlParsingTestCase {
       ResourceLoader resourceLoaderMock = mock(ResourceLoader.class);
       ClassLoader CLL = currentThread().getContextClassLoader();
       doReturn(CLL.getResourceAsStream(resourceName))
-        .when(resourceLoaderMock).getResourceAsStream(APISYNC_NOTATION + apisyncResource);
+          .when(resourceLoaderMock).getResourceAsStream(APISYNC_NOTATION + apisyncResource);
       doReturn(getResource(resourceName).toURI())
-        .when(resourceLoaderMock).getResource(APISYNC_NOTATION + apisyncResource);
+          .when(resourceLoaderMock).getResource(APISYNC_NOTATION + apisyncResource);
       return resourceLoaderMock;
     } catch (Exception e) {
       throw new RuntimeException("Something went wrong in the test: " + e.getMessage(), e);

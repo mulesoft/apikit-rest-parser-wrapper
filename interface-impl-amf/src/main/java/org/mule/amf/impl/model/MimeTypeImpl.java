@@ -94,7 +94,8 @@ public class MimeTypeImpl implements MimeType {
       formParameters = new LinkedHashMap<>();
       for (PropertyShape propertyShape : nodeShape.properties()) {
         String propertyName = propertyShape.name().value();
-        formParameters.put(propertyName, singletonList(new ParameterImpl(propertyShape, formParametersEncoding.get(propertyName))));
+        formParameters.put(propertyName,
+                           singletonList(new ParameterImpl(propertyShape, formParametersEncoding.get(propertyName))));
       }
 
       return formParameters;
@@ -145,9 +146,9 @@ public class MimeTypeImpl implements MimeType {
     }
 
     return anyShape.examples().stream().filter(example -> example.value().value() != null)
-            .map(example -> getExampleValueByMediaType(example))
-            .findFirst()
-            .orElse(null);
+        .map(example -> getExampleValueByMediaType(example))
+        .findFirst()
+        .orElse(null);
   }
 
   private String getExampleValueByMediaType(Example example) {
@@ -172,14 +173,14 @@ public class MimeTypeImpl implements MimeType {
     String mimeType = getMimeTypeForValue(payload);
 
     PayloadValidator payloadValidator = payloadValidatorMap.computeIfAbsent(mimeType,
-            payloadMimeType ->
-                    getPayloadValidator(payloadMimeType).orElse(null));
+                                                                            payloadMimeType -> getPayloadValidator(payloadMimeType)
+                                                                                .orElse(null));
 
     if (payloadValidator != null) {
       return mapToValidationResult(payloadValidator.syncValidate(mimeType, payload));
     }
     return of(
-          new ExceptionApiValidationResult(new RuntimeException(format("Validator not found for %s", mimeType))));
+              new ExceptionApiValidationResult(new RuntimeException(format("Validator not found for %s", mimeType))));
   }
 
   private Optional<PayloadValidator> getPayloadValidator(String mediaType) {
@@ -191,7 +192,7 @@ public class MimeTypeImpl implements MimeType {
       return emptyList();
     }
     return validationReport.results().stream().map(ApiValidationResultImpl::new)
-            .collect(toList());
+        .collect(toList());
   }
 
   private Map<String, Set<String>> getFormParametersEncoding() {

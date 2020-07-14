@@ -46,12 +46,13 @@ public class APISyncUtilsTest {
   public void testAPISyncResourceStringWithIncludesInsideSubfolders() {
     String apiSyncResourceString = toApiSyncResource(TEST_RESOURCE_WITH_FOLDER);
     assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
-                        RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_FOLDER_FILE_RAML, apiSyncResourceString);
+                 RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_FOLDER_FILE_RAML, apiSyncResourceString);
   }
 
   @Test
   public void nestedExchangeModulesToApiSyncResource() {
-    String result = toApiSyncResource("exchange_modules/org.custom.api.another/dependencies/1.0.0/exchange_modules/org.custom.api/dependencies/2.0.0/library3.raml");
+    String result =
+        toApiSyncResource("exchange_modules/org.custom.api.another/dependencies/1.0.0/exchange_modules/org.custom.api/dependencies/2.0.0/library3.raml");
     assertEquals("resource::org.custom.api:dependencies:2.0.0:raml-fragment:zip:library3.raml", result);
   }
 
@@ -59,14 +60,14 @@ public class APISyncUtilsTest {
   public void testAPISyncResourceStringWithIncludesInsideSubfoldersInsideSubfolder() {
     String apiSyncResourceString = toApiSyncResource(TEST_RESOURCE_WITH_FOLDER_TWICE);
     assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
-                        RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_FOLDER_TWICE_FILE_RAML, apiSyncResourceString);
+                 RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_FOLDER_TWICE_FILE_RAML, apiSyncResourceString);
   }
 
   @Test
   public void testAPISyncResourceStringWithoutFolders() {
     String apiSyncResourceString = toApiSyncResource(TEST_RESOURCE_WITHOUT_FOLDER);
     assertEquals(RESOURCE_STRING_IS_NOT_CORRECTLY_FORMED,
-                        RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_WITHOUT_FILE_RAMLL, apiSyncResourceString);
+                 RESOURCE_ORG_ID_ARTIFACT_ID_1_0_0_RAML_FRAGMENT_ZIP_WITHOUT_FILE_RAMLL, apiSyncResourceString);
   }
 
   @Test

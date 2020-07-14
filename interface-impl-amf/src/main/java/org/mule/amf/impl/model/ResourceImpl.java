@@ -111,16 +111,16 @@ public class ResourceImpl implements Resource {
   private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource) {
     Predicate<amf.client.model.domain.Parameter> notVersionPredicate = p -> !VERSION.equals(p.name().value());
     Map<String, Parameter> uriResourceParams = resource.parameters().stream()
-            .filter(notVersionPredicate)
-            .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+        .filter(notVersionPredicate)
+        .collect(toMap(p -> p.name().value(), ParameterImpl::new));
 
     Map<String, Parameter> uriOperationParams = new HashMap<>();
     Optional<Request> request =
-            resource.operations().stream().filter(o -> o.request() != null).map(o -> o.request()).findFirst();
+        resource.operations().stream().filter(o -> o.request() != null).map(o -> o.request()).findFirst();
     if (request.isPresent()) {
       uriOperationParams = request.get().uriParameters().stream()
-              .filter(notVersionPredicate)
-              .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+          .filter(notVersionPredicate)
+          .collect(toMap(p -> p.name().value(), ParameterImpl::new));
     }
     uriOperationParams.forEach(uriResourceParams::putIfAbsent);
     return uriResourceParams;

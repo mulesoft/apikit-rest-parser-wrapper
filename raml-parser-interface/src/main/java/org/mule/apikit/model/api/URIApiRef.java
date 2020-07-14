@@ -44,8 +44,7 @@ class URIApiRef implements ApiReference {
   public InputStream resolve() {
     if (resourceLoader.isPresent()) {
       return resourceLoader.get().getResourceAsStream(getLocation());
-    }
-    else {
+    } else {
       try {
         return new BufferedInputStream(uri.toURL().openStream());
       } catch (IOException e) {

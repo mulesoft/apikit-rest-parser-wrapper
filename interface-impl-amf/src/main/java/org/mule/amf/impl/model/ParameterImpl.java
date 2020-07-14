@@ -183,9 +183,9 @@ class ParameterImpl implements Parameter {
     if (schema instanceof FileShape) {
       FileShape fileShape = (FileShape) schema;
       return of(new FileProperties(fileShape.minLength().value(),
-              fileShape.maxLength().value(),
-              fileShape.fileTypes().stream()
-                      .map(StrField::value).collect(toSet())));
+                                   fileShape.maxLength().value(),
+                                   fileShape.fileTypes().stream()
+                                       .map(StrField::value).collect(toSet())));
     } else if (isNotEmpty(allowedEncoding)) {
       return of(new FileProperties(0, 0, allowedEncoding));
     }
