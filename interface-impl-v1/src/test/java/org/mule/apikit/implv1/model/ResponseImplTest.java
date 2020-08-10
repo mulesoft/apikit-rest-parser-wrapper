@@ -10,6 +10,7 @@ package org.mule.apikit.implv1.model;
 import org.apache.commons.collections.MapUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.MimeType;
@@ -36,7 +37,7 @@ public class ResponseImplTest {
   @Before
   public void setUp() throws Exception {
     String apiLocation = this.getClass().getResource("/apis/08-leagues/api.raml").toURI().toString();
-    RamlImplV1 parser = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
+    RamlImplV1 parser = (RamlImplV1) new ParserWrapperV1(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     response = (ResponseImpl) parser.getResource("/positions").getAction("GET").getResponses().get("200");
   }
 

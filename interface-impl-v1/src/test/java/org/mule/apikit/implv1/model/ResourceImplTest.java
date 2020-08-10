@@ -10,6 +10,7 @@ package org.mule.apikit.implv1.model;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.ParserWrapperV1;
 
 import java.util.Collections;
@@ -38,7 +39,7 @@ public class ResourceImplTest {
   @Before
   public void setUp() throws Exception {
     String apiLocation = this.getClass().getResource("/apis/08-leagues/api.raml").toURI().toString();
-    RamlImplV1 api = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
+    RamlImplV1 api = (RamlImplV1) new ParserWrapperV1(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     resource = (ResourceImpl) api.getResource(TEAMS_RESOURCE);
     resourceWithUriParams = (ResourceImpl) api.getResource(TEAMS_RESOURCE).getResources().get(TEAM_ID_RESOURCE);
     resourceWithBaseUriParam =

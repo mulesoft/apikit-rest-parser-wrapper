@@ -9,6 +9,7 @@ package org.mule.apikit.implv1.parser.rule;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.ParserWrapperV1;
 
 import java.util.Collections;
@@ -21,8 +22,8 @@ public class ApiValidationResultImplTest {
   private ApiValidationResultImpl result;
 
   @Before
-  public void setUp() throws Exception {
-    ParserWrapperV1 parserWrapper = new ParserWrapperV1("not-valid-resource", Collections.emptyList());
+  public void setUp() {
+    ParserWrapperV1 parserWrapper = new ParserWrapperV1("not-valid-resource", new LazyValue<>(Collections::emptyList));
     result = (ApiValidationResultImpl) parserWrapper.validate().getResults().iterator().next();
   }
 

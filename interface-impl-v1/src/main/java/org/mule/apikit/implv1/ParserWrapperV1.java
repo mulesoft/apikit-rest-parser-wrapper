@@ -7,6 +7,7 @@
 package org.mule.apikit.implv1;
 
 import org.mule.apikit.ApiParser;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv1.loader.ParserV1FileResourceLoader;
 import org.mule.apikit.implv1.model.RamlImplV1;
@@ -43,14 +44,14 @@ public class ParserWrapperV1 implements ApiParser {
   private final String originalPath;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
-  private final List<String> references;
+  private final LazyValue<List<String>> references;
 
 
-  public ParserWrapperV1(String ramlPath, List<String> references) {
+  public ParserWrapperV1(String ramlPath, LazyValue<List<String>> references) {
     this(ramlPath, emptyList(), references);
   }
 
-  public ParserWrapperV1(String ramlPath, List<ResourceLoader> loaders, List<String> references) {
+  public ParserWrapperV1(String ramlPath, List<ResourceLoader> loaders, LazyValue<List<String>> references) {
     this.originalPath = ramlPath;
     this.ramlPath = findRamlPath(ramlPath).orElse(ramlPath);
     this.references = references;

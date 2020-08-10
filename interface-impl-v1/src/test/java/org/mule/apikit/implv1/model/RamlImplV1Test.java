@@ -9,6 +9,7 @@ package org.mule.apikit.implv1.model;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.ParserWrapperV1;
 
 import java.util.Collections;
@@ -34,9 +35,9 @@ public class RamlImplV1Test {
   @Before
   public void setUp() throws Exception {
     String apiLocation = this.getClass().getResource(API_RESOURCE_PATH).toURI().toString();
-    api = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
+    api = (RamlImplV1) new ParserWrapperV1(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     apiLocation = this.getClass().getResource(EMPTY_API_RESOURCE_PATH).toURI().toString();
-    emptyApi = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
+    emptyApi = (RamlImplV1) new ParserWrapperV1(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
   }
 
 

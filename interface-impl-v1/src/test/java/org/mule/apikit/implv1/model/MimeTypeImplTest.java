@@ -9,6 +9,7 @@ package org.mule.apikit.implv1.model;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.ParserWrapperV1;
 
 import java.util.Collections;
@@ -39,7 +40,7 @@ public class MimeTypeImplTest {
   @Before
   public void setUp() throws Exception {
     String apiLocation = this.getClass().getResource("/apis/08-leagues/api.raml").toURI().toString();
-    RamlImplV1 api = (RamlImplV1) new ParserWrapperV1(apiLocation, Collections.emptyList()).parse();
+    RamlImplV1 api = (RamlImplV1) new ParserWrapperV1(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     jsonMimeType = (MimeTypeImpl) api.getResource("/teams").getAction(ACTION_POST).getBody().get(APPLICATION_JSON);
     formMimeType = (MimeTypeImpl) api.getResource("/badge").getAction(ACTION_PUT).getBody().get(MULTIPART_FORM_DATA);
   }

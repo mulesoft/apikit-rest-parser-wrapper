@@ -9,6 +9,7 @@ package org.mule.apikit.implv2;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.mule.apikit.ApiParser;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv2.loader.ApiSyncResourceLoader;
 import org.mule.apikit.implv2.loader.ExchangeDependencyResourceLoader;
 import org.mule.apikit.implv2.parser.rule.ApiValidationResultImpl;
@@ -43,15 +44,15 @@ public class ParserWrapperV2 implements ApiParser {
   private static final ResourceLoader DEFAULT_RESOURCE_LOADER = new DefaultResourceLoader();
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
-  private final List<String> references;
+  private final LazyValue<List<String>> references;
   // TODO : remove this, workaround relative path in APIKIT scaffolder config
   private final String originalPath;
 
-  public ParserWrapperV2(String ramlPath, List<String> references) {
+  public ParserWrapperV2(String ramlPath, LazyValue<List<String>> references) {
     this(ramlPath, emptyList(), references);
   }
 
-  public ParserWrapperV2(String ramlPath, List<ResourceLoader> resourceLoader, List<String> references) {
+  public ParserWrapperV2(String ramlPath, List<ResourceLoader> resourceLoader, LazyValue<List<String>> references) {
     this.ramlPath = fetchRamlResource(ramlPath).map(File::getPath).orElse(ramlPath);
     this.references = references;
     List<ResourceLoader> loaders = ImmutableList.<ResourceLoader>builder()

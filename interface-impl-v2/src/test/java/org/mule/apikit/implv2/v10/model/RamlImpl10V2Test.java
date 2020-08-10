@@ -9,6 +9,7 @@ package org.mule.apikit.implv2.v10.model;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv2.ParserWrapperV2;
 
 import java.util.Collections;
@@ -29,7 +30,7 @@ public class RamlImpl10V2Test {
   @Before
   public void setUp() throws Exception {
     String apiLocation = this.getClass().getResource(APIS_10_LEAGUES_API_RAML_PATH).toURI().toString();
-    api = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    api = (RamlImpl10V2) new ParserWrapperV2(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
   }
 
   @Test
@@ -59,7 +60,7 @@ public class RamlImpl10V2Test {
     assertTrue(api.getSchemas().get(0).containsKey("league-xml"));
 
     String apiLocation = this.getClass().getResource(APIS_10_SCHEMAS_API_RAML_PATH).toURI().toString();
-    RamlImpl10V2 schemasParser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    RamlImpl10V2 schemasParser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     assertEquals(1, schemasParser.getSchemas().size());
     assertTrue(schemasParser.getSchemas().get(0).containsKey("jsonSchema"));
     assertTrue(schemasParser.getSchemas().get(0).containsKey("xmlSchema"));

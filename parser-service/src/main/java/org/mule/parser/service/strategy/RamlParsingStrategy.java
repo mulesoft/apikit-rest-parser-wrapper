@@ -14,6 +14,7 @@ import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import org.mule.apikit.ApiParser;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
 import org.mule.apikit.loader.ResourceLoader;
@@ -56,7 +57,7 @@ public class RamlParsingStrategy implements ParsingStrategy {
     String path = ref.getLocation();
     ResourceLoader apiLoader = ref.getResourceLoader().orElse(null);
 
-    List<String> references = referencesResolver.getReferences(ref);
+    LazyValue<List<String>> references = new LazyValue<>(() -> referencesResolver.getReferences(ref));
     if (RAML_08.equals(ref.getVendor())) {
       return createParserV1(path, apiLoader, references);
     } else {
@@ -64,12 +65,12 @@ public class RamlParsingStrategy implements ParsingStrategy {
     }
   }
 
-  private ParserWrapperV1 createParserV1(String path, ResourceLoader loader, List<String> refs) {
+  private ParserWrapperV1 createParserV1(String path, ResourceLoader loader, LazyValue<List<String>> refs) {
     return loader != null ? new ParserWrapperV1(path, singletonList(loader::getResourceAsStream), refs)
         : new ParserWrapperV1(path, refs);
   }
 
-  private ParserWrapperV2 createRamlV2(String path, ResourceLoader loader, List<String> refs) {
+  private ParserWrapperV2 createRamlV2(String path, ResourceLoader loader, LazyValue<List<String>> refs) {
     return loader != null ? new ParserWrapperV2(path, singletonList(loader::getResourceAsStream), refs)
         : new ParserWrapperV2(path, refs);
   }

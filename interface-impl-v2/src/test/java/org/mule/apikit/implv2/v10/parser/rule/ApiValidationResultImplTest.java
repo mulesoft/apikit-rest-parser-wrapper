@@ -9,6 +9,7 @@ package org.mule.apikit.implv2.v10.parser.rule;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv2.ParserWrapperV2;
 import org.mule.apikit.implv2.parser.rule.ApiValidationResultImpl;
 
@@ -29,9 +30,9 @@ public class ApiValidationResultImplTest {
 
   @Before
   public void setUp() {
-    ParserWrapperV2 parserWrapper = new ParserWrapperV2(NO_VALID_RESOURCE_PATH, Collections.emptyList());
+    ParserWrapperV2 parserWrapper = new ParserWrapperV2(NO_VALID_RESOURCE_PATH, new LazyValue<>(Collections::emptyList));
     noValidPathResult = (ApiValidationResultImpl) parserWrapper.validate().getResults().iterator().next();
-    parserWrapper = new ParserWrapperV2(null, Collections.emptyList());
+    parserWrapper = new ParserWrapperV2(null, new LazyValue<>(Collections::emptyList));
     nullPathResult = (ApiValidationResultImpl) parserWrapper.validate().getResults().iterator().next();
   }
 

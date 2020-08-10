@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Collections;
 import org.mule.apikit.ApiParser;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
 import org.mule.apikit.model.ApiSpecification;
@@ -45,7 +46,7 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
 
   private static final PathMatcher API_MATCHER = FileSystems.getDefault().getPathMatcher("glob:api.raml");
 
-  AbstractCompatibilityTestCase(final File input, final String name) {
+  AbstractCompatibilityTestCase(File input, String name) {
     this.input = input;
     final URI uri = input.toURI();
     final String apiPath = uri.toString();
@@ -97,10 +98,10 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
     return result;
   }
 
-  static ApiParser createJavaParserWrapper(final String apiPath, final boolean isRaml08) {
-
-    final ApiParser ramlWrapper =
-        isRaml08 ? new ParserWrapperV1(apiPath, Collections.emptyList()) : new ParserWrapperV2(apiPath, Collections.emptyList());
+  static ApiParser createJavaParserWrapper(String apiPath, boolean isRaml08) {
+    ApiParser ramlWrapper =
+        isRaml08 ? new ParserWrapperV1(apiPath, new LazyValue<>(Collections::emptyList))
+            : new ParserWrapperV2(apiPath, new LazyValue<>(Collections::emptyList));
     ramlWrapper.validate();
     return ramlWrapper;
   }

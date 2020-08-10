@@ -10,7 +10,7 @@ import amf.client.model.domain.AnyShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.exceptions.ParserException;
-import org.mule.amf.impl.util.LazyValue;
+import org.mule.apikit.common.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;

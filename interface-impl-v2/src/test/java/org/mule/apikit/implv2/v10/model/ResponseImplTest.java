@@ -9,6 +9,7 @@ package org.mule.apikit.implv2.v10.model;
 import org.apache.commons.collections.MapUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv2.ParserWrapperV2;
 import org.mule.apikit.model.Response;
 
@@ -26,7 +27,7 @@ public class ResponseImplTest {
   @Before
   public void setUp() throws Exception {
     String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
-    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION);
     response = action.getResponses().get("200");
   }

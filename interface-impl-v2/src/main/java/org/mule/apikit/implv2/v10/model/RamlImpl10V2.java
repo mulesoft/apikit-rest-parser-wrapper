@@ -7,6 +7,7 @@
 package org.mule.apikit.implv2.v10.model;
 
 import org.mule.apikit.ApiType;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.Resource;
@@ -36,9 +37,9 @@ public class RamlImpl10V2 implements ApiSpecification {
   private final Api api;
   private final String ramlPath;
   private final ResourceLoader resourceLoader;
-  private List<String> references;
+  private LazyValue<List<String>> references;
 
-  public RamlImpl10V2(Api api, ResourceLoader resourceLoader, String ramlPath, List<String> references) {
+  public RamlImpl10V2(Api api, ResourceLoader resourceLoader, String ramlPath, LazyValue<List<String>> references) {
     this.api = api;
     this.ramlPath = ramlPath;
     this.resourceLoader = resourceLoader;
@@ -143,7 +144,7 @@ public class RamlImpl10V2 implements ApiSpecification {
    */
   @Override
   public List<String> getAllReferences() {
-    return references;
+    return references.get();
   }
 
 

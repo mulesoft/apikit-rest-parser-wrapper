@@ -9,6 +9,7 @@ package org.mule.apikit.implv1.model;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.SuppressPropertiesBeanIntrospector;
 import org.mule.apikit.ApiType;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
@@ -33,9 +34,9 @@ public class RamlImplV1 implements ApiSpecification {
 
   private Raml raml;
   private String ramlPath;
-  private List<String> references;
+  private LazyValue<List<String>> references;
 
-  public RamlImplV1(Raml raml, String ramlPath, List<String> references) {
+  public RamlImplV1(Raml raml, String ramlPath, LazyValue<List<String>> references) {
     this.raml = raml;
     this.ramlPath = ramlPath;
     this.references = references;
@@ -168,7 +169,7 @@ public class RamlImplV1 implements ApiSpecification {
    */
   @Override
   public List<String> getAllReferences() {
-    return references;
+    return references.get();
   }
 
   @Override

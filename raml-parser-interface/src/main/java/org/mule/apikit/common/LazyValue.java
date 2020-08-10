@@ -4,9 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.amf.impl.util;
-
-import org.apache.http.util.Args;
+package org.mule.apikit.common;
 
 import java.util.function.Supplier;
 
@@ -36,7 +34,9 @@ public class LazyValue<T> implements Supplier<T> {
    * @param supplier A {@link Supplier} through which the value is obtained
    */
   public LazyValue(Supplier<T> supplier) {
-    Args.notNull(supplier != null, "supplier cannot be null");
+    if (supplier == null) {
+      throw new IllegalArgumentException("supplier may not be null");
+    }
     valueSupplier = supplier;
   }
 

@@ -35,7 +35,7 @@ public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
 
   private static final String NEW_BASE_URI = "http://apikit-test";
 
-  public CompatibilityTestCase(final File input, final String name) {
+  public CompatibilityTestCase(File input, String name) {
     super(input, name);
   }
 

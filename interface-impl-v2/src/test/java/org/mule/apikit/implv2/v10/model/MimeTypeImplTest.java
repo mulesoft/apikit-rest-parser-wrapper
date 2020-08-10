@@ -9,6 +9,7 @@ package org.mule.apikit.implv2.v10.model;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mule.apikit.common.LazyValue;
 import org.mule.apikit.implv2.ParserWrapperV2;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Resource;
@@ -47,7 +48,7 @@ public class MimeTypeImplTest {
   @Before
   public void setUp() throws Exception {
     String apiLocation = this.getClass().getResource("/apis/10-leagues/api.raml").toURI().toString();
-    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     Resource leaguesResource = parser.getResources().get(LEAGUES_RESOURCE);
     ActionImpl action = (ActionImpl) leaguesResource.getAction(ACTION_GET);
     Map<String, MimeType> mimeTypes = action.getResponses().get("200").getBody();
@@ -94,7 +95,7 @@ public class MimeTypeImplTest {
     assertEquals(JSON_EXAMPLE, jsonMimeTypeGet.getExample());
 
     String apiLocation = this.getClass().getResource("/apis/10-examples/api.raml").toURI().toString();
-    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
+    RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, new LazyValue<>(Collections::emptyList)).parse();
     Resource resource = parser.getResources().get(ORG_RESOURCE);
     ActionImpl action = (ActionImpl) resource.getAction(ACTION_GET);
     Map<String, Response> responses = action.getResponses();
