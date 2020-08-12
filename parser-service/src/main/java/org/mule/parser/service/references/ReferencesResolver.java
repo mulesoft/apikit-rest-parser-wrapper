@@ -26,11 +26,22 @@ public class ReferencesResolver {
     this.amfParseResult = amfParseResult;
   }
 
+  /**
+   * if parseResult has been resolved, reuse that
+   * else parse ApiReference using AMF parser
+   * @param reference
+   * @return list of API Spec references
+   */
   public List<String> getReferences(ApiReference reference) {
-    if (amfParseResult != null) {
-      return getReferences(amfParseResult);
+    try {
+      if (amfParseResult != null) {
+        return getReferences(amfParseResult);
+      }
+      return getReferences(amfParsingStrategy.parse(reference));
+    } catch (Exception e) {
+      // in case of exception return empty list, list of references is only used for console purposes
+      return emptyList();
     }
-    return getReferences(amfParsingStrategy.parse(reference));
   }
 
   private List<String> getReferences(ParseResult amfParseResult) {
