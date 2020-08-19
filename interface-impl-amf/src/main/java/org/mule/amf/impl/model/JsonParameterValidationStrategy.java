@@ -9,6 +9,7 @@ package org.mule.amf.impl.model;
 import amf.client.model.domain.AnyShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
+import org.json.simple.JSONValue;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.util.LazyValue;
 
@@ -48,7 +49,7 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
 
   private String getPayload(String value) {
     if (needsQuotes) {
-      return quote(value.replaceAll("\"", "\\\\\""));
+      return quote(JSONValue.escape(value));
     }
 
     if (isBoolean) {
