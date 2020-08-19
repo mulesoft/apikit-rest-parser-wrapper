@@ -94,6 +94,16 @@ public class ParameterImplTest {
   }
 
   @Test
+  public void validateIntegerWithSpecialChar() {
+    Parameter nonNullableInteger = testNullQueryParams.get("nonNullableInteger");
+    assertFalse(nonNullableInteger.validate("123\n123"));
+    assertFalse(nonNullableInteger.validate("123 123"));
+    assertFalse(nonNullableInteger.validate("123$123"));
+    assertFalse(nonNullableInteger.validate("123!123"));
+    assertFalse(nonNullableInteger.validate("123:123"));
+  }
+
+  @Test
   public void nullableInteger() {
     final Parameter nullableInteger = testNullQueryParams.get("nullableInteger");
     if (!ApiVendor.OAS_20.equals(apiVendor)) {
