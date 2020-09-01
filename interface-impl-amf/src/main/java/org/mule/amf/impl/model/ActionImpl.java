@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toList;
 
 public class ActionImpl implements Action {
 
@@ -142,16 +142,17 @@ public class ActionImpl implements Action {
    * @return
    */
   private static Map<String, Parameter> loadResolvedUriParameters(final Resource resource, Operation operation) {
-    final Map<String, Parameter> operationUriParams;
+    final Map<String, Parameter> operationUriParams = new HashMap<>();
     if (operation.request() != null) {
-      operationUriParams = operation.request().uriParameters().stream()
-          .filter(p -> !VERSION.equals(p.name().value()))
-          .collect(toMap(p -> p.name().value(), ParameterImpl::new));
-    } else {
-      operationUriParams = new HashMap<>();
+      List<amf.client.model.domain.Parameter> collectedUriParams = operation.request().uriParameters().stream()
+          .filter(p -> !VERSION.equals(p.name().value())).collect(toList());
+      for (amf.client.model.domain.Parameter uriParam : collectedUriParams) {
+        // If key is duplicated it means that it is declared at resource level and it is also overridden in method,
+        // then it overrides the existing one to keep the last one
+        operationUriParams.put(uriParam.name().value(), new ParameterImpl(uriParam));
+      }
     }
-
-    final Map<String, Parameter> uriParameters = resource.getResolvedUriParameters();
+    final Map<String, Parameter> uriParameters = ((ResourceImpl) resource).getResourceUriParameters();
     uriParameters.forEach(operationUriParams::putIfAbsent);
 
     return operationUriParams;

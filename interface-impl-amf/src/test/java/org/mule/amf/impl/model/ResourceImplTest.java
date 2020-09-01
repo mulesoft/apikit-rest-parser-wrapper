@@ -61,9 +61,9 @@ public class ResourceImplTest {
     ApiReference oas30apiRef = ApiReference.create(apiLocation);
 
     return Arrays.asList(new Object[][] {
-        {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()},
-        {ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
-        {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
+        {ApiVendor.RAML, new AMFParser(ramlApiRef).parse()},
+        {ApiVendor.OAS_20, new AMFParser(oas20apiRef).parse()},
+        {ApiVendor.OAS_30, new AMFParser(oas30apiRef).parse()}
     });
   }
 
@@ -159,11 +159,9 @@ public class ResourceImplTest {
     }
   }
 
-  @Test
+  @Test(expected = UnsupportedOperationException.class)
   public void getResolvedUriParametersTest() {
-    assertEquals(1, leagueIdResource.getResolvedUriParameters().size());
-    // "version" is an special uri param so it is ignored
-    assertEquals(0, leaguesHistoryResource.getResolvedUriParameters().size());
+    leagueIdResource.getResolvedUriParameters();
   }
 
   @Test(expected = UnsupportedOperationException.class)
