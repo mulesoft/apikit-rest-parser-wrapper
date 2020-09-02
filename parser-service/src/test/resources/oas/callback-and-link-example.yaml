@@ -1,0 +1,262 @@
+openapi: 3.0.0
+info:
+  title: Callback and Link Example
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+paths:
+  /streams:
+    post:
+      description: subscribes a client to receive out-of-band data
+      parameters:
+        - name: callbackUrl
+          in: query
+          required: true
+          description: |
+            the location where data will be sent.  Must be network accessible
+            by the source server
+          schema:
+            type: string
+            format: uri
+            example: https://tonys-server.com`
+      responses:
+        '201':
+          description: subscription successfully created
+          content:
+            application/json:
+              schema:
+                description: subscription information
+                required:
+                  - subscriptionId
+                properties:
+                  subscriptionId:
+                    description: this unique identifier allows management of the subscription
+                    type: string
+                    example: 2531329f-fb09-4ef7-887e-84e648214436
+      callbacks:
+        # the name `onData` is a convenience locator
+        onData:
+          # when data is sent, it will be sent to the `callbackUrl` provided
+          # when making the subscription PLUS the suffix `/data`
+          '{$request.query.callbackUrl}/data':
+            post:
+              requestBody:
+                description: subscription payload
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        userData:
+                          type: string
+              responses:
+                '202':
+                  description: |
+                    Your server implementation should return this HTTP status code
+                    if the data was received successfully
+                '204':
+                  description: |
+                    Your server should return this HTTP status code if no longer interested
+                    in further updates
+  /2.0/users/{username}:
+    get:
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+          links:
+            userRepositories:
+              $ref: '#/components/links/UserRepositories'
+  /2.0/repositories/{username}:
+    get:
+      operationId: getRepositoriesByOwner
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: repositories owned by the supplied user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/repository'
+          links:
+            userRepository:
+              $ref: '#/components/links/UserRepository'
+  /2.0/repositories/{username}/{slug}:
+    get:
+      operationId: getRepository
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The repository
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/repository'
+          links:
+            repositoryPullRequests:
+              $ref: '#/components/links/RepositoryPullRequests'
+  /2.0/repositories/{username}/{slug}/pullrequests:
+    get:
+      operationId: getPullRequestsByRepository
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+            enum:
+              - open
+              - merged
+              - declined
+      responses:
+        '200':
+          description: an array of pull request objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/pullrequest'
+  /2.0/repositories/{username}/{slug}/pullrequests/{pid}:
+    get:
+      operationId: getPullRequestsById
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: a pull request object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pullrequest'
+          links:
+            pullRequestMerge:
+              $ref: '#/components/links/PullRequestMerge'
+  /2.0/repositories/{username}/{slug}/pullrequests/{pid}/merge:
+    post:
+      operationId: mergePullRequest
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: the PR was successfully merged
+components:
+  links:
+    UserRepositories:
+      # returns array of '#/components/schemas/repository'
+      operationId: getRepositoriesByOwner
+      parameters:
+        username: $response.body#/username
+    UserRepository:
+      # returns '#/components/schemas/repository'
+      operationId: getRepository
+      parameters:
+        username: $response.body#/owner/username
+        slug: $response.body#/slug
+    RepositoryPullRequests:
+      # returns '#/components/schemas/pullrequest'
+      operationId: getPullRequestsByRepository
+      parameters:
+        username: $response.body#/owner/username
+        slug: $response.body#/slug
+    PullRequestMerge:
+      # executes /2.0/repositories/{username}/{slug}/pullrequests/{pid}/merge
+      operationId: mergePullRequest
+      parameters:
+        username: $response.body#/author/username
+        slug: $response.body#/repository/slug
+        pid: $response.body#/id
+  schemas:
+    user:
+      type: object
+      properties:
+        username:
+          type: string
+        uuid:
+          type: string
+    repository:
+      type: object
+      properties:
+        slug:
+          type: string
+        owner:
+          $ref: '#/components/schemas/user'
+    pullrequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        repository:
+          $ref: '#/components/schemas/repository'
+        author:
+          $ref: '#/components/schemas/user'

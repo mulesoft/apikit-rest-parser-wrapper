@@ -52,9 +52,9 @@ public class ApiParserAmfTestCase {
     ApiReference oas30apiRef = ApiReference.create(apiLocation);
 
     return Arrays.asList(new Object[][] {
-        {ApiVendor.RAML, new AMFParser(ramlApiRef, false)},
-        {ApiVendor.OAS_20, new AMFParser(oas20apiRef, false)},
-        {ApiVendor.OAS_30, new AMFParser(oas30apiRef, false)}
+        {ApiVendor.RAML, new AMFParser(ramlApiRef)},
+        {ApiVendor.OAS_20, new AMFParser(oas20apiRef)},
+        {ApiVendor.OAS_30, new AMFParser(oas30apiRef)}
     });
   }
 
