@@ -43,6 +43,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.mule.apikit.ApiType.AMF;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
@@ -228,5 +229,15 @@ public class AMFImpl implements ApiSpecification {
       webApi.withServer(baseUri);
     }
     consoleModel.get().withEncodes(webApi);
+  }
+
+  public boolean includesCallbacks() {
+    return webApi.endPoints().stream().flatMap(endPoint -> endPoint.operations().stream())
+        .anyMatch(operation -> isNotEmpty(operation.callbacks()));
+  }
+
+  public boolean includesLinks() {
+    return webApi.endPoints().stream().flatMap(endPoint -> endPoint.operations().stream())
+        .flatMap(operation -> operation.responses().stream()).anyMatch(response -> isNotEmpty(response.links()));
   }
 }

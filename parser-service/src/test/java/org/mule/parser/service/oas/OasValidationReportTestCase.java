@@ -6,15 +6,15 @@
  */
 package org.mule.parser.service.oas;
 
-import static org.junit.Assert.assertTrue;
-
+import org.junit.Test;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserMode;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.ResourcesUtils;
 import org.mule.parser.service.result.ParseResult;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class OasValidationReportTestCase {
 
@@ -24,6 +24,17 @@ public class OasValidationReportTestCase {
     ParseResult wrapper = new ParserService().parse(ApiReference.create(api), ParserMode.AUTO);
     assertTrue(wrapper.success());
   }
+
+  @Test
+  public void oasValidationReportForUnsupportedFeatures() {
+    String apiLocation = resource("/oas/callback-and-link-example.yaml");
+    ParseResult wrapper = new ParserService().parse(ApiReference.create(apiLocation), ParserMode.AUTO);
+    assertTrue(wrapper.success());
+    assertEquals(2, wrapper.getWarnings().size());
+    assertTrue(wrapper.getWarnings().get(0).cause().contains("Callbacks are not supported yet"));
+    assertTrue(wrapper.getWarnings().get(1).cause().contains("Links are not supported yet"));
+  }
+
 
   private static String resource(final String path) {
     return ResourcesUtils.resource(OasValidationReportTestCase.class, path);
