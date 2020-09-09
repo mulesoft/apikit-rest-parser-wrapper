@@ -86,10 +86,7 @@ public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
       final ApiParser dumpedAmfWrapper = new AMFParser(ApiReference.create(amfDumpPath.toUri()), true);
       final ApiSpecification dumpedAmf = dumpedAmfWrapper.parse();
       assertNotNull(dumpedAmf);
-      // TODO Get rid of conditional when APIMF-2133 is fixed
-      if (!isRaml08) {
-        assertEqual(dumpedAmf, dumpedRaml);
-      }
+      assertEqual(dumpedAmf, dumpedRaml);
     } catch (Exception e) {
       Assert.fail("Error parsing AMF dumped file:\n" + e.getMessage());
     }
@@ -97,10 +94,7 @@ public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
 
   @Test
   public void raml() {
-    // TODO Get rid of conditional when APIMF-2133 is fixed
-    if (!isRaml08) {
-      assertEqual(amf, raml);
-    }
+    assertEqual(amf, raml);
   }
 
 }

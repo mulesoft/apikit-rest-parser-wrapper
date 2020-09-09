@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
 public class ResourceImplTest {
@@ -61,9 +62,9 @@ public class ResourceImplTest {
     ApiReference oas30apiRef = ApiReference.create(apiLocation);
 
     return Arrays.asList(new Object[][] {
-        {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()},
-        {ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
-        {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
+        {ApiVendor.RAML, new AMFParser(ramlApiRef).parse()},
+        {ApiVendor.OAS_20, new AMFParser(oas20apiRef).parse()},
+        {ApiVendor.OAS_30, new AMFParser(oas30apiRef).parse()}
     });
   }
 
@@ -160,9 +161,18 @@ public class ResourceImplTest {
   }
 
   @Test
-  public void getResolvedUriParametersTest() {
+  public void getResolvedUriParametersForRAMLTest() {
+    assumeTrue(ApiVendor.RAML.equals(apiVendor));
     assertEquals(1, leagueIdResource.getResolvedUriParameters().size());
     // "version" is an special uri param so it is ignored
+    assertEquals(0, leaguesHistoryResource.getResolvedUriParameters().size());
+  }
+
+  @Test
+  public void getResolvedUriParametersForOASTest() {
+    assumeTrue(apiVendor.name().contains("OAS"));
+    // Since OAS allows uri parameters be overridden at method level, AMF moves all of them to the operation.
+    assertEquals(0, leagueIdResource.getResolvedUriParameters().size());
     assertEquals(0, leaguesHistoryResource.getResolvedUriParameters().size());
   }
 
