@@ -7,17 +7,14 @@
 package org.mule.amf.impl.model;
 
 import amf.client.model.domain.EndPoint;
-import amf.client.model.domain.Request;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toMap;
@@ -26,6 +23,7 @@ import static org.mule.apikit.ParserUtils.resolveVersion;
 public class ResourceImpl implements Resource {
 
   private static final String VERSION = "version";
+  private static final Predicate<amf.client.model.domain.Parameter> IS_NOT_VERSION = p -> !VERSION.equals(p.name().value());
 
   private AMFImpl amf;
   private EndPoint endPoint;
@@ -102,28 +100,16 @@ public class ResourceImpl implements Resource {
   }
 
   /**
-   * Looks for all the uri parameters found either from the endpoint or the first operation's request (if any).
+   * Looks for all the uri parameters found at the endpoint.
    * "Version" is an special uri param so it is ignored.
    *
    * @param resource
    * @return
    */
   private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource) {
-    Predicate<amf.client.model.domain.Parameter> notVersionPredicate = p -> !VERSION.equals(p.name().value());
-    Map<String, Parameter> uriResourceParams = resource.parameters().stream()
-        .filter(notVersionPredicate)
+    return resource.parameters().stream()
+        .filter(IS_NOT_VERSION)
         .collect(toMap(p -> p.name().value(), ParameterImpl::new));
-
-    Map<String, Parameter> uriOperationParams = new HashMap<>();
-    Optional<Request> request =
-        resource.operations().stream().filter(o -> o.request() != null).map(o -> o.request()).findFirst();
-    if (request.isPresent()) {
-      uriOperationParams = request.get().uriParameters().stream()
-          .filter(notVersionPredicate)
-          .collect(toMap(p -> p.name().value(), ParameterImpl::new));
-    }
-    uriOperationParams.forEach(uriResourceParams::putIfAbsent);
-    return uriResourceParams;
   }
 
   @Override
