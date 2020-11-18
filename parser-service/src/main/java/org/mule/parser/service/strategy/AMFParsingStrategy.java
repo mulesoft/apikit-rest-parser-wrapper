@@ -12,10 +12,10 @@ import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.parser.service.result.DefaultParseResult;
-import org.mule.parser.service.result.DefaultParsingIssue;
 import org.mule.parser.service.result.ExceptionParseResult;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.result.ParsingIssue;
+import org.mule.parser.service.result.UnsupportedParsingIssue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,10 +58,10 @@ public class AMFParsingStrategy implements ParsingStrategy {
   private List<ParsingIssue> getUnsupportedFeaturesWarnings(AMFImpl apiSpecification) {
     List<ParsingIssue> unsupportedFeatureMessages = new ArrayList<>();
     if (apiSpecification.includesCallbacks()) {
-      unsupportedFeatureMessages.add(new DefaultParsingIssue("OAS 3 - Callbacks are not supported yet."));
+      unsupportedFeatureMessages.add(new UnsupportedParsingIssue("OAS 3 - Callbacks are not supported yet."));
     }
     if (apiSpecification.includesLinks()) {
-      unsupportedFeatureMessages.add(new DefaultParsingIssue("OAS 3 - Links are not supported yet"));
+      unsupportedFeatureMessages.add(new UnsupportedParsingIssue("OAS 3 - Links are not supported yet."));
     }
     return unsupportedFeatureMessages;
   }
