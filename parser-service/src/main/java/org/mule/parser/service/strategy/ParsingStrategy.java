@@ -6,9 +6,10 @@
  */
 package org.mule.parser.service.strategy;
 
-import java.util.concurrent.ScheduledExecutorService;
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.result.internal.ParseResult;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 public interface ParsingStrategy {
 
