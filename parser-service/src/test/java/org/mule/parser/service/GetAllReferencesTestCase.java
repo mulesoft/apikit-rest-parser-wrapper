@@ -6,6 +6,27 @@
  */
 package org.mule.parser.service;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
+import org.mule.apikit.common.ReferencesUtils;
+import org.mule.apikit.loader.ClassPathResourceLoader;
+import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.internal.ParseResult;
+import org.mule.parser.service.util.ApiSyncTestResourceLoader;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
@@ -14,26 +35,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mule.parser.service.ParserMode.AUTO;
-
-import java.io.InputStream;
-import org.mule.apikit.loader.ClassPathResourceLoader;
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
-import org.mule.apikit.common.ReferencesUtils;
-import org.mule.apikit.loader.ResourceLoader;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.result.ParseResult;
-import org.mule.parser.service.util.ApiSyncTestResourceLoader;
 
 @RunWith(Parameterized.class)
 public class GetAllReferencesTestCase {
