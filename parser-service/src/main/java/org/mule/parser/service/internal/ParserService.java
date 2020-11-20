@@ -4,9 +4,10 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.parser.service;
+package org.mule.parser.service.internal;
 
 import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.ParserMode;
 import org.mule.parser.service.result.internal.ParseResult;
 import org.mule.parser.service.strategy.ParsingStrategy;
 
