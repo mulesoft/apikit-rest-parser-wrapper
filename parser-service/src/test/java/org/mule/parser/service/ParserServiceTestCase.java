@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.internal.ParserService;
 import org.mule.parser.service.result.ParsingIssue;
 import org.mule.parser.service.result.internal.ParseResult;
 

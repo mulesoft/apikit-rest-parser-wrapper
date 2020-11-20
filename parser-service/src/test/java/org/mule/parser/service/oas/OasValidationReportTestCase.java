@@ -9,7 +9,7 @@ package org.mule.parser.service.oas;
 import org.junit.Test;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserMode;
-import org.mule.parser.service.ParserService;
+import org.mule.parser.service.internal.ParserService;
 import org.mule.parser.service.ResourcesUtils;
 import org.mule.parser.service.result.internal.ParseResult;
 
