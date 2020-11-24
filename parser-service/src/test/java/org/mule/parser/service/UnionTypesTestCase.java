@@ -15,7 +15,6 @@ import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.apikit.validation.ApiValidationResult;
-import org.mule.parser.service.internal.ParserService;
 
 import java.util.Collection;
 import java.util.List;

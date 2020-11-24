@@ -14,7 +14,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mule.apikit.loader.ApiSyncResourceLoader;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.internal.ParserService;
 import org.mule.parser.service.result.internal.ParseResult;
 
 import java.net.URL;
