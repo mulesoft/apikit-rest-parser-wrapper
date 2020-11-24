@@ -6,13 +6,6 @@
  */
 package org.mule.parser.service.result.internal;
 
-import org.mule.parser.service.result.ParsingIssueCode;
-
-import static org.mule.parser.service.result.ParsingIssueCode.UNSUPPORTED_FEATURE;
-
-/**
- * Parsing error for unsupported features
- */
 public class UnsupportedParsingIssue extends DefaultParsingIssue {
 
   public UnsupportedParsingIssue(String cause) {
@@ -20,7 +13,7 @@ public class UnsupportedParsingIssue extends DefaultParsingIssue {
   }
 
   @Override
-  public ParsingIssueCode code() {
-    return UNSUPPORTED_FEATURE;
+  public String cause() {
+    return super.cause();
   }
 }

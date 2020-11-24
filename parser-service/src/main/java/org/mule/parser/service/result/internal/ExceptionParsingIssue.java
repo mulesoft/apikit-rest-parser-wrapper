@@ -6,16 +6,24 @@
  */
 package org.mule.parser.service.result.internal;
 
+import org.mule.parser.service.result.ParsingIssue;
+
 /**
  * Represents a simple parsing error with cause message
  */
-public class ExceptionParsingIssue extends DefaultParsingIssue {
+public class ExceptionParsingIssue implements ParsingIssue {
 
+  private final String cause;
   private final String stackTrace;
 
   public ExceptionParsingIssue(String cause, String stackTrace) {
-    super(cause);
+    this.cause = cause;
     this.stackTrace = stackTrace;
+  }
+
+  @Override
+  public String cause() {
+    return cause;
   }
 
   public String getStackTrace() {
@@ -25,7 +33,7 @@ public class ExceptionParsingIssue extends DefaultParsingIssue {
   @Override
   public String toString() {
     return "ExceptionParsingIssue {" +
-        "cause='" + cause() + '\'' +
+        "cause='" + cause + '\'' +
         ", stackTrace='" + stackTrace + '\'' +
         '}';
   }

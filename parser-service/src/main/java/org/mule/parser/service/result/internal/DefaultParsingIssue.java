@@ -7,9 +7,6 @@
 package org.mule.parser.service.result.internal;
 
 import org.mule.parser.service.result.ParsingIssue;
-import org.mule.parser.service.result.ParsingIssueCode;
-
-import static org.mule.parser.service.result.ParsingIssueCode.EXCEPTION;
 
 /**
  * Represents a simple parsing error with cause message
@@ -25,11 +22,6 @@ public class DefaultParsingIssue implements ParsingIssue {
   @Override
   public String cause() {
     return cause;
-  }
-
-  @Override
-  public ParsingIssueCode code() {
-    return EXCEPTION;
   }
 
   @Override
