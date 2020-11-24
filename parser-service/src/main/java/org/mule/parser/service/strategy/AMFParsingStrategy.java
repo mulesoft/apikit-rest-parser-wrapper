@@ -11,11 +11,11 @@ import org.mule.amf.impl.model.AMFImpl;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.validation.ApiValidationReport;
+import org.mule.parser.service.result.DefaultParseResult;
+import org.mule.parser.service.result.ExceptionParseResult;
+import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.result.ParsingIssue;
-import org.mule.parser.service.result.internal.DefaultParseResult;
-import org.mule.parser.service.result.internal.ExceptionParseResult;
-import org.mule.parser.service.result.internal.ParseResult;
-import org.mule.parser.service.result.internal.UnsupportedParsingIssue;
+import org.mule.parser.service.result.UnsupportedParsingIssue;
 
 import java.util.ArrayList;
 import java.util.List;
