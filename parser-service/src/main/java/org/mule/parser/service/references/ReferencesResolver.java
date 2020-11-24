@@ -6,14 +6,14 @@
  */
 package org.mule.parser.service.references;
 
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.result.internal.ParseResult;
-import org.mule.parser.service.strategy.AMFParsingStrategy;
+import static java.util.Collections.emptyList;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static java.util.Collections.emptyList;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.strategy.AMFParsingStrategy;
 
 public class ReferencesResolver {
 

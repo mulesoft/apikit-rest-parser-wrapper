@@ -4,19 +4,18 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.parser.service.internal;
-
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.ParserMode;
-import org.mule.parser.service.result.internal.ParseResult;
-import org.mule.parser.service.strategy.ParsingStrategy;
-
-import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
+package org.mule.parser.service;
 
 import static org.mule.parser.service.ParserMode.AMF;
 import static org.mule.parser.service.ParserMode.AUTO;
 import static org.mule.parser.service.ParserMode.RAML;
+
+import java.util.concurrent.ScheduledExecutorService;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
+
+import java.util.Optional;
+import org.mule.parser.service.strategy.ParsingStrategy;
 
 public class ParserService {
 
