@@ -13,7 +13,6 @@ import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.internal.ParserService;
 
 import java.util.Collection;
 

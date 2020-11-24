@@ -12,10 +12,10 @@ import org.mule.apikit.model.ApiFormat;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.references.ReferencesResolver;
+import org.mule.parser.service.result.DefaultParseResult;
+import org.mule.parser.service.result.DefaultParsingIssue;
+import org.mule.parser.service.result.ParseResult;
 import org.mule.parser.service.result.ParsingIssue;
-import org.mule.parser.service.result.internal.DefaultParseResult;
-import org.mule.parser.service.result.internal.DefaultParsingIssue;
-import org.mule.parser.service.result.internal.ParseResult;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
