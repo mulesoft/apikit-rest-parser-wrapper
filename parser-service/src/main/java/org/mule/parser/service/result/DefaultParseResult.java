@@ -4,13 +4,13 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.parser.service.result.internal;
+package org.mule.parser.service.result;
 
-import com.google.common.collect.ImmutableList;
 import org.mule.apikit.model.ApiSpecification;
-import org.mule.parser.service.result.ParsingIssue;
 
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 public class DefaultParseResult implements ParseResult {
 

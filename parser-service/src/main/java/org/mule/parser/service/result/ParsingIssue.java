@@ -17,11 +17,4 @@ public interface ParsingIssue {
    * @return a details cause of the error.
    */
   String cause();
-
-  /**
-   * Parsing issue code used for identifying the error type
-   *
-   * @return a details cause of the error.
-   */
-  ParsingIssueCode code();
 }

@@ -14,7 +14,6 @@ import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
-import org.mule.parser.service.internal.ParserService;
 
 import java.util.Arrays;
 import java.util.Collection;

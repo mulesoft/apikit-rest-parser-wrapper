@@ -6,7 +6,14 @@
  */
 package org.mule.parser.service.result;
 
-public enum ParsingIssueCode {
-  EXCEPTION,
-  UNSUPPORTED_FEATURE
+public class UnsupportedParsingIssue extends DefaultParsingIssue {
+
+  public UnsupportedParsingIssue(String cause) {
+    super(cause);
+  }
+
+  @Override
+  public String cause() {
+    return super.cause();
+  }
 }

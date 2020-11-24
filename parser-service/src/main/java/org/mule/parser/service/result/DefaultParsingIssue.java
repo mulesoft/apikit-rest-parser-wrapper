@@ -4,12 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.parser.service.result.internal;
-
-import org.mule.parser.service.result.ParsingIssue;
-import org.mule.parser.service.result.ParsingIssueCode;
-
-import static org.mule.parser.service.result.ParsingIssueCode.EXCEPTION;
+package org.mule.parser.service.result;
 
 /**
  * Represents a simple parsing error with cause message
@@ -25,11 +20,6 @@ public class DefaultParsingIssue implements ParsingIssue {
   @Override
   public String cause() {
     return cause;
-  }
-
-  @Override
-  public ParsingIssueCode code() {
-    return EXCEPTION;
   }
 
   @Override
