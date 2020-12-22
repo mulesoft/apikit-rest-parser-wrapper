@@ -30,9 +30,8 @@ public class OasValidationReportTestCase {
     String apiLocation = resource("/oas/callback-and-link-example.yaml");
     ParseResult wrapper = new ParserService().parse(ApiReference.create(apiLocation), ParserMode.AUTO);
     assertTrue(wrapper.success());
-    assertEquals(2, wrapper.getWarnings().size());
+    assertEquals(1, wrapper.getWarnings().size());
     assertTrue(wrapper.getWarnings().get(0).cause().contains("Callbacks are not supported yet"));
-    assertTrue(wrapper.getWarnings().get(1).cause().contains("Links are not supported yet"));
   }
 
 

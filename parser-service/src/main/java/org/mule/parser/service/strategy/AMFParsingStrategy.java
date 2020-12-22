@@ -60,9 +60,6 @@ public class AMFParsingStrategy implements ParsingStrategy {
     if (apiSpecification.includesCallbacks()) {
       unsupportedFeatureMessages.add(new UnsupportedParsingIssue("OAS 3 - Callbacks are not supported yet."));
     }
-    if (apiSpecification.includesLinks()) {
-      unsupportedFeatureMessages.add(new UnsupportedParsingIssue("OAS 3 - Links are not supported yet."));
-    }
     return unsupportedFeatureMessages;
   }
 
