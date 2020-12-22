@@ -236,8 +236,4 @@ public class AMFImpl implements ApiSpecification {
         .anyMatch(operation -> isNotEmpty(operation.callbacks()));
   }
 
-  public boolean includesLinks() {
-    return webApi.endPoints().stream().flatMap(endPoint -> endPoint.operations().stream())
-        .flatMap(operation -> operation.responses().stream()).anyMatch(response -> isNotEmpty(response.links()));
-  }
 }
