@@ -26,31 +26,19 @@ public class OasSpecificationTestCase {
   }
 
   @Test
-  public void apiWithLinksTest() throws URISyntaxException {
-    AMFImpl api = getApiFromPath("openapi-specification/examples/v3.0/link-example.yaml");
-    assertTrue(api.includesLinks());
-    api = getApiFromPath("openapi-specification/examples/v3.0/link-example.json");
-    assertTrue(api.includesLinks());
-  }
-
-  @Test
   public void apiWithCallbackAndLinksTest() throws URISyntaxException {
     AMFImpl api = getApiFromPath("openapi-specification/examples/v3.0/callback-and-link-example.yaml");
     assertTrue(api.includesCallbacks());
-    assertTrue(api.includesLinks());
     api = getApiFromPath("openapi-specification/examples/v3.0/callback-and-link-example.json");
     assertTrue(api.includesCallbacks());
-    assertTrue(api.includesLinks());
   }
 
   @Test
-  public void apiWithoutCallbacksOrLinksTest() throws URISyntaxException {
+  public void apiWithoutCallbacksTest() throws URISyntaxException {
     AMFImpl api = getApiFromPath("openapi-specification/examples/v3.0/petstore.yaml");
     assertFalse(api.includesCallbacks());
-    assertFalse(api.includesLinks());
     api = getApiFromPath("openapi-specification/examples/v3.0/petstore.json");
     assertFalse(api.includesCallbacks());
-    assertFalse(api.includesLinks());
   }
 
   private AMFImpl getApiFromPath(String apiPath) throws URISyntaxException {
