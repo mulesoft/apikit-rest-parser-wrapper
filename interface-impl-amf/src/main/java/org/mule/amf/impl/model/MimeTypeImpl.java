@@ -14,6 +14,7 @@ import amf.client.model.domain.Payload;
 import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.Shape;
 import amf.client.model.domain.UnionShape;
+import amf.client.model.domain.ValidatorAware;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.apache.commons.collections.CollectionUtils;
@@ -184,7 +185,7 @@ public class MimeTypeImpl implements MimeType {
   }
 
   private Optional<PayloadValidator> getPayloadValidator(String mediaType) {
-    return ((AnyShape) shape).payloadValidator(mediaType);
+    return ((ValidatorAware) shape).payloadValidator(mediaType);
   }
 
   private static List<ApiValidationResult> mapToValidationResult(ValidationReport validationReport) {

@@ -1,0 +1,238 @@
+#%RAML 1.0 Library
+
+uses:
+  FHIR_commons: /exchange_modules/org.mule.examples/fhir-r4-commons-library/1.0.0/fhir-r4-commons-library.raml
+
+types:
+  subjectsubjectCodeableConcept:
+    properties:
+      subjectCodeableConcept:
+        type: FHIR_commons.CodeableConcept
+  
+  subjectsubjectReference:
+    properties:
+      subjectReference:
+        type: FHIR_commons.Reference
+
+  timingtimingTiming:
+    properties:
+      timingTiming:
+        type: FHIR_commons.Timing
+  
+  timingtimingDateTime:
+    properties:
+      timingDateTime:
+        type: FHIR_commons.dateTime
+  
+  timingtimingAge:
+    properties:
+      timingAge:
+        type: FHIR_commons.Age
+  
+  timingtimingPeriod:
+    properties:
+      timingPeriod:
+        type: FHIR_commons.Period
+  
+  timingtimingRange:
+    properties:
+      timingRange:
+        type: FHIR_commons.Range
+  
+  timingtimingDuration:
+    properties:
+      timingDuration:
+        type: FHIR_commons.Duration
+
+  productproductReference:
+    properties:
+      productReference:
+        type: FHIR_commons.Reference
+  
+  productproductCodeableConcept:
+    properties:
+      productCodeableConcept:
+        type: FHIR_commons.CodeableConcept
+
+  ActivityDefinition:
+    description: |
+      This resource allows for the definition of some activity to be performed, independent of a particular patient, practitioner, or other performance context.
+    type: FHIR_commons.DomainResource
+    properties:
+      url?:
+        type: FHIR_commons.uri
+        description: Canonical identifier for this activity definition, represented as a URI (globally unique)
+      identifier?:
+        items: FHIR_commons.Identifier
+        description: Additional identifier for the activity definition
+      version?:
+        type: string
+        description: Business version of the activity definition
+      name?:
+        type: string
+        description: Name for this activity definition (computer friendly)
+      title?:
+        type: string
+        description: Name for this activity definition (human friendly)
+      subtitle?:
+        type: string
+        description: Subordinate title of the activity definition
+      status:
+        enum: [draft, active, retired, unknown]
+        type: FHIR_commons.code
+        description: draft | active | retired | unknown
+      experimental?:
+        type: boolean
+        description: For testing purposes, not real usage
+      subject?:
+        type: subjectsubjectCodeableConcept | subjectsubjectReference
+        description: Type of individual the activity definition is intended for
+      date?:
+        type: FHIR_commons.dateTime
+        description: Date last changed
+      publisher?:
+        type: string
+        description: Name of the publisher (organization or individual)
+      contact?:
+        items: FHIR_commons.ContactDetail
+        description: Contact details for the publisher
+      description?:
+        type: FHIR_commons.markdown
+        description: Natural language description of the activity definition
+      useContext?:
+        items: FHIR_commons.UsageContext
+        description: The context that the content is intended to support
+      jurisdiction?:
+        items: FHIR_commons.CodeableConcept
+        description: Intended jurisdiction for activity definition (if applicable)
+      purpose?:
+        type: FHIR_commons.markdown
+        description: Why this activity definition is defined
+      usage?:
+        type: string
+        description: Describes the clinical usage of the activity definition
+      copyright?:
+        type: FHIR_commons.markdown
+        description: Use and/or publishing restrictions
+      approvalDate?:
+        type: FHIR_commons.date
+        description: When the activity definition was approved by publisher
+      lastReviewDate?:
+        type: FHIR_commons.date
+        description: When the activity definition was last reviewed
+      effectivePeroid?:
+        type: FHIR_commons.Period
+        description: When the activity definition is expected to be used
+      topic?:
+        items: FHIR_commons.CodeableConcept
+        description: E.g. Education, Treatment, Assessment, etc.
+      author?:
+        items: FHIR_commons.ContactDetail
+        description: Who authored the content
+      editor?:
+        items: FHIR_commons.ContactDetail
+        description: Who edited the content
+      reviewer?:
+        items: FHIR_commons.ContactDetail
+        description: Who reviewed the content
+      endorser?:
+        items: FHIR_commons.ContactDetail
+        description: Who endorsed the content
+      relatedArtifact?:
+        items: FHIR_commons.RelatedArtifact
+        description: Additional documentation, citations, etc.
+      library?:
+        items: FHIR_commons.canonical
+        description: Logic used by the activity definition
+      kind?:
+        enum: [Appointment, AppointmentResponse, CarePlan, Claim, CommunicationRequest, Contract, DeviceRequest, EnrollmentRequest, ImmunizationRecommendation, MedicationRequest, NutritionOrder, ServiceRequest, SupplyRequest, Task, VisionPrescription]
+        type: FHIR_commons.code
+        description: Appointment | AppointmentResponse | CarePlan | Claim | CommunicationRequest | Contract | DeviceRequest | EnrollmentRequest | ImmunizationRecommendation | MedicationRequest | NutritionOrder | ServiceRequest | SupplyRequest | Task | VisionPrescription
+      profile?:
+        items: FHIR_commons.canonical
+        description: What profile the resource needs to conform to
+      code?:
+        items: FHIR_commons.CodeableConcept
+        description: Detail type of activity
+      intent?:
+        enum: [proposal, plan, directive, order, original-order, reflex-order, filler-order, instance-order, option]
+        type: FHIR_commons.code
+        description: proposal | plan | directive | order | original-order | reflex-order | filler-order | instance-order | option
+      priority?:
+        enum: [routine, urgent, asap, stat]
+        type: FHIR_commons.code
+        description: routine | urgent | asap | stat
+      doNotPerform?:
+        type: boolean
+        description: True if the activity should not be performed
+      timing?:
+        type: timingtimingTiming | timingtimingDateTime | timingtimingAge | timingtimingPeriod | timingtimingRange | timingtimingDuration
+        description: When activity is to occur
+      location?:
+        type: FHIR_commons.Reference
+        description: Where it should happen
+      participant?:
+        description: |
+          Who should participate in the action
+        type: array
+        items:
+          type: FHIR_commons.BackboneElement
+          properties:
+            type: 
+              enum: [patient, practitioner, related-person, device]
+              type: FHIR_commons.code
+              description: patient | practitioner | related-person | device
+            role?:
+              type: FHIR_commons.CodeableConcept
+              description: E.g. Nurse, Surgeon, Parent, etc.
+      product?:
+        type: productproductReference | productproductCodeableConcept
+        description: What's administered/supplied
+      quantity?:
+        type: FHIR_commons.SimpleQuantity
+        description: How much is administered/consumed/supplied
+      dosage?:
+        items: FHIR_commons.Dosage
+        description: Detailed dosage instructions
+      bodySite?:
+        items: FHIR_commons.CodeableConcept
+        description: What part of body to perform on
+      specimenRequirement:
+        items: FHIR_commons.Reference
+        description: What specimens are required to perform this action
+      observationRequirement:
+        items: FHIR_commons.Reference
+        description: What observations are required to perform this action
+      observationResultRequirement:
+        items: FHIR_commons.Reference
+        description: What observations must be produced by this action
+      transform:
+        type: FHIR_commons.canonical
+        description: Transform to apply the template
+      dynamicValue?:
+        description: |
+          Dynamic aspects of the definition
+        type: array
+        items:
+          type: FHIR_commons.BackboneElement
+          properties:
+            path?: 
+              type: string
+              description: The path to the element to be set dynamically
+            expression?:
+              type: FHIR_commons.Expression
+              description: An expression that provides the dynamic value for the customization
+
+  ActivityDefinitionEntry:
+    type: FHIR_commons.Entry
+    properties:
+      resource: ActivityDefinition
+
+  ActivityDefinitionBundle:
+    type: FHIR_commons.Bundle
+    properties:
+      entry?: ActivityDefinitionEntry[]
+
+
+            
+      

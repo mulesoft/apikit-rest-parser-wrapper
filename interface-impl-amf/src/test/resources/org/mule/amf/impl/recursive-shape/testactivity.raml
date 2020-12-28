@@ -1,0 +1,12 @@
+#%RAML 1.0
+title: testActivity
+uses:
+  activity: exchange_modules/org.mule.examples/fhir-r4-activitydefinition-library/1.0.0/fhir-r4-activitydefinition-library.raml 
+/visits:
+      post:
+        displayName: create a visit for trial
+        description: creates a visit for trial
+        body:
+          application/json:
+            type: activity.ActivityDefinitionEntry
+            example: !include examples/post-visit-request.json
