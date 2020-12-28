@@ -16,6 +16,9 @@ import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
 import amf.client.render.RenderOptions;
 import amf.client.render.Renderer;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiType;
@@ -27,6 +30,7 @@ import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.builder.JsonOutputBuilder;
 import scala.Option;
 
 import java.net.URI;
@@ -37,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import org.mulesoft.common.io.Output;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
@@ -212,6 +217,24 @@ public class AMFImpl implements ApiSpecification {
           .get();
     } catch (InterruptedException | ExecutionException e) {
       return e.getMessage();
+    }
+  }
+
+  public void writeAMFModel(OutputStream outputStream) {
+    try {
+      OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8"));
+      new AmfGraphRenderer()
+          .generateToBuilder(consoleModel.get(),
+                             new RenderOptions()
+                                 .withoutSourceMaps()
+                                 .withoutPrettyPrint()
+                                 .withCompactUris(),
+                             new JsonOutputBuilder<>(writer, false,
+                                                     Output.outputWriter()))
+          .get();
+      writer.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Error trying to dump AMF model", e);
     }
   }
 
