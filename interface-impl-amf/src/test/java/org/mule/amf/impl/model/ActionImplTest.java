@@ -181,4 +181,9 @@ public class ActionImplTest {
     actionGet.addIs(null);
   }
 
+  @Test
+  public void getSuccessStatusCodeTest() {
+    assertEquals("200", actionGet.getSuccessStatusCode());
+    assertEquals("200", actionPost.getSuccessStatusCode());
+  }
 }
