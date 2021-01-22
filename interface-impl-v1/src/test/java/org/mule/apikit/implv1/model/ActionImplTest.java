@@ -147,4 +147,12 @@ public class ActionImplTest {
     assertEquals(1, badgeAction.getIs().size());
   }
 
+  @Test
+  public void getSuccessStatusCodeTest() {
+    assertEquals("200", positionsAction.getSuccessStatusCode());
+    assertEquals("204", teamIdAction.getSuccessStatusCode());
+    assertEquals("200", badgeAction.getSuccessStatusCode());
+    assertEquals("200", teamsAction.getSuccessStatusCode());
+    assertEquals("200", historyAction.getSuccessStatusCode());
+  }
 }

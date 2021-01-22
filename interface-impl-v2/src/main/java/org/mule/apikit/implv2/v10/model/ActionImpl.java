@@ -6,8 +6,6 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import static org.mule.apikit.implv2.v10.model.ResourceImpl.loadResolvedUriParameters;
-
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.MimeType;
@@ -16,14 +14,15 @@ import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.SecurityReference;
 import org.mule.apikit.model.parameter.Parameter;
+import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.api.model.v10.methods.Method;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
-import org.raml.v2.api.model.v10.methods.Method;
+import static org.mule.apikit.implv2.v10.model.ResourceImpl.loadResolvedUriParameters;
 
 public class ActionImpl implements Action {
 
@@ -33,6 +32,7 @@ public class ActionImpl implements Action {
   private Map<String, Parameter> queryParameters;
   private Map<String, Parameter> headers;
   private Map<String, Parameter> resolvedUriParameters;
+  private String successStatusCode;
 
   public ActionImpl(Method method) {
     this.method = method;
@@ -180,5 +180,13 @@ public class ActionImpl implements Action {
   @Override
   public QueryString queryString() {
     return method.queryString() == null ? null : new QueryStringImpl(method.queryString());
+  }
+
+  @Override
+  public String getSuccessStatusCode() {
+    if (successStatusCode == null) {
+      successStatusCode = Action.super.getSuccessStatusCode();
+    }
+    return successStatusCode;
   }
 }

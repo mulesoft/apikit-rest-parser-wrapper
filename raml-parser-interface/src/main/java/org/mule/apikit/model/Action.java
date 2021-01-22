@@ -11,6 +11,8 @@ import org.mule.apikit.model.parameter.Parameter;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.collections.MapUtils.isEmpty;
+
 public interface Action {
 
   ActionType getType();
@@ -50,4 +52,17 @@ public interface Action {
   void addIs(String is);
 
   QueryString queryString();
+
+  default String getSuccessStatusCode() {
+    Map<String, Response> responses = getResponses();
+    if (isEmpty(responses) || responses.get("default") != null) {
+      return "200";
+    }
+    for (String status : responses.keySet()) {
+      if (status.startsWith("2")) {
+        return status;
+      }
+    }
+    return "200";
+  }
 }

@@ -32,6 +32,7 @@ public class ActionImpl implements Action {
 
   private org.raml.model.Action action;
   private Map<String, Parameter> resolvedUriParameters;
+  private String successStatusCode;
 
   public ActionImpl(org.raml.model.Action action) {
     this.action = action;
@@ -130,6 +131,14 @@ public class ActionImpl implements Action {
   @Override
   public QueryString queryString() {
     return null;
+  }
+
+  @Override
+  public String getSuccessStatusCode() {
+    if (successStatusCode == null) {
+      successStatusCode = Action.super.getSuccessStatusCode();
+    }
+    return successStatusCode;
   }
 
   @Override
