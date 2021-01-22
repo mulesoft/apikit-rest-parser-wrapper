@@ -40,6 +40,7 @@ public class ActionImpl implements Action {
   private Map<String, Parameter> headers;
   private Map<String, Parameter> resolvedUriParameters;
   private QueryString queryString;
+  private String successStatusCode;
 
   public ActionImpl(final ResourceImpl resource, final Operation operation) {
     this.resource = resource;
@@ -89,8 +90,9 @@ public class ActionImpl implements Action {
 
   private static Map<String, MimeType> loadBodies(final Operation operation) {
     final Request request = operation.request();
-    if (request == null)
+    if (request == null) {
       return emptyMap();
+    }
 
     final Map<String, MimeType> result = new LinkedHashMap<>();
 
@@ -111,8 +113,9 @@ public class ActionImpl implements Action {
 
   private static Map<String, Parameter> loadQueryParameters(final Operation operation) {
     final Request request = operation.request();
-    if (request == null)
+    if (request == null) {
       return emptyMap();
+    }
 
     final Map<String, Parameter> result = new HashMap<>();
     request.queryParameters().forEach(parameter -> {
@@ -166,8 +169,9 @@ public class ActionImpl implements Action {
 
   private Map<String, Parameter> loadHeaders(final Operation operation) {
     final Request request = operation.request();
-    if (request == null)
+    if (request == null) {
       return emptyMap();
+    }
 
     final Map<String, Parameter> result = new HashMap<>();
     request.headers().forEach(parameter -> {
@@ -226,9 +230,18 @@ public class ActionImpl implements Action {
     return queryString;
   }
 
+  @Override
+  public String getSuccessStatusCode() {
+    if (successStatusCode == null) {
+      successStatusCode = Action.super.getSuccessStatusCode();
+    }
+    return successStatusCode;
+  }
+
   private QueryString initializeQueryString(Operation op) {
     Request request = op.request();
     Shape shape = request != null ? request.queryString() : null;
     return shape != null ? new QueryStringImpl((AnyShape) shape) : null;
   }
+
 }

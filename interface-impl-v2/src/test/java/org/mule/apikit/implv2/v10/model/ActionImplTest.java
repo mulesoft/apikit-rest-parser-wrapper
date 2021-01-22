@@ -16,11 +16,14 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ActionImplTest {
 
   private static final String GET_ACTION = "GET";
+  private static final String PUT_ACTION = "PUT";
   private ActionImpl leaguesAction;
+  private ActionImpl leagueIdAction;
   private ActionImpl teamsAction;
 
   @Before
@@ -29,8 +32,10 @@ public class ActionImplTest {
     RamlImpl10V2 parser = (RamlImpl10V2) new ParserWrapperV2(apiLocation, Collections.emptyList()).parse();
     Resource leaguesResource = parser.getResources().get("/leagues");
     leaguesAction = (ActionImpl) leaguesResource.getAction(GET_ACTION);
+    Resource leagueIdResource = leaguesResource.getResources().get("/{leagueId}");
+    leagueIdAction = (ActionImpl) leagueIdResource.getAction(PUT_ACTION);
     teamsAction =
-        (ActionImpl) leaguesResource.getResources().get("/{leagueId}").getResources().get("/teams").getAction(GET_ACTION);
+        (ActionImpl) leagueIdResource.getResources().get("/teams").getAction(GET_ACTION);
   }
 
   @Test
@@ -41,6 +46,7 @@ public class ActionImplTest {
   @Test
   public void hasBodyTest() {
     assertFalse(leaguesAction.hasBody());
+    assertTrue(leagueIdAction.hasBody());
   }
 
   @Test
@@ -56,6 +62,7 @@ public class ActionImplTest {
   @Test
   public void getBodyTest() {
     assertEquals(0, leaguesAction.getBody().size());
+    assertEquals(2, leagueIdAction.getBody().size());
   }
 
   @Test
@@ -127,5 +134,12 @@ public class ActionImplTest {
   @Test
   public void queryStringTest() {
     assertNull(leaguesAction.queryString());
+  }
+
+  @Test
+  public void getSuccessStatusCodeTest() {
+    assertEquals("200", leaguesAction.getSuccessStatusCode());
+    assertEquals("200", teamsAction.getSuccessStatusCode());
+    assertEquals("204", leagueIdAction.getSuccessStatusCode());
   }
 }
