@@ -7,6 +7,7 @@
 package org.mule.amf.impl.model;
 
 import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.ValidatorAware;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.json.simple.JSONValue;
@@ -21,20 +22,21 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
 
   private final boolean needsQuotes;
   private final boolean isBoolean;
-  private AnyShape anyShape;
+  private ValidatorAware validatorAware;
 
-  private final LazyValue<PayloadValidator> jsonValidator = new LazyValue<>(() -> anyShape.payloadValidator(APPLICATION_JSON)
-      .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + anyShape)));
+  private final LazyValue<PayloadValidator> jsonValidator =
+      new LazyValue<>(() -> validatorAware.payloadValidator(APPLICATION_JSON)
+          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + validatorAware)));
 
   private final LazyValue<ValidationReport> nullValidationReport = new LazyValue<>(() -> {
-    final PayloadValidator yamlPayloadValidator = anyShape.payloadValidator(APPLICATION_YAML)
-        .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape));
+    final PayloadValidator yamlPayloadValidator = validatorAware.payloadValidator(APPLICATION_YAML)
+        .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + validatorAware));
 
     return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   });
 
-  JsonParameterValidationStrategy(AnyShape anyShape, boolean needsQuotes, boolean isBoolean) {
-    this.anyShape = anyShape;
+  JsonParameterValidationStrategy(ValidatorAware validatorAware, boolean needsQuotes, boolean isBoolean) {
+    this.validatorAware = validatorAware;
     this.needsQuotes = needsQuotes;
     this.isBoolean = isBoolean;
   }
