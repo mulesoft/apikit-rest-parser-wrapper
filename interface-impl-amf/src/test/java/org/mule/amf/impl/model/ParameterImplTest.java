@@ -88,7 +88,7 @@ public class ParameterImplTest {
     final Parameter nonNullableInteger = testNullQueryParams.get("nonNullableInteger");
     if (!ApiVendor.OAS_20.equals(apiVendor)) {
       assertFalse(nonNullableInteger.validate(null));
-      assertEquals("expected type: Number, found: Null", nonNullableInteger.message(null));
+      assertEquals("expected type: Integer, found: Null", nonNullableInteger.message(null));
     }
     assertTrue(nonNullableInteger.validate("123"));
   }
