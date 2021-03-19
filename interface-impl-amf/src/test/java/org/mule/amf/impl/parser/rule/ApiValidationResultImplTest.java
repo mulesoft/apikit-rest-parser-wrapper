@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ApiValidationResultImplTest {
 
@@ -58,6 +58,7 @@ public class ApiValidationResultImplTest {
   @Test
   public void getMessageTest() {
     assertTrue(invalidApiResults.get(0).getMessage().contains(ERROR_MESSAGE));
+    assertTrue(invalidApiResults.get(1).getMessage().contains(ERROR_MESSAGE));
   }
 
   @Test
@@ -78,6 +79,7 @@ public class ApiValidationResultImplTest {
   @Test
   public void toStringTest() {
     assertTrue(invalidApiResults.get(0).toString().contains(ERROR_MESSAGE));
+    assertTrue(invalidApiResults.get(1).toString().contains(ERROR_MESSAGE));
   }
 
   @Test

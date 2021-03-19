@@ -4,6 +4,16 @@ title: Mix Resources Definitions
 version: 1.0
 baseUri: http://localhost:8080/api
 
+types:
+  SomeObject:
+    type: object
+    properties:
+      a: string
+      b: string
+  SomeArray:
+    type: array
+    items: string
+
 traits:
   response-json:
     responses:
@@ -104,3 +114,15 @@ traits:
       optional:
         required: false
         type: integer
+
+/payload:
+  post:
+    description: Create a new object
+    body:
+      application/json:
+        type: SomeObject
+  put:
+    description: Add a new collection
+    body:
+      application/json:
+        type: SomeArray
