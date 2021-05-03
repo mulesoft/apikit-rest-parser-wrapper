@@ -1,0 +1,66 @@
+swagger: "2.0"
+info:
+  title: Simple API
+  version: ""
+host: localhost:8081
+basePath: /api
+schemes:
+  - http
+paths:
+  /multipart:
+    delete:
+      description: Delete an item by Code.
+      operationId: DELETE_multipart
+      responses:
+        default:
+          description: ""
+      consumes:
+        - multipart/form-data
+      parameters:
+        -
+          name: code
+          type: string
+          description: Code of the item to delete.
+          required: true
+          in: formData
+        -
+          name: color
+          type: string
+          in: formData
+  /urlencoded:
+    put:
+      description: Update an item by Code.
+      operationId: PUT_urlencoded
+      responses:
+        default:
+          description: ""
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        -
+          name: Id
+          type: integer
+          description: Id of the item
+          required: true
+          in: formData
+        -
+          name: Code
+          type: string
+          description: Code of the item
+          in: formData
+        -
+          name: Color
+          type: string
+          description: Color of the item
+          in: formData
+        -
+          name: Size
+          type: string
+          description: Size of the item
+          in: formData
+          default: medium
+        -
+          name: Description
+          type: string
+          description: Description of the item
+          in: formData
