@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.regex.Pattern;
 
 import static org.mule.apikit.model.ApiVendor.OAS_20;
 import static org.mule.apikit.model.ApiVendor.OAS_30;
@@ -20,35 +21,32 @@ import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 public class ApiVendorUtils {
 
-  private static final String OPENAPI = "OPENAPI";
-  private static final String SWAGGER = "SWAGGER";
+  private static final String OPENAPI_REGEX = "\\s*\"?\\s*openapi\\s*\"?\\s*:\\s*[\"|']?\\s*3\\.0.\\d+\\s*[\"']?\\s*.*$";
+  private static final String SWAGGER_REGEX = "\\s*\"?\\s*swagger\\s*\"?\\s*:\\s*[\"|']?\\s*2\\.0\\s*[\"']?\\s*.*$";
   private static final String HEADER_RAML_10 = "#%RAML 1.0";
   private static final String HEADER_RAML_08 = "#%RAML 0.8";
+  private static final Pattern OPENAPI_PATTERN = Pattern.compile(OPENAPI_REGEX);
+  private static final Pattern SWAGGER_PATTERN = Pattern.compile(SWAGGER_REGEX);
 
   private ApiVendorUtils() {}
 
   public static ApiVendor deduceApiVendor(final InputStream is) {
     try (BufferedReader in = new BufferedReader(new InputStreamReader(is))) {
-
       String inputLine = getFirstLine(in);
-
       ApiVendor vendor = getRamlVendor(inputLine);
       if (vendor != null)
         return vendor;
 
-      int lines = 0;
       do {
-        if (inputLine.toUpperCase().contains(SWAGGER))
+        if (SWAGGER_PATTERN.matcher(inputLine).matches()) {
           return OAS_20;
-        if (inputLine.toUpperCase().contains(OPENAPI))
+        }
+        if (OPENAPI_PATTERN.matcher(inputLine).matches()) {
           return OAS_30;
-        if (++lines == 10)
-          break;
+        }
       } while ((inputLine = in.readLine()) != null);
-
     } catch (final IOException ignored) {
     }
-
     return RAML_10; // default value
   }
 
