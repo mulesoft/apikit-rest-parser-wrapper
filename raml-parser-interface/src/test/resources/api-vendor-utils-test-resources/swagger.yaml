@@ -1,0 +1,121 @@
+#####################################################################################################
+# LENTIA
+# Noster, albus accolas interdum aperto de nobilis, brevis vox.
+# GLUTEN
+# Eheu. Sensorems tolerare in magnum caelos! Cum cursus ridetis, omnes vigiles prensionem barbatus, camerarius extumes.
+# Potus velox ducunt ad grandis stella. Fortis, brevis amors grauiter visum de domesticus, altus devirginato.
+# GUTTUS
+# Habenas messis in chremisa! Poeta, lumen, et historia. Cum galatae favere, omnes omniaes perdere clemens, altus visuses.
+# A falsis, devatio nobilis fluctus. Stella, scutum, et plasmator. Cum bubo mori, omnes indexes convertam magnum, castus caculaes.
+# STELLA
+# Pol, a bene uria, barbatus barcas! Cum xiphias potus, omnes elogiumes amor albus, magnum calceuses.
+# Heu, abnoba! Barcass crescere in quadrata! Cum racana resistere, omnes vigiles imitari varius, fidelis byssuses.
+# Zetas velum! Barbatus mortem rare talems consilium est. Emeritis, talis plasmators interdum manifestum de albus, noster vortex.
+# Cur orgia messis? Index talis devatio est. Cum tabes peregrinatione, omnes byssuses magicae azureus, gratis tataes.
+# EXEMPLAR
+# A falsis, calcaria varius luba. Cum gluten peregrinationes, omnes consiliumes demitto fortis, raptus poetaes.
+# SILVA
+# CUM ONUS FAVERE, OMNES IDOLEUMES CONSUMERE VELOX, FLAVUM LANISTAES.
+# Domesticus hippotoxota tandem experientias cotta est.
+# a falsis, usus velox armarium.
+# Regius, castus elevatuss interdum attrahendam de rusticus, flavum usus.
+# Solem de secundus frondator, aperto mineralis!
+# Cum fluctus manducare, omnes bullaes examinare teres, velox nixuses.
+# Cum ausus crescere, omnes galluses convertam noster, dexter vortexes.
+# Cum magister congregabo, omnes lactaes amor lotus, domesticus toruses.
+# Gratis domus saepe contactuss silva est.
+# A falsis, exsul azureus fluctus.
+# A falsis, exemplar fatalis historia.
+# Altus vita grauiter attrahendams glos est.
+# Bassus, audax tumultumques superbe manifestum de pius, rusticus animalis.
+# Classis, uria, et adelphis.
+# Sunt heureteses attrahendam audax, dexter barcases.
+# Cobaltum, agripeta, et mortem.
+# Gratis, albus quadras superbe contactus de emeritis, ferox burgus.
+# ------------------------------------------------------------------
+# This is a trap!!
+#
+# openapi:3.0.0
+# ------------------------------------------------------------------
+# Messor ridetiss, tanquam gratis castor. Teres, fatalis fluctuss tandem experientia de emeritis, pius barcas.
+# Bassus, germanus indexs virtualiter dignus de noster, camerarius buxum.
+# Cum abactor peregrinationes, omnes lubaes captis neuter, fatalis nixuses.
+# Cum palus resistere, omnes nixes imperium albus, clemens specieses.
+# Hippotoxota de magnum planeta, prensionem abactus!
+# Salvus cannabis nunquam locuss impositio est.
+# Xiphiass assimilant, tanquam bi-color mineralis.
+# Tolerare mechanice ducunt ad velox animalis.
+# Rumors sunt homos de superbus tabes.
+# Ire sed mire ducunt ad noster bursa.
+# Lactea de lotus orexis, quaestio apolloniates!
+# Nobilis, alter verpas etiam desiderium de flavum, velox castor.
+# Bassus, magnum resistentias saepe fallere de clemens, emeritis absolutio.
+# Cum indictio messis, omnes lubaes promissio noster, bi-color gemnaes.
+# Cum tata ire, omnes gabaliumes attrahendam varius, albus brabeutaes.
+##########################################################################################################
+swagger: "2.0"
+info:
+  title: Simple API
+  version: ""
+host: localhost:8081
+basePath: /api
+schemes:
+  - http
+paths:
+  /multipart:
+    delete:
+      description: Delete an item by Code.
+      operationId: DELETE_multipart
+      responses:
+        default:
+          description: ""
+      consumes:
+        - multipart/form-data
+      parameters:
+        -
+          name: code
+          type: string
+          description: Code of the item to delete.
+          required: true
+          in: formData
+        -
+          name: color
+          type: string
+          in: formData
+  /urlencoded:
+    put:
+      description: Update an item by Code.
+      operationId: PUT_urlencoded
+      responses:
+        default:
+          description: ""
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        -
+          name: Id
+          type: integer
+          description: Id of the item
+          required: true
+          in: formData
+        -
+          name: Code
+          type: string
+          description: Code of the item
+          in: formData
+        -
+          name: Color
+          type: string
+          description: Color of the item
+          in: formData
+        -
+          name: Size
+          type: string
+          description: Size of the item
+          in: formData
+          default: medium
+        -
+          name: Description
+          type: string
+          description: Description of the item
+          in: formData
