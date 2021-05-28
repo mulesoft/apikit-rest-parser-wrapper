@@ -1,0 +1,184 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Headers Test API",
+    "version": "v1",
+    "description": "Headers Test API"
+  },
+  "paths": {
+    "/products": {
+      "get": {
+        "operationId": "pagedProducts",
+        "summary": "Name resolution test",
+        "description": "Tests resolution of parameters name by reference",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pageIndex"
+          },
+          {
+            "$ref": "#/components/parameters/pageSize"
+          },
+          {
+            "$ref": "#/components/parameters/search"
+          },
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "$ref": "#/components/parameters/ClientSecret"
+          },
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paged array of products",
+            "headers": {
+              "x-next": {
+                "description": "A link to the next page of responses",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Products"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{product}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/productCode"
+        }
+      ],
+      "get": {
+        "operationId": "productByCode",
+        "summary": "Name resolution test",
+        "description": "Tests resolution of parameters name by reference",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "$ref": "#/components/parameters/ClientSecret"
+          },
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "pageIndex": {
+        "name": "page_index",
+        "description": "Index of the page.",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "pageSize": {
+        "name": "page_size",
+        "description": "Maximum number of resources.",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 10
+        }
+      },
+      "search": {
+        "name": "search",
+        "description": "Search string.",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ClientId": {
+        "name": "X-Client-Id",
+        "description": "Client id identifying the application.",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "d22e3a23c6534ed6a1501c53034a45aa"
+        }
+      },
+      "ClientSecret": {
+        "name": "X-Client-Secret",
+        "description": "Client secret.",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "426983445D5a65208249DAAC3D29ab7d"
+        }
+      },
+      "CorrelationId": {
+        "name": "X-Correlation-Id",
+        "description": "Used to track the request.",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "426983445D5a65208249DAAC3D29ab7d"
+        }
+      },
+      "productCode": {
+        "name": "product",
+        "in": "path",
+        "description": "Product name",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "description": "Product",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "description": "Product code",
+            "type": "string"
+          }
+        }
+      },
+      "Products": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Product"
+        }
+      }
+    }
+  }
+}
