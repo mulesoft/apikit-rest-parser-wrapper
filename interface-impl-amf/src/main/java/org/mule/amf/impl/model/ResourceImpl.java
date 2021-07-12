@@ -23,7 +23,8 @@ import static org.mule.apikit.ParserUtils.resolveVersion;
 public class ResourceImpl implements Resource {
 
   private static final String VERSION = "version";
-  private static final Predicate<amf.client.model.domain.Parameter> IS_NOT_VERSION = p -> !VERSION.equals(p.name().value());
+  private static final Predicate<amf.client.model.domain.Parameter> IS_NOT_VERSION =
+      p -> !VERSION.equals(p.parameterName().value());
 
   private AMFImpl amf;
   private EndPoint endPoint;
@@ -62,8 +63,9 @@ public class ResourceImpl implements Resource {
 
   @Override
   public Map<ActionType, Action> getActions() {
-    if (actions == null)
+    if (actions == null) {
       actions = loadActions(endPoint);
+    }
 
     return actions;
   }
@@ -109,7 +111,7 @@ public class ResourceImpl implements Resource {
   private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource) {
     return resource.parameters().stream()
         .filter(IS_NOT_VERSION)
-        .collect(toMap(p -> p.name().value(), ParameterImpl::new));
+        .collect(toMap(p -> p.parameterName().value(), ParameterImpl::new));
   }
 
   @Override
