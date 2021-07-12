@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
@@ -31,6 +32,8 @@ import static java.util.stream.Collectors.toMap;
 public class ActionImpl implements Action {
 
   private static final String VERSION = "version";
+  private static final Predicate<amf.client.model.domain.Parameter> IS_NOT_VERSION =
+      p -> !VERSION.equals(p.parameterName().value());
 
   private final ResourceImpl resource;
   private final Operation operation;
@@ -119,7 +122,7 @@ public class ActionImpl implements Action {
 
     final Map<String, Parameter> result = new HashMap<>();
     request.queryParameters().forEach(parameter -> {
-      result.put(parameter.name().value(), new ParameterImpl(parameter));
+      result.put(parameter.parameterName().value(), new ParameterImpl(parameter));
     });
     return result;
   }
@@ -149,9 +152,10 @@ public class ActionImpl implements Action {
     Map<String, Parameter> operationUriParams = new HashMap<>();
     if (operation.request() != null) {
       List<amf.client.model.domain.Parameter> collectedUriParams = operation.request().uriParameters().stream()
-          .filter(p -> !VERSION.equals(p.name().value())).collect(toList());
+          .filter(IS_NOT_VERSION).collect(toList());
       // If key is duplicated it means that it is declared at resource level and it is overridden in method, so keep the last one
-      operationUriParams = collectedUriParams.stream().collect(toMap(p -> p.name().value(), ParameterImpl::new, (p1, p2) -> p2));
+      operationUriParams =
+          collectedUriParams.stream().collect(toMap(p -> p.parameterName().value(), ParameterImpl::new, (p1, p2) -> p2));
     }
     final Map<String, Parameter> uriParameters = resource.getResolvedUriParameters();
     uriParameters.forEach(operationUriParams::putIfAbsent);
@@ -175,7 +179,7 @@ public class ActionImpl implements Action {
 
     final Map<String, Parameter> result = new HashMap<>();
     request.headers().forEach(parameter -> {
-      result.put(parameter.name().value(), new ParameterImpl(parameter));
+      result.put(parameter.parameterName().value(), new ParameterImpl(parameter));
     });
     return result;
   }
