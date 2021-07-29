@@ -8,6 +8,7 @@ package org.mule.amf.impl.model;
 
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.Operation;
+import amf.client.model.domain.Payload;
 import amf.client.model.domain.Request;
 import amf.client.model.domain.Shape;
 import org.mule.apikit.model.Action;
@@ -34,6 +35,8 @@ public class ActionImpl implements Action {
   private static final String VERSION = "version";
   private static final Predicate<amf.client.model.domain.Parameter> IS_NOT_VERSION =
       p -> !VERSION.equals(p.parameterName().value());
+  private static final String APPLICATION_JSON = "application/json";
+  private static final String APPLICATION_XML = "application/xml";
 
   private final ResourceImpl resource;
   private final Operation operation;
@@ -100,10 +103,21 @@ public class ActionImpl implements Action {
     final Map<String, MimeType> result = new LinkedHashMap<>();
 
     request.payloads().stream()
-        .filter(payload -> payload.mediaType().nonNull())
-        .forEach(payload -> result.put(payload.mediaType().value(), new MimeTypeImpl(payload)));
+        .filter(payload -> payload.schema() != null)
+        .forEach(payload -> addMimeTypes(result, payload));
 
     return result;
+  }
+
+  private static void addMimeTypes(Map<String, MimeType> result, Payload payload) {
+    if (payload.mediaType().nonNull()) {
+      result.put(payload.mediaType().value(), new MimeTypeImpl(payload));
+    } else {
+      result.put(APPLICATION_JSON, new MimeTypeImpl(payload));
+      result.put(APPLICATION_XML, new MimeTypeImpl(payload));
+    }
+
+    return;
   }
 
   @Override
