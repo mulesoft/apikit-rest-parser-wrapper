@@ -116,8 +116,6 @@ public class ActionImpl implements Action {
       result.put(APPLICATION_JSON, new MimeTypeImpl(payload));
       result.put(APPLICATION_XML, new MimeTypeImpl(payload));
     }
-
-    return;
   }
 
   @Override
