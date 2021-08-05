@@ -6,13 +6,14 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
-import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
-
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
+import org.raml.v2.api.model.common.ValidationResult;
+import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.UnionTypeDeclaration;
+import org.raml.v2.internal.impl.v10.type.TypeId;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,11 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.raml.v2.api.model.common.ValidationResult;
-import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
-import org.raml.v2.internal.impl.v10.type.TypeId;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.singletonList;
+import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
+import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
 
 public class QueryStringImpl implements QueryString {
 
@@ -66,8 +67,9 @@ public class QueryStringImpl implements QueryString {
   public boolean isFacetArray(String facet) {
     if (typeDeclaration instanceof ObjectTypeDeclaration) {
       for (TypeDeclaration type : ((ObjectTypeDeclaration) typeDeclaration).properties()) {
-        if (type.name().equals(facet))
+        if (type.name().equals(facet)) {
           return type instanceof ArrayTypeDeclaration;
+        }
       }
     }
     return false;
@@ -76,11 +78,22 @@ public class QueryStringImpl implements QueryString {
   @Override
   public Map<String, Parameter> facets() {
     Map<String, Parameter> result = new HashMap<>();
-    if (typeDeclaration instanceof ObjectTypeDeclaration) {
-      for (TypeDeclaration type : ((ObjectTypeDeclaration) typeDeclaration).properties()) {
-        result.put(type.name(), new ParameterImpl(type));
+    for (TypeDeclaration type : getTypeDeclarations()) {
+      if (type instanceof ObjectTypeDeclaration) {
+        for (TypeDeclaration prop : ((ObjectTypeDeclaration) type).properties()) {
+          result.put(prop.name(), new ParameterImpl(prop));
+        }
       }
     }
     return result;
+  }
+
+  private List<TypeDeclaration> getTypeDeclarations() {
+    if (typeDeclaration instanceof UnionTypeDeclaration) {
+      return ((UnionTypeDeclaration) typeDeclaration).of();
+    } else if (typeDeclaration instanceof ArrayTypeDeclaration) {
+      return singletonList(((ArrayTypeDeclaration) typeDeclaration).items());
+    }
+    return singletonList(typeDeclaration);
   }
 }

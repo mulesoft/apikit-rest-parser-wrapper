@@ -80,8 +80,8 @@ public class QueryStringImplTest {
 
   @Test
   public void facetsTest() {
-    assertEquals(0, locationsQueryString.facets().size());
-    assertEquals(0, emailsQueryString.facets().size());
+    assertEquals(5, locationsQueryString.facets().size());
+    assertEquals(3, emailsQueryString.facets().size());
     assertEquals(3, emailQueryString.facets().size());
   }
 }

@@ -11,16 +11,20 @@ import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.NodeShape;
 import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarShape;
+import amf.client.model.domain.Shape;
+import amf.client.model.domain.UnionShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import static java.util.Collections.singletonList;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
@@ -86,8 +90,9 @@ public class QueryStringImpl implements QueryString {
   public boolean isFacetArray(String facet) {
     if (schema instanceof NodeShape) {
       for (PropertyShape type : ((NodeShape) schema).properties()) {
-        if (facet.equals(type.name().value()))
+        if (facet.equals(type.name().value())) {
           return type.range() instanceof ArrayShape;
+        }
       }
     }
     return false;
@@ -96,11 +101,22 @@ public class QueryStringImpl implements QueryString {
   @Override
   public Map<String, Parameter> facets() {
     HashMap<String, Parameter> result = new HashMap<>();
-
-    if (schema instanceof NodeShape) {
-      for (PropertyShape type : ((NodeShape) schema).properties())
-        result.put(type.name().value(), new ParameterImpl(type));
+    for (Shape schema : getSchemas()) {
+      if (schema instanceof NodeShape) {
+        for (PropertyShape type : ((NodeShape) schema).properties()) {
+          result.put(type.name().value(), new ParameterImpl(type));
+        }
+      }
     }
     return result;
+  }
+
+  private List<Shape> getSchemas() {
+    if (schema instanceof UnionShape) {
+      return ((UnionShape) schema).anyOf();
+    } else if (schema instanceof ArrayShape) {
+      return singletonList(((ArrayShape) schema).items());
+    }
+    return singletonList(schema);
   }
 }
