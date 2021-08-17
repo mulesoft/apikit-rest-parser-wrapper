@@ -40,6 +40,8 @@ public class ParameterImplTest {
   private static final String ISBN_QUERY_PARAM = "isbn";
   private static final String TAGS_QUERY_PARAM = "tags";
   private static final String AUTHOR_QUERY_PARAM = "author";
+  private static final String RATING_QUERY_PARAM = "rating";
+  private static final String BORROWED_QUERY_PARAM = "borrowed";
   private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
   private static final String TEST_NULL_RESOURCE = "/testNull";
   private static final String MULTIPART_DOCUMENTS = "/documents";
@@ -266,9 +268,13 @@ public class ParameterImplTest {
     String value = "*321736079";
     assertEquals("\"" + value + "\"", queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
     value = ISBN;
-    assertEquals(value, queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    assertEquals("\"" + value + "\"", queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
     value = "Comedy";
     assertEquals("\"" + value + "\"", queryParams.get(TAGS_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    value = "123";
+    assertEquals(value, queryParams.get(RATING_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    value = "true";
+    assertEquals(value, queryParams.get(BORROWED_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
   }
 
   @Test

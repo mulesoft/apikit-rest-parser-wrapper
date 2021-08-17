@@ -8,37 +8,23 @@ package org.mule.amf.impl.model;
 
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.UnionShape;
-import com.google.common.collect.ImmutableSet;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.Set;
-
 class ParameterValidationStrategyFactory {
-
-  private static final Set<String> NUMBER_DATA_TYPES = ImmutableSet.of("integer", "float", "number", "long", "double");
 
   private ParameterValidationStrategyFactory() {
     throw new IllegalStateException("Utility class");
   }
 
-  static ParameterValidationStrategy getStrategy(AnyShape anyShape) {
+  static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean needsCharEscaping) {
     return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape)
-        : getJsonParameterValidationStrategy(anyShape);
+        : getJsonParameterValidationStrategy(anyShape, needsCharEscaping);
   }
 
-  private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape) {
-    if (!(anyShape instanceof ScalarShape)) {
-      return new JsonParameterValidationStrategy(anyShape, false, false);
-    }
-
-    String dataType = ((ScalarShape) anyShape).dataType().value();
-    dataType = dataType.substring(dataType.lastIndexOf('#') + 1);
-
-    boolean isNumber = NUMBER_DATA_TYPES.contains(dataType);
-    boolean isBoolean = dataType.equals("boolean");
-    return new JsonParameterValidationStrategy(anyShape, !(isNumber || isBoolean), isBoolean);
+  private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape,
+                                                                                    boolean needsCharsEscaping) {
+    return new JsonParameterValidationStrategy(anyShape, needsCharsEscaping);
   }
 
   /**
