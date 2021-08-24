@@ -6,14 +6,9 @@
  */
 package org.mule.parser.service;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.*;
-import static org.mule.apikit.model.ApiVendor.OAS_20;
-import static org.mule.apikit.model.ApiVendor.OAS_30;
-import static org.mule.apikit.model.ApiVendor.RAML_08;
-import static org.mule.apikit.model.ApiVendor.RAML_10;
-
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
@@ -21,9 +16,14 @@ import org.mule.parser.service.result.ParsingIssue;
 
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mule.apikit.model.ApiVendor.OAS_20;
+import static org.mule.apikit.model.ApiVendor.OAS_30;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 public class ParserServiceTestCase {
 

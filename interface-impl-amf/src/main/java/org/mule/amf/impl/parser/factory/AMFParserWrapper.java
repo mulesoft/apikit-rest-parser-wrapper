@@ -6,46 +6,79 @@
  */
 package org.mule.amf.impl.parser.factory;
 
-import amf.MessageStyle;
-import amf.ProfileName;
-import amf.client.AMF;
-import amf.client.environment.Environment;
-import amf.client.model.document.Document;
-import amf.client.parse.Parser;
-import amf.client.resolve.Resolver;
-import amf.client.validate.ValidationReport;
-import amf.plugins.document.webapi.resolution.pipelines.AmfResolutionPipeline;
+import amf.apicontract.client.platform.AMFBaseUnitClient;
+import amf.apicontract.client.platform.AMFConfiguration;
+import amf.apicontract.client.platform.APIConfiguration;
+import amf.core.client.common.transform.PipelineId;
+import amf.core.client.platform.AMFParseResult;
+import amf.core.client.platform.config.RenderOptions;
+import amf.core.client.platform.execution.ExecutionEnvironment;
+import amf.core.client.platform.model.document.BaseUnit;
+import amf.core.client.platform.model.document.Document;
+import amf.core.client.platform.resource.ResourceLoader;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.AMFValidationResult;
+import amf.core.internal.remote.Spec;
 import org.mule.amf.impl.exceptions.ParserException;
+import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
+import org.mule.amf.impl.loader.ProvidedResourceLoader;
+import org.mule.apikit.loader.ApiSyncResourceLoader;
+import org.mule.apikit.model.api.ApiReference;
+import org.yaml.builder.JsonOutputBuilder;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class AMFParserWrapper {
 
-  private Environment environment;
-  private Parser parser;
-  private Resolver resolver;
-  private ProfileName profileName;
-  private MessageStyle messageStyle;
 
-  public AMFParserWrapper(Environment environment, Parser parser, Resolver resolver, ProfileName profileName,
-                          MessageStyle messageStyle) {
-    this.environment = environment;
-    this.parser = parser;
-    this.resolver = resolver;
-    this.profileName = profileName;
-    this.messageStyle = messageStyle;
+  private final BaseUnit model;
+  private final AMFBaseUnitClient client;
+  private final Spec spec;
+  private final List<AMFValidationResult> parsingIssues;
+
+
+  public AMFParserWrapper(ApiReference apiRef, ExecutionEnvironment execEnv) {
+    AMFConfiguration amfConfiguration = APIConfiguration
+        .API()
+        .withExecutionEnvironment(execEnv);
+
+    if (apiRef.getResourceLoader().isPresent()) {
+      amfConfiguration = amfConfiguration.withResourceLoader(new ProvidedResourceLoader(apiRef.getResourceLoader().get()));
+    }
+    URI apiUri = apiRef.getPathAsUri();
+
+    if (apiUri.getScheme() != null && apiUri.getScheme().startsWith("file")) {
+      final File file = new File(apiUri);
+      final String rootDir = file.isDirectory() ? file.getPath() : file.getParent();
+      amfConfiguration = amfConfiguration.withResourceLoader(new ExchangeDependencyResourceLoader(rootDir, execEnv));
+    }
+
+    AMFParseResult amfParseResult = handleFuture(amfConfiguration.baseUnitClient()
+        .parse(URLDecoder.decode(apiRef.getPathAsUri().toString())));
+    this.parsingIssues = amfParseResult.results();
+    this.model = amfParseResult.baseUnit();
+    this.spec = amfParseResult.sourceSpec();
+    this.client = APIConfiguration.fromSpec(spec).baseUnitClient();
   }
 
-  public Document parseApi(final URI uri) throws ParserException {
-    final String url = URLDecoder.decode(uri.toString());
-    Document document = handleFuture(parser.parseFileAsync(url));
-    return (Document) resolver.resolve(document, AmfResolutionPipeline.EDITING_PIPELINE());
+  private ResourceLoader getResourceLoader() {
+
+    return null;
   }
 
-  public ValidationReport getParsingReport(Document resolvedDoc) throws ParserException {
-    return handleFuture(AMF.validateResolved(resolvedDoc, profileName, messageStyle, environment));
+  public Document parseApi() throws ParserException {
+    return (Document) client.transform(model, PipelineId.Editing()).baseUnit();
+  }
+
+
+  public AMFValidationReport getParsingReport(Document resolvedDoc) throws ParserException {
+    AMFValidationReport report = handleFuture(client.validate(resolvedDoc));
+
+    return report;
   }
 
   private <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
@@ -61,5 +94,29 @@ public class AMFParserWrapper {
 
   private static ParserException getParseException(Exception e) {
     throw new ParserException("An error happened while parsing the api. Message: " + e.getMessage(), e);
+  }
+
+  public String renderApi(Document document) {
+    return getRenderClient().render(document);
+  }
+
+  public AMFBaseUnitClient getRenderClient() {
+    RenderOptions renderOptions = new RenderOptions()
+        .withoutSourceMaps()
+        .withoutPrettyPrint()
+        .withCompactUris();
+    return APIConfiguration.fromSpec(spec).withRenderOptions(renderOptions).baseUnitClient();
+  }
+
+  public <W> void renderApi(Document document, JsonOutputBuilder<W> wJsonOutputBuilder) {
+    getRenderClient().renderGraphToBuilder(document, wJsonOutputBuilder);
+  }
+
+  public Spec getSpec() {
+    return spec;
+  }
+
+  public List<AMFValidationResult> getParsingIssues() {
+    return parsingIssues;
   }
 }

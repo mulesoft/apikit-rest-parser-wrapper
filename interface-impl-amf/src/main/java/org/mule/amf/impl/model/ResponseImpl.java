@@ -6,27 +6,30 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.stream.Collectors.toMap;
-
+import amf.core.internal.remote.Spec;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Map;
 
+import static java.util.stream.Collectors.toMap;
+
 public class ResponseImpl implements Response {
 
-  amf.client.model.domain.Response response;
+  private final Spec spec;
+  amf.apicontract.client.platform.model.domain.Response response;
 
-  public ResponseImpl(amf.client.model.domain.Response response) {
+  public ResponseImpl(amf.apicontract.client.platform.model.domain.Response response, Spec spec) {
     this.response = response;
+    this.spec = spec;
   }
 
   @Override
   public Map<String, MimeType> getBody() {
     return response.payloads().stream()
         .filter(p -> p.mediaType().nonNull())
-        .collect(toMap(p -> p.mediaType().value(), MimeTypeImpl::new));
+        .collect(toMap(p -> p.mediaType().value(), p -> new MimeTypeImpl(p, spec)));
   }
 
   @Override
