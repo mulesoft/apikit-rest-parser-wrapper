@@ -6,17 +6,11 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.document.Document;
-import amf.client.model.domain.EndPoint;
-import amf.client.model.domain.Server;
-import amf.client.model.domain.WebApi;
-import amf.client.render.AmfGraphRenderer;
-import amf.client.render.Oas20Renderer;
-import amf.client.render.Oas30Renderer;
-import amf.client.render.Raml08Renderer;
-import amf.client.render.Raml10Renderer;
-import amf.client.render.RenderOptions;
-import amf.client.render.Renderer;
+import amf.apicontract.client.platform.AMFConfiguration;
+import amf.apicontract.client.platform.model.domain.EndPoint;
+import amf.apicontract.client.platform.model.domain.Server;
+import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.core.client.platform.model.document.Document;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiType;
@@ -27,15 +21,11 @@ import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mulesoft.common.io.Output;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.builder.JsonOutputBuilder;
 import scala.Option;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,9 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
@@ -55,21 +43,24 @@ import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
 public class AMFImpl implements ApiSpecification {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AMFImpl.class);
   private final WebApi webApi;
   private final Map<String, Map<String, Resource>> resources;
   private final List<String> references;
   private final ApiVendor apiVendor;
   private final transient LazyValue<Document> consoleModel;
   private final String apiLocation;
+  private final AMFParserWrapper parser;
+  private final AMFConfiguration amfConfiguration;
 
-  public AMFImpl(WebApi webApi, List<String> references, AMFParserWrapper parser, ApiVendor vendor, String location, URI uri) {
+  public AMFImpl(WebApi webApi, List<String> references, AMFParserWrapper parser, ApiVendor vendor, String location) {
     this.webApi = webApi;
+    this.amfConfiguration = parser.getAmfConfiguration();
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
     this.apiVendor = vendor;
     this.apiLocation = location;
-    this.consoleModel = new LazyValue<>(() -> parser.parseApi(uri));
+    this.consoleModel = new LazyValue<>(parser::parseApi);
+    this.parser = parser;
   }
 
   private Map<String, Map<String, Resource>> buildResources(final List<EndPoint> endPoints) {
@@ -82,7 +73,7 @@ public class AMFImpl implements ApiSpecification {
     String parentKey = parentKey(endPoint);
     Map<String, Resource> parentMap = resources.computeIfAbsent(parentKey, k -> new LinkedHashMap<>());
     String childKey = endPoint.relativePath();
-    parentMap.put(childKey, new ResourceImpl(this, endPoint));
+    parentMap.put(childKey, new ResourceImpl(this, endPoint, amfConfiguration));
   }
 
   private static String parentKey(final EndPoint endPoint) {
@@ -139,7 +130,7 @@ public class AMFImpl implements ApiSpecification {
   @Override
   public Map<String, Parameter> getBaseUriParameters() {
     return getServer().<Map<String, Parameter>>map(server -> server.variables().stream()
-        .collect(toMap(p -> p.name().value(), ParameterImpl::new)))
+        .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p, amfConfiguration))))
         .orElseGet(Collections::emptyMap);
   }
 
@@ -179,27 +170,7 @@ public class AMFImpl implements ApiSpecification {
   }
 
   private String renderApi() {
-    Renderer renderer;
-    switch (apiVendor) {
-      case RAML_08:
-        renderer = new Raml08Renderer();
-        break;
-      case OAS_20:
-        renderer = new Oas20Renderer();
-        break;
-      case OAS_30:
-        renderer = new Oas30Renderer();
-        break;
-      default:
-        renderer = new Raml10Renderer();
-        break;
-    }
-    try {
-      return renderer.generateString(consoleModel.get()).get();
-    } catch (final InterruptedException | ExecutionException e) {
-      LOGGER.error(format("Error render API '%s' to '%s'", apiLocation, apiVendor.name()), e);
-      return "";
-    }
+    return parser.renderApi(consoleModel.get());
   }
 
   @Override
@@ -214,31 +185,13 @@ public class AMFImpl implements ApiSpecification {
 
   // This method should only be used by API Console... /shrug
   public String dumpAmf() {
-    try {
-      return new AmfGraphRenderer().generateString(consoleModel.get(),
-                                                   new RenderOptions()
-                                                       .withFlattenedJsonLd()
-                                                       .withoutSourceMaps()
-                                                       .withoutPrettyPrint()
-                                                       .withCompactUris())
-          .get();
-    } catch (InterruptedException | ExecutionException e) {
-      return e.getMessage();
-    }
+    return parser.renderApi(consoleModel.get());
   }
 
   public void writeAMFModel(OutputStream outputStream) {
     try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-      new AmfGraphRenderer()
-          .generateToBuilder(consoleModel.get(),
-                             new RenderOptions()
-                                 .withFlattenedJsonLd()
-                                 .withoutSourceMaps()
-                                 .withoutPrettyPrint()
-                                 .withCompactUris(),
-                             new JsonOutputBuilder<>(writer, false,
-                                                     Output.outputWriter()))
-          .get();
+      parser.renderApi(consoleModel.get(), new JsonOutputBuilder<>(writer, false,
+                                                                   Output.outputWriter()));
     } catch (Exception e) {
       throw new RuntimeException("Error trying to dump AMF model", e);
     }

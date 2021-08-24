@@ -6,7 +6,6 @@
  */
 package org.mule.amf.impl.util;
 
-import org.apache.http.util.Args;
 
 import java.util.function.Supplier;
 
@@ -34,7 +33,7 @@ public class LazyValue<T> implements Supplier<T> {
    * @param supplier A {@link Supplier} through which the value is obtained
    */
   public LazyValue(Supplier<T> supplier) {
-    Args.notNull(supplier != null, "supplier cannot be null");
+    // Args.notNull(supplier != null, "supplier cannot be null");
     valueSupplier = supplier;
   }
 

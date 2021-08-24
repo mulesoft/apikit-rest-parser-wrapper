@@ -6,23 +6,27 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.ValidatorAware;
-import amf.client.validate.ValidationReport;
+import amf.apicontract.client.platform.AMFConfiguration;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.shapes.client.platform.model.domain.AnyShape;
 
 import static org.mule.apikit.ParserUtils.quoteValue;
 
 abstract class ValidationStrategy implements ParameterValidationStrategy {
 
-  protected ValidatorAware schema;
+  protected final AMFConfiguration amfConfiguration;
+
+  protected AnyShape schema;
   protected final boolean schemaNeedsQuotes;
 
-  protected ValidationStrategy(ValidatorAware schema, boolean schemaNeedsQuotes) {
+  protected ValidationStrategy(AMFConfiguration amfConfiguration, AnyShape schema, boolean schemaNeedsQuotes) {
+    this.amfConfiguration = amfConfiguration;
     this.schema = schema;
     this.schemaNeedsQuotes = schemaNeedsQuotes;
   }
 
   @Override
-  public ValidationReport validatePayload(String value) {
+  public AMFValidationReport validatePayload(String value) {
     if (value == null) {
       return validate(null);
     } else if (needsPreProcess(value)) {
@@ -46,7 +50,7 @@ abstract class ValidationStrategy implements ParameterValidationStrategy {
 
   abstract boolean needsPreProcess(String value);
 
-  abstract ValidationReport validate(String value);
+  abstract AMFValidationReport validate(String value);
 
   abstract String escapeCharsInValue(String value);
 

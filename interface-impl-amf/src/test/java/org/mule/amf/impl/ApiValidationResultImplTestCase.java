@@ -9,6 +9,7 @@ package org.mule.amf.impl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
+import amf.core.client.platform.validation.AMFValidationResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
@@ -18,8 +19,8 @@ public class ApiValidationResultImplTestCase {
 
   @Test
   public void getWarningSeverity() {
-    amf.client.validate.ValidationResult result = Mockito.mock(amf.client.validate.ValidationResult.class);
-    Mockito.when(result.level()).thenReturn("Warning");
+    AMFValidationResult result = Mockito.mock(AMFValidationResult.class);
+    Mockito.when(result.severityLevel()).thenReturn("Warning");
     ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(result);
     assertThat(apiValidationResult.getSeverity(), equalTo(Severity.WARNING));
   }

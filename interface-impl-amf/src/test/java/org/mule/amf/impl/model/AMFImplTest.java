@@ -6,6 +6,13 @@
  */
 package org.mule.amf.impl.model;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+
+import amf.apicontract.client.platform.AMFBaseUnitClient;
+import amf.apicontract.client.platform.APIConfiguration;
+import amf.core.client.platform.config.RenderOptions;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -17,9 +24,6 @@ import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.api.ApiReference;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 

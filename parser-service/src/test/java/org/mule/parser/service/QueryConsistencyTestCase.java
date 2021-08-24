@@ -139,7 +139,8 @@ public class QueryConsistencyTestCase {
 
   @Test
   public void testStringArrayValidation() {
-    validateArrayConsistency(true, STRING_ITEM_PARAMS, asList("ABC", "12345", "*test", "AB", "BC", "CD"));
+    validateArrayConsistency(true, STRING_ITEM_PARAMS, asList("ABC", "12345", "*test", "AB", "BC", "CD", "\"123\""));
+    validateArrayConsistency(false, STRING_ITEM_PARAMS, asList("\"12345\""));
     validateArrayConsistency(false, STRING_ITEM_PARAMS, asList("exceedsMaxLength"));
     validateArrayConsistency(false, STRING_ITEM_PARAMS, asList("A"));
   }

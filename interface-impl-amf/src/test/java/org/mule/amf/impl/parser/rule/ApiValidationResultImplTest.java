@@ -7,11 +7,10 @@
 
 package org.mule.amf.impl.parser.rule;
 
-import amf.client.validate.ValidationResult;
-import amf.core.annotations.LexicalInformation;
-import amf.core.parser.Position;
-import amf.core.parser.Range;
-import amf.core.validation.AMFValidationResult;
+import amf.core.client.common.position.Position;
+import amf.core.client.common.position.Range;
+import amf.core.client.platform.validation.AMFValidationResult;
+import amf.core.internal.annotations.LexicalInformation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
@@ -87,7 +86,7 @@ public class ApiValidationResultImplTest {
     Position start = new Position(1, 1);
     Option<String> location = Option.apply(CUSTOM_LOCATION);
     String message = CUSTOM_ERROR_MESSAGE;
-    ValidationResult validationResult = createAMFValidationResult(message, start, location);
+    AMFValidationResult validationResult = createAMFValidationResult(message, start, location);
     ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
 
     String actualMessage = apiValidationResult.getMessage();
@@ -100,7 +99,7 @@ public class ApiValidationResultImplTest {
     Position start = new Position(0, 0);
     Option<String> location = Option.apply(CUSTOM_LOCATION);
     String message = CUSTOM_ERROR_MESSAGE;
-    ValidationResult validationResult = createAMFValidationResult(message, start, location);
+    AMFValidationResult validationResult = createAMFValidationResult(message, start, location);
     ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
     String actualMessage = apiValidationResult.getMessage();
     String expectedMessage = CUSTOM_ERROR_MESSAGE;
@@ -112,7 +111,7 @@ public class ApiValidationResultImplTest {
     Position start = new Position(1, 1);
     Option<String> location = Option.apply(CUSTOM_ENCODED_LOCATION);
     String message = CUSTOM_ERROR_MESSAGE;
-    ValidationResult validationResult = createAMFValidationResult(message, start, location);
+    AMFValidationResult validationResult = createAMFValidationResult(message, start, location);
     ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
     String actualMessage = apiValidationResult.getMessage();
     String expectedMessage = FULL_CUSTOM_ERROR_ENCODED_MESSAGE;
@@ -124,18 +123,17 @@ public class ApiValidationResultImplTest {
     Position start = new Position(0, 0);
     Option<String> location = Option.empty();
     String message = CUSTOM_ERROR_MESSAGE;
-    ValidationResult validationResult = createAMFValidationResult(message, start, location);
+    AMFValidationResult validationResult = createAMFValidationResult(message, start, location);
     ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
     String actualMessage = apiValidationResult.getMessage();
     String expectedMessage = CUSTOM_ERROR_MESSAGE;
     assertEquals(actualMessage, expectedMessage);
   }
 
-  public ValidationResult createAMFValidationResult(String message, Position startPosition, Option<String> location) {
+  public AMFValidationResult createAMFValidationResult(String message, Position startPosition, Option<String> location) {
     Option<LexicalInformation> position = Option.apply(new LexicalInformation(new Range(startPosition, new Position(0, 0))));
-    AMFValidationResult amfValidationResult =
-        new AMFValidationResult(message, "level", "targetNode", Option.empty(), "validationId", position, location, "");
-    return new ValidationResult(amfValidationResult);
+    return new AMFValidationResult(message, "level", "targetNode", "", "validationId",
+                                   new Range(startPosition, new Position(0, 0)), location.getOrElse(() -> ""));
   }
 
 }

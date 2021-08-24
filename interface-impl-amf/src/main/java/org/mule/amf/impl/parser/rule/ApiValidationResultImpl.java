@@ -6,8 +6,9 @@
  */
 package org.mule.amf.impl.parser.rule;
 
-import amf.core.parser.Position;
-import amf.core.parser.Range;
+import amf.core.client.common.position.Position;
+import amf.core.client.common.position.Range;
+import amf.core.client.platform.validation.AMFValidationResult;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.Severity;
 
@@ -25,10 +26,10 @@ public class ApiValidationResultImpl implements ApiValidationResult {
   private static final String ERROR_FORMAT = "%s\n  Location: %s\n  Position: %s";
   private static final String POSITION_FORMAT = "Line %s,  Column %s";
 
-  private amf.client.validate.ValidationResult validationResult;
+  private AMFValidationResult validationResult;
   private List<String> severities;
 
-  public ApiValidationResultImpl(amf.client.validate.ValidationResult validationResult) {
+  public ApiValidationResultImpl(AMFValidationResult validationResult) {
     this.validationResult = validationResult;
     severities = stream(Severity.values()).map(Enum::name).collect(toList());
   }
@@ -56,7 +57,8 @@ public class ApiValidationResultImpl implements ApiValidationResult {
 
   @Override
   public Severity getSeverity() {
-    return !severities.contains(validationResult.level().toUpperCase()) ? ERROR : Severity.fromString(validationResult.level());
+    return !severities.contains(validationResult.severityLevel().toUpperCase()) ? ERROR
+        : Severity.fromString(validationResult.severityLevel());
   }
 
   private static String getPositionMessage(Position startPosition) {

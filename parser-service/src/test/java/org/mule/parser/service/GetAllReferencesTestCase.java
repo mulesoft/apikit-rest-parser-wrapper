@@ -83,7 +83,7 @@ public class GetAllReferencesTestCase {
           .collect(Collectors.joining("\n"));
       fail(message);
     }
-    List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).collect(toList());
+    List<URI> refs = raml.get().getAllReferences().stream().map(ReferencesUtils::toURI).distinct().collect(toList());
     List<URI> expected = getAllReferencesExpected(apiPath);
     for (URI uri : expected) {
       assertTrue(uri.toString(), refs.contains(uri));
