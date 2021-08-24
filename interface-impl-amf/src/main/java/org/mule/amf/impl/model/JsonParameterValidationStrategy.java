@@ -6,11 +6,12 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.ValidatorAware;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import amf.apicontract.client.platform.AMFElementClient;
+import amf.core.client.common.validation.ValidationMode;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
+import amf.shapes.client.platform.model.domain.AnyShape;
 import org.json.simple.JSONValue;
-import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
@@ -20,31 +21,30 @@ import static org.mule.amf.impl.model.ParameterImpl.quote;
 class JsonParameterValidationStrategy implements ParameterValidationStrategy {
 
   private final boolean needsCharsEscaping;
-  private ValidatorAware validatorAware;
+  private AMFElementClient client;
+  private AnyShape anyShape;
 
-  private final LazyValue<PayloadValidator> jsonValidator =
-      new LazyValue<>(() -> validatorAware.payloadValidator(APPLICATION_JSON)
-          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + validatorAware)));
+  private final LazyValue<AMFShapePayloadValidator> jsonValidator =
+      new LazyValue<>(() -> client.payloadValidatorFor(anyShape, APPLICATION_JSON, ValidationMode.StrictValidationMode()));
 
-  private final LazyValue<ValidationReport> nullValidationReport = new LazyValue<>(() -> {
-    final PayloadValidator yamlPayloadValidator = validatorAware.payloadValidator(APPLICATION_YAML)
-        .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + validatorAware));
-
-    return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
+  private final LazyValue<AMFValidationReport> nullValidationReport = new LazyValue<>(() -> {
+    AMFShapePayloadValidator yamlPayloadValidator =
+        client.payloadValidatorFor(anyShape, APPLICATION_YAML, ValidationMode.StrictValidationMode());
+    return yamlPayloadValidator.syncValidate("null");
   });
 
-  JsonParameterValidationStrategy(ValidatorAware validatorAware, boolean needsCharsEscaping) {
-    this.validatorAware = validatorAware;
+  JsonParameterValidationStrategy(AnyShape anyShape, AMFElementClient client, boolean needsCharsEscaping) {
+    this.anyShape = anyShape;
     this.needsCharsEscaping = needsCharsEscaping;
+    this.client = client;
   }
 
-  @Override
-  public ValidationReport validate(String value) {
+  public AMFValidationReport validate(String value) {
     if (value == null) {
       return nullValidationReport.get();
     }
 
-    return jsonValidator.get().syncValidate(APPLICATION_JSON, getPayload(value));
+    return jsonValidator.get().syncValidate(getPayload(value));
   }
 
   private String getPayload(String value) {

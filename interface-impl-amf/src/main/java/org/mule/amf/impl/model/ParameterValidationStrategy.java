@@ -6,10 +6,10 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.validate.ValidationReport;
+import amf.core.client.platform.validation.AMFValidationReport;
 
 interface ParameterValidationStrategy {
 
-  ValidationReport validate(String value);
+  AMFValidationReport validate(String value);
 
 }

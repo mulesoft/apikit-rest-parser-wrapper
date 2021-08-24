@@ -6,22 +6,24 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.ScalarShape;
-import amf.client.model.domain.Shape;
-import amf.client.model.domain.UnionShape;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import amf.apicontract.client.platform.APIConfiguration;
+import amf.core.client.common.validation.ValidationMode;
+import amf.core.client.platform.model.domain.PropertyShape;
+import amf.core.client.platform.model.domain.Shape;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
+import amf.core.internal.remote.Spec;
+import amf.shapes.client.platform.model.domain.AnyShape;
+import amf.shapes.client.platform.model.domain.ArrayShape;
+import amf.shapes.client.platform.model.domain.NodeShape;
+import amf.shapes.client.platform.model.domain.ScalarShape;
+import amf.shapes.client.platform.model.domain.UnionShape;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonList;
@@ -30,13 +32,15 @@ import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
 public class QueryStringImpl implements QueryString {
 
+  private final Spec spec;
   private AnyShape schema;
 
-  private final Map<String, Optional<PayloadValidator>> payloadValidatorMap = new HashMap<>();
+  private final Map<String, AMFShapePayloadValidator> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType = APPLICATION_YAML;
 
-  public QueryStringImpl(AnyShape anyShape) {
+  public QueryStringImpl(AnyShape anyShape, Spec spec) {
     this.schema = anyShape;
+    this.spec = spec;
   }
 
   @Override
@@ -54,15 +58,16 @@ public class QueryStringImpl implements QueryString {
     return validatePayload(value).conforms();
   }
 
-  private ValidationReport validatePayload(String value) {
+  private AMFValidationReport validatePayload(String value) {
     final String mimeType = getMimeTypeForValue(value);
 
-    Optional<PayloadValidator> payloadValidator;
+    AMFShapePayloadValidator payloadValidator;
     if (!payloadValidatorMap.containsKey(mimeType)) {
-      payloadValidator = schema.payloadValidator(mimeType);
-
-      if (!payloadValidator.isPresent()) {
-        payloadValidator = schema.payloadValidator(defaultMediaType);
+      payloadValidator =
+          APIConfiguration.API().elementClient().payloadValidatorFor(schema, mimeType, ValidationMode.StrictValidationMode());
+      if (payloadValidator == null) {
+        payloadValidator = APIConfiguration.API().elementClient().payloadValidatorFor(schema, defaultMediaType,
+                                                                                      ValidationMode.StrictValidationMode());
       }
 
       payloadValidatorMap.put(mimeType, payloadValidator);
@@ -70,12 +75,8 @@ public class QueryStringImpl implements QueryString {
       payloadValidator = payloadValidatorMap.get(mimeType);
     }
 
-    if (payloadValidator.isPresent()) {
-      try {
-        return payloadValidator.get().validate(mimeType, value).get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException("Unexpected Error validating request", e);
-      }
+    if (payloadValidator != null) {
+      return payloadValidator.syncValidate(value);
     } else {
       throw new RuntimeException("Unexpected Error validating request");
     }
@@ -104,7 +105,7 @@ public class QueryStringImpl implements QueryString {
     for (Shape schema : getSchemas()) {
       if (schema instanceof NodeShape) {
         for (PropertyShape type : ((NodeShape) schema).properties()) {
-          result.put(type.name().value(), new ParameterImpl(type));
+          result.put(type.name().value(), new ParameterImpl(type, this.spec));
         }
       }
     }

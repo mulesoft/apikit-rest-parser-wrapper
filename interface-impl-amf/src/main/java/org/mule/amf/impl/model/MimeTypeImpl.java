@@ -6,17 +6,23 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.Encoding;
-import amf.client.model.domain.Example;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.Payload;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.Shape;
-import amf.client.model.domain.UnionShape;
-import amf.client.model.domain.ValidatorAware;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import amf.apicontract.client.platform.APIConfiguration;
+import amf.apicontract.client.platform.model.domain.Encoding;
+import amf.apicontract.client.platform.model.domain.Payload;
+import amf.core.client.common.validation.ValidationMode;
+import amf.core.client.platform.model.domain.PropertyShape;
+import amf.core.client.platform.model.domain.Shape;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.payload.AMFShapePayloadValidationPlugin;
+import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
+import amf.core.internal.remote.Spec;
+import amf.shapes.client.platform.ShapesConfiguration;
+import amf.shapes.client.platform.ShapesElementClient;
+import amf.shapes.client.platform.model.domain.AnyShape;
+import amf.shapes.client.platform.model.domain.Example;
+import amf.shapes.client.platform.model.domain.NodeShape;
+import amf.shapes.client.platform.model.domain.UnionShape;
+import amf.xml.client.platform.plugin.XmlValidationPlugin;
 import org.apache.commons.collections.CollectionUtils;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.MimeType;
@@ -47,15 +53,16 @@ public class MimeTypeImpl implements MimeType {
 
   private final Payload payload;
   private final Shape shape;
-  private final Map<String, PayloadValidator> payloadValidatorMap = new HashMap<>();
+  private final Map<String, AMFShapePayloadValidator> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType;
+  private final Spec spec;
   private Map<String, List<Parameter>> formParameters;
 
-  public MimeTypeImpl(final Payload payload) {
+  public MimeTypeImpl(final Payload payload, Spec spec) {
     this.payload = payload;
     this.shape = payload.schema();
     this.defaultMediaType = this.payload.mediaType().option().orElse(null);
-
+    this.spec = spec;
   }
 
   @Override
@@ -68,8 +75,9 @@ public class MimeTypeImpl implements MimeType {
     if (shape.getClass() == AnyShape.class)
       return null;
 
-    if (shape instanceof AnyShape)
-      return ((AnyShape) shape).buildJsonSchema();
+    if (shape instanceof AnyShape) {
+      return APIConfiguration.API().elementClient().buildJsonSchema((AnyShape) shape);
+    }
 
     return null;
   }
@@ -96,7 +104,7 @@ public class MimeTypeImpl implements MimeType {
       for (PropertyShape propertyShape : nodeShape.properties()) {
         String propertyName = propertyShape.name().value();
         formParameters.put(propertyName,
-                           singletonList(new ParameterImpl(propertyShape, formParametersEncoding.get(propertyName))));
+                           singletonList(new ParameterImpl(propertyShape, formParametersEncoding.get(propertyName), spec)));
       }
 
       return formParameters;
@@ -154,13 +162,11 @@ public class MimeTypeImpl implements MimeType {
 
   private String getExampleValueByMediaType(Example example) {
     String mimeType = firstNonNull(getType(), defaultMediaType);
-    switch (mimeType) {
-      case MediaType.APPLICATION_JSON:
-        return example.toJson();
-      case MediaType.APPLICATION_YAML:
-        return example.toYaml();
-      default:
-        return example.value().value();
+    if (MediaType.APPLICATION_JSON.equals(mimeType) || MediaType.APPLICATION_YAML.equals(mimeType)) {
+      ShapesElementClient client = ShapesConfiguration.predefined().elementClient();
+      return client.renderExample(example, mimeType);
+    } else {
+      return example.value().value();
     }
   }
 
@@ -173,22 +179,23 @@ public class MimeTypeImpl implements MimeType {
   public List<ApiValidationResult> validate(String payload) {
     String mimeType = getMimeTypeForValue(payload);
 
-    PayloadValidator payloadValidator = payloadValidatorMap.computeIfAbsent(mimeType,
-                                                                            payloadMimeType -> getPayloadValidator(payloadMimeType)
-                                                                                .orElse(null));
+    AMFShapePayloadValidator payloadValidator = payloadValidatorMap.computeIfAbsent(mimeType,
+                                                                                    payloadMimeType -> getPayloadValidator(payloadMimeType));
 
     if (payloadValidator != null) {
-      return mapToValidationResult(payloadValidator.syncValidate(mimeType, payload));
+      return mapToValidationResult(payloadValidator.syncValidate(payload));
     }
     return of(
               new ExceptionApiValidationResult(new RuntimeException(format("Validator not found for %s", mimeType))));
   }
 
-  private Optional<PayloadValidator> getPayloadValidator(String mediaType) {
-    return ((ValidatorAware) shape).payloadValidator(mediaType);
+  private AMFShapePayloadValidator getPayloadValidator(String mediaType) {
+    return APIConfiguration.fromSpec(spec).withShapePayloadPlugin(new XmlValidationPlugin()).elementClient()
+        .payloadValidatorFor(shape, mediaType,
+                             ValidationMode.StrictValidationMode());
   }
 
-  private static List<ApiValidationResult> mapToValidationResult(ValidationReport validationReport) {
+  private static List<ApiValidationResult> mapToValidationResult(AMFValidationReport validationReport) {
     if (validationReport.conforms()) {
       return emptyList();
     }

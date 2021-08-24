@@ -14,6 +14,7 @@ import static org.mule.apikit.model.ApiVendor.OAS_30;
 import static org.mule.apikit.model.ApiVendor.RAML_08;
 import static org.mule.apikit.model.ApiVendor.RAML_10;
 
+import org.junit.Ignore;
 import org.mule.apikit.ApiType;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
@@ -133,6 +134,7 @@ public class ParserServiceTestCase {
   }
 
   @Test
+  @Ignore("APIKIT-2988: Looks like a previous unvalid spex is know valid we might consider another example")
   public void fallbackParsingOASErrorRAMLError() {
     ParserService parserService = new ParserService();
     ParseResult result = parserService.parse(ApiReference.create(resource("/with-invalid-errors.raml")));

@@ -5,7 +5,7 @@
  * LICENSE.txt file.
  */
 package org.mule.amf.impl.loader;
-
+/*
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
@@ -50,3 +50,4 @@ public class ExchangeDependencyResourceLoader implements ResourceLoader {
     return resourceLoader.fetch(path);
   }
 }
+*/

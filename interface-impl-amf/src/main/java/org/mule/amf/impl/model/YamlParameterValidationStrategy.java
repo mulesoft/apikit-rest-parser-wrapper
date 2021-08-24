@@ -6,10 +6,11 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
-import org.mule.amf.impl.exceptions.ParserException;
+import amf.apicontract.client.platform.APIConfiguration;
+import amf.core.client.common.validation.ValidationMode;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
+import amf.shapes.client.platform.model.domain.AnyShape;
 import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
@@ -18,18 +19,19 @@ class YamlParameterValidationStrategy implements ParameterValidationStrategy {
 
   private AnyShape anyShape;
 
-  private final LazyValue<PayloadValidator> parameterValidator =
-      new LazyValue<>(() -> anyShape.parameterValidator(APPLICATION_YAML)
-          .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape)));
+  private final LazyValue<AMFShapePayloadValidator> parameterValidator =
+      new LazyValue<>(() -> APIConfiguration.API().elementClient().payloadValidatorFor(anyShape, APPLICATION_YAML,
+                                                                                       ValidationMode
+                                                                                           .ScalarRelaxedValidationMode()));
 
   YamlParameterValidationStrategy(AnyShape anyShape) {
     this.anyShape = anyShape;
   }
 
   @Override
-  public ValidationReport validate(String value) {
+  public AMFValidationReport validate(String value) {
     String payload = value != null ? value : "null";
 
-    return parameterValidator.get().syncValidate(APPLICATION_YAML, payload);
+    return parameterValidator.get().syncValidate(payload);
   }
 }

@@ -18,8 +18,8 @@
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
-        <amf.version>4.7.6</amf.version>
-        <amf.xml.extension.version>1.7.5</amf.xml.extension.version>
+        <amf.version>5.0.0-beta.4</amf.version>
+        <amf.xml.extension.version>2.0.0-12.beta</amf.xml.extension.version>
         <json-simple.version>1.1.1</json-simple.version>
     </properties>
 
@@ -45,7 +45,7 @@
         <!-- AMF Dependencies -->
         <dependency>
             <groupId>com.github.amlorg</groupId>
-            <artifactId>amf-client_2.12</artifactId>
+            <artifactId>amf-api-contract_2.12</artifactId>
             <version>${amf.version}</version>
         </dependency>
         <dependency>

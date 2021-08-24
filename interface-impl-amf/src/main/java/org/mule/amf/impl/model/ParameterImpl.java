@@ -6,18 +6,19 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.StrField;
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.DataNode;
-import amf.client.model.domain.FileShape;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.ScalarNode;
-import amf.client.model.domain.ScalarShape;
-import amf.client.model.domain.Shape;
-import amf.client.validate.ValidationReport;
-import amf.client.validate.ValidationResult;
+import amf.core.client.platform.model.StrField;
+import amf.core.client.platform.model.domain.DataNode;
+import amf.core.client.platform.model.domain.PropertyShape;
+import amf.core.client.platform.model.domain.ScalarNode;
+import amf.core.client.platform.model.domain.Shape;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.AMFValidationResult;
+import amf.core.internal.remote.Spec;
+import amf.shapes.client.platform.model.domain.AnyShape;
+import amf.shapes.client.platform.model.domain.ArrayShape;
+import amf.shapes.client.platform.model.domain.FileShape;
+import amf.shapes.client.platform.model.domain.NodeShape;
+import amf.shapes.client.platform.model.domain.ScalarShape;
 import com.google.common.collect.ImmutableSet;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.apikit.model.parameter.FileProperties;
@@ -45,25 +46,25 @@ class ParameterImpl implements Parameter {
   private boolean required;
   private final Boolean schemaNeedsQuotes;
 
-  ParameterImpl(amf.client.model.domain.Parameter parameter) {
-    this(getSchema(parameter), parameter.required().value());
+  ParameterImpl(amf.apicontract.client.platform.model.domain.Parameter parameter, Spec spec) {
+    this(getSchema(parameter), parameter.required().value(), spec);
   }
 
-  ParameterImpl(PropertyShape property) {
-    this(castToAnyShape(property.range()), property.minCount().value() > 0);
+  ParameterImpl(PropertyShape property, Spec spec) {
+    this(castToAnyShape(property.range()), property.minCount().value() > 0, spec);
   }
 
-  ParameterImpl(PropertyShape property, Set<String> allowedEncoding) {
-    this(property);
+  ParameterImpl(PropertyShape property, Set<String> allowedEncoding, Spec spec) {
+    this(property, spec);
     this.allowedEncoding = allowedEncoding;
   }
 
-  ParameterImpl(AnyShape anyShape, boolean required) {
+  ParameterImpl(AnyShape anyShape, boolean required, Spec spec) {
     this.schema = anyShape;
     this.required = required;
     this.schemaNeedsQuotes = needsQuotes(anyShape);
     this.validationStrategy = ParameterValidationStrategyFactory
-        .getStrategy(anyShape, (anyShape instanceof ScalarShape && schemaNeedsQuotes));
+        .getStrategy(anyShape, (anyShape instanceof ScalarShape && schemaNeedsQuotes), spec);
   }
 
   @Override
@@ -71,7 +72,7 @@ class ParameterImpl implements Parameter {
     return validatePayload(value).conforms();
   }
 
-  ValidationReport validatePayload(String value) {
+  AMFValidationReport validatePayload(String value) {
     return validationStrategy.validate(isScalar() ? surroundWithQuotesIfNeeded(value) : value);
   }
 
@@ -79,7 +80,7 @@ class ParameterImpl implements Parameter {
     return "\"" + payload + "\"";
   }
 
-  private static AnyShape getSchema(amf.client.model.domain.Parameter parameter) {
+  private static AnyShape getSchema(amf.apicontract.client.platform.model.domain.Parameter parameter) {
     Shape shape = parameter.schema();
     return castToAnyShape(shape);
   }
@@ -93,13 +94,13 @@ class ParameterImpl implements Parameter {
 
   @Override
   public String message(String value) {
-    ValidationReport validationReport = validatePayload(value);
+    AMFValidationReport validationReport = validatePayload(value);
     if (validationReport.conforms()) {
       return "OK";
     } else {
       return validationReport.results().stream()
           .findFirst()
-          .map(ValidationResult::message)
+          .map(AMFValidationResult::message)
           .orElse("Error");
     }
   }
