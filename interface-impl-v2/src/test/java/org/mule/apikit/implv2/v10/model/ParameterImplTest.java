@@ -6,7 +6,6 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -14,6 +13,7 @@ import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -137,9 +137,11 @@ public class ParameterImplTest {
     String value = "*321736079";
     assertEquals("\"" + value + "\"", queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
     value = ISBN;
-    assertEquals(value, queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    assertEquals("\"" + value + "\"", queryParams.get(ISBN_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
     value = "Comedy";
     assertEquals("\"" + value + "\"", queryParams.get(TAGS_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+    value = "1920";
+    assertEquals(value, queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
   }
 
   @Test

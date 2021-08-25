@@ -6,7 +6,6 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ValidatorAware;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
@@ -20,8 +19,7 @@ import static org.mule.amf.impl.model.ParameterImpl.quote;
 
 class JsonParameterValidationStrategy implements ParameterValidationStrategy {
 
-  private final boolean needsQuotes;
-  private final boolean isBoolean;
+  private final boolean needsCharsEscaping;
   private ValidatorAware validatorAware;
 
   private final LazyValue<PayloadValidator> jsonValidator =
@@ -35,12 +33,12 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
     return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   });
 
-  JsonParameterValidationStrategy(ValidatorAware validatorAware, boolean needsQuotes, boolean isBoolean) {
+  JsonParameterValidationStrategy(ValidatorAware validatorAware, boolean needsCharsEscaping) {
     this.validatorAware = validatorAware;
-    this.needsQuotes = needsQuotes;
-    this.isBoolean = isBoolean;
+    this.needsCharsEscaping = needsCharsEscaping;
   }
 
+  @Override
   public ValidationReport validate(String value) {
     if (value == null) {
       return nullValidationReport.get();
@@ -50,14 +48,9 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
   }
 
   private String getPayload(String value) {
-    if (needsQuotes) {
-      return quote(JSONValue.escape(value));
+    if (needsCharsEscaping && value.startsWith("\"")) {
+      return quote(JSONValue.escape(value.substring(1, value.length() - 1)));
     }
-
-    if (isBoolean) {
-      return value;
-    }
-
     return removeLeadingZeros(value);
   }
 
