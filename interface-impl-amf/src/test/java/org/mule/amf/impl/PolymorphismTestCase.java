@@ -51,12 +51,11 @@ public class PolymorphismTestCase {
     assertFalse(mimeType.validate("{\"pet_type\": \"Dog\"}").isEmpty());
   }
 
-  // TODO Check why this assertion fails here but we have the correct response in the module
-  //    @Test
-  //    public void notIntegerTest() {
-  //        MimeType mimeType = api.getResource(ONE_OF_PETS_RESOURCE).getAction(PATCH_ACTION).getBody().get(APPLICATION_JSON);
-  //        assertFalse(mimeType.validate("{\"pet_type\": 1234}").isEmpty());
-  //    }
+  @Test
+  public void notIntegerTest() {
+    MimeType mimeType = api.getResource(ONE_OF_PETS_RESOURCE).getAction(PATCH_ACTION).getBody().get(APPLICATION_JSON);
+    assertFalse(mimeType.validate("{\"pet_type\": 1234,\"hunts\": false}").isEmpty());
+  }
 
   @Test
   public void anyOfTest() {
