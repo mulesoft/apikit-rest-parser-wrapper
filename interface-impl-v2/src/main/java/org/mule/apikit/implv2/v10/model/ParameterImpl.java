@@ -6,6 +6,28 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
+import com.google.common.collect.ImmutableSet;
+import org.mule.apikit.model.parameter.FileProperties;
+import org.mule.apikit.model.parameter.Parameter;
+import org.mule.metadata.api.model.MetadataType;
+import org.raml.v2.api.model.common.ValidationResult;
+import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
+import org.raml.v2.api.model.v10.datamodel.FileTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.api.model.v10.system.types.AnnotableStringType;
+import org.raml.v2.api.model.v10.system.types.MarkdownString;
+import org.raml.v2.internal.impl.v10.type.TypeId;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyList;
@@ -15,37 +37,21 @@ import static java.util.Optional.ofNullable;
 import static org.mule.apikit.implv2.v10.MetadataResolver.anyType;
 import static org.mule.apikit.implv2.v10.MetadataResolver.resolve;
 import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
+import static org.raml.v2.internal.impl.v10.type.TypeId.BOOLEAN;
+import static org.raml.v2.internal.impl.v10.type.TypeId.INTEGER;
+import static org.raml.v2.internal.impl.v10.type.TypeId.NUMBER;
 import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
 
-import java.util.HashSet;
-import org.mule.apikit.model.parameter.FileProperties;
-import org.mule.apikit.model.parameter.Parameter;
-import org.mule.metadata.api.model.MetadataType;
-
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import org.raml.v2.api.model.common.ValidationResult;
-import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
-import org.raml.v2.api.model.v10.datamodel.FileTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.StringTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
-import org.raml.v2.api.model.v10.system.types.AnnotableStringType;
-import org.raml.v2.api.model.v10.system.types.MarkdownString;
-import org.raml.v2.internal.impl.v10.type.TypeId;
-
 public class ParameterImpl implements Parameter {
+
+  private static final Set<String> NUMBER_DATA_TYPES = ImmutableSet.of(NUMBER.getType(), INTEGER.getType());
+  private static final Set<String> BOOLEAN_DATA_TYPES = ImmutableSet.of(BOOLEAN.getType());
 
   private TypeDeclaration typeDeclaration;
   private Collection<String> scalarTypes;
   private Boolean required;
   private Optional<String> defaultValue;
+  private final Boolean typeNeedsQuotes;
 
   public ParameterImpl(TypeDeclaration typeDeclaration) {
     this.typeDeclaration = typeDeclaration;
@@ -55,6 +61,7 @@ public class ParameterImpl implements Parameter {
     typeIds.remove(ARRAY);
 
     scalarTypes = transform(typeIds, TypeId::getType);
+    this.typeNeedsQuotes = needsQuotes(typeDeclaration);
   }
 
   @Override
@@ -138,15 +145,16 @@ public class ParameterImpl implements Parameter {
 
   @Override
   public boolean isScalar() {
-    return scalarTypes.contains(typeDeclaration.type());
+    return isOfType(typeDeclaration, scalarTypes);
   }
 
   @Override
   public boolean isFacetArray(String facet) {
     if (typeDeclaration instanceof ObjectTypeDeclaration) {
       for (TypeDeclaration type : ((ObjectTypeDeclaration) typeDeclaration).properties()) {
-        if (type.name().equals(facet))
+        if (type.name().equals(facet)) {
           return type instanceof ArrayTypeDeclaration;
+        }
       }
     }
     return false;
@@ -154,10 +162,7 @@ public class ParameterImpl implements Parameter {
 
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
-    if (value != null && (value.startsWith("*") || isStringArray())) {
-      return "\"" + value + "\"";
-    }
-    return value;
+    return value != null && (value.startsWith("*") || typeNeedsQuotes) ? quote(value) : value;
   }
 
   @Override
@@ -173,7 +178,33 @@ public class ParameterImpl implements Parameter {
     return empty();
   }
 
-  private boolean isStringArray() {
-    return isArray() && ((ArrayTypeDeclaration) typeDeclaration).items() instanceof StringTypeDeclaration;
+  /**
+   * Returns whether the type or parent's types are part of the type collection.
+   *
+   * @param type
+   * @param typesCollection
+   * @return true if typeSet contains type or parent's types
+   */
+  private static boolean isOfType(TypeDeclaration type, Collection<String> typesCollection) {
+    return typesCollection.contains(type.type()) || (type.parentTypes() != null
+        && !type.parentTypes().isEmpty()
+        && type.parentTypes().stream().anyMatch(pt -> typesCollection.contains(pt.type())));
+  }
+
+  private boolean needsQuotes(TypeDeclaration typeDeclaration) {
+    TypeDeclaration type = typeDeclaration;
+    if (type instanceof ArrayTypeDeclaration) {
+      type = ((ArrayTypeDeclaration) type).items();
+      if (type instanceof ObjectTypeDeclaration || type instanceof ArrayTypeDeclaration) {
+        return Boolean.FALSE;
+      }
+    } else if (!isOfType(type, scalarTypes)) {
+      return Boolean.FALSE;
+    }
+    return !(isOfType(type, NUMBER_DATA_TYPES) || isOfType(type, BOOLEAN_DATA_TYPES));
+  }
+
+  static String quote(String payload) {
+    return "\"" + payload + "\"";
   }
 }
