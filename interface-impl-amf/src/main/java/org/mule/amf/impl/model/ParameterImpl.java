@@ -18,6 +18,7 @@ import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
+import com.google.common.collect.ImmutableSet;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
@@ -32,14 +33,17 @@ import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 
 class ParameterImpl implements Parameter {
+
+  private static final Set<String> NUMBER_DATA_TYPES = ImmutableSet.of("integer", "float", "number", "long", "double");
+  public static final String BOOLEAN_DATA_TYPE = "boolean";
 
   private final ParameterValidationStrategy validationStrategy;
   private AnyShape schema;
   private Set<String> allowedEncoding;
   private boolean required;
+  private final Boolean schemaNeedsQuotes;
 
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
@@ -57,7 +61,9 @@ class ParameterImpl implements Parameter {
   ParameterImpl(AnyShape anyShape, boolean required) {
     this.schema = anyShape;
     this.required = required;
-    this.validationStrategy = ParameterValidationStrategyFactory.getStrategy(anyShape);
+    this.schemaNeedsQuotes = needsQuotes(anyShape);
+    this.validationStrategy = ParameterValidationStrategyFactory
+        .getStrategy(anyShape, (anyShape instanceof ScalarShape && schemaNeedsQuotes));
   }
 
   @Override
@@ -66,7 +72,7 @@ class ParameterImpl implements Parameter {
   }
 
   ValidationReport validatePayload(String value) {
-    return validationStrategy.validate(value);
+    return validationStrategy.validate(isScalar() ? surroundWithQuotesIfNeeded(value) : value);
   }
 
   static String quote(String payload) {
@@ -79,17 +85,18 @@ class ParameterImpl implements Parameter {
   }
 
   private static AnyShape castToAnyShape(Shape shape) {
-    if (shape instanceof AnyShape)
+    if (shape instanceof AnyShape) {
       return (AnyShape) shape;
+    }
     throw new UnsupportedSchemaException();
   }
 
   @Override
   public String message(String value) {
     ValidationReport validationReport = validatePayload(value);
-    if (validationReport.conforms())
+    if (validationReport.conforms()) {
       return "OK";
-    else {
+    } else {
       return validationReport.results().stream()
           .findFirst()
           .map(ValidationResult::message)
@@ -105,8 +112,9 @@ class ParameterImpl implements Parameter {
   @Override
   public String getDefaultValue() {
     DataNode defaultValue = schema.defaultValue();
-    if (defaultValue instanceof ScalarNode)
+    if (defaultValue instanceof ScalarNode) {
       return ((ScalarNode) defaultValue).value().value();
+    }
     return schema.defaultValueStr().option().orElse(null);
   }
 
@@ -163,8 +171,9 @@ class ParameterImpl implements Parameter {
   public boolean isFacetArray(String facet) {
     if (schema instanceof NodeShape) {
       for (PropertyShape type : ((NodeShape) schema).properties()) {
-        if (facet.equals(type.name().value()))
+        if (facet.equals(type.name().value())) {
           return type.range() instanceof ArrayShape;
+        }
       }
     }
     return false;
@@ -172,10 +181,7 @@ class ParameterImpl implements Parameter {
 
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
-    if (value != null && (value.startsWith("*") || isStringArray())) {
-      return quote(value);
-    }
-    return value;
+    return (value != null && (value.startsWith("*") || schemaNeedsQuotes)) ? quote(value) : value;
   }
 
   @Override
@@ -192,15 +198,22 @@ class ParameterImpl implements Parameter {
     return empty();
   }
 
-  private boolean isStringArray() {
-    if (!(schema instanceof ArrayShape))
-      return false;
-
-    Shape items = ((ArrayShape) schema).items();
-
-    if (!(items instanceof ScalarShape))
-      return false;
-
-    return ((ScalarShape) items).dataType().value().equals(STRING_ID);
+  private static Boolean needsQuotes(Shape anyShape) {
+    ScalarShape scalarShape = null;
+    if (anyShape instanceof ScalarShape) {
+      scalarShape = ((ScalarShape) anyShape);
+    } else if (anyShape instanceof ArrayShape) {
+      Shape itemsShape = ((ArrayShape) anyShape).items();
+      scalarShape = itemsShape instanceof ScalarShape ? ((ScalarShape) itemsShape) : null;
+    }
+    if (scalarShape == null) {
+      return Boolean.FALSE;
+    }
+    String dataType = scalarShape.dataType().value();
+    if (dataType == null) {
+      return Boolean.FALSE;
+    }
+    dataType = dataType.substring(dataType.lastIndexOf('#') + 1);
+    return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
   }
 }
