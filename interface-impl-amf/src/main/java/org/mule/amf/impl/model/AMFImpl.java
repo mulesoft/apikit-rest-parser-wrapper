@@ -216,6 +216,7 @@ public class AMFImpl implements ApiSpecification {
     try {
       return new AmfGraphRenderer().generateString(consoleModel.get(),
                                                    new RenderOptions()
+                                                       .withFlattenedJsonLd()
                                                        .withoutSourceMaps()
                                                        .withoutPrettyPrint()
                                                        .withCompactUris())
@@ -231,6 +232,7 @@ public class AMFImpl implements ApiSpecification {
       new AmfGraphRenderer()
           .generateToBuilder(consoleModel.get(),
                              new RenderOptions()
+                                 .withFlattenedJsonLd()
                                  .withoutSourceMaps()
                                  .withoutPrettyPrint()
                                  .withCompactUris(),
