@@ -6,17 +6,18 @@
  */
 package org.mule.amf.impl.model;
 
-import static java.util.stream.Collectors.toMap;
-
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Map;
 
+import static java.util.stream.Collectors.toMap;
+
 public class ResponseImpl implements Response {
 
-  amf.client.model.domain.Response response;
+  private final amf.client.model.domain.Response response;
+  private Map<String, MimeType> body;
 
   public ResponseImpl(amf.client.model.domain.Response response) {
     this.response = response;
@@ -24,6 +25,13 @@ public class ResponseImpl implements Response {
 
   @Override
   public Map<String, MimeType> getBody() {
+    if (body == null) {
+      body = loadBody(response);
+    }
+    return body;
+  }
+
+  private static Map<String, MimeType> loadBody(amf.client.model.domain.Response response) {
     return response.payloads().stream()
         .filter(p -> p.mediaType().nonNull())
         .collect(toMap(p -> p.mediaType().value(), MimeTypeImpl::new));
@@ -31,7 +39,7 @@ public class ResponseImpl implements Response {
 
   @Override
   public boolean hasBody() {
-    return !response.payloads().isEmpty() && response.payloads().stream().anyMatch(p -> p.mediaType().nonNull());
+    return !getBody().isEmpty();
   }
 
   @Override
