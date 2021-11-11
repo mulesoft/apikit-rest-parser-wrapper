@@ -246,14 +246,22 @@ public class AMFImpl implements ApiSpecification {
   }
 
   public void updateBaseUri(String baseUri) {
-    if (webApi.servers() != null && webApi.servers().size() > 0) {
-      final Server server = webApi.servers().get(0);
+    updateBaseUri(baseUri, webApi);
+  }
+
+  public void updateBaseUriOfConsoleModel(String baseUri) {
+    WebApi consoleWebApi = (WebApi) consoleModel.get().encodes();
+    updateBaseUri(baseUri, consoleWebApi);
+  }
+
+  private void updateBaseUri(String baseUri, WebApi webapi) {
+    if (webapi.servers() != null && webapi.servers().size() > 0) {
+      final Server server = webapi.servers().get(0);
       server.withUrl(baseUri);
       server.withVariables(emptyList());
     } else {
-      webApi.withServer(baseUri);
+      webapi.withServer(baseUri);
     }
-    consoleModel.get().withEncodes(webApi);
   }
 
   public boolean includesCallbacks() {
