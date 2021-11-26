@@ -6,9 +6,6 @@
  */
 package org.mule.amf.impl.model;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -20,14 +17,18 @@ import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.api.ApiReference;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class AMFImplTest {
@@ -185,11 +186,33 @@ public class AMFImplTest {
 
   @Test
   public void streamAMFModel() throws IOException {
+    writeAndAssertBaseUri(LEAGUES_API_BASE_URI);
+  }
+
+  @Test
+  public void updateBaseUriInStreamedAMFModelTest() throws IOException {
+    api.updateBaseUri(BASE_URI);
+    writeAndAssertBaseUri(BASE_URI);
+  }
+
+  @Test
+  public void updateBaseUriInDumpedAMFModelTest() {
+    assertThatBaseUriIsPresent(api.dumpAmf(), LEAGUES_API_BASE_URI);
+    api.updateBaseUri(BASE_URI);
+    assertThatBaseUriIsPresent(api.dumpAmf(), BASE_URI);
+  }
+
+  private void writeAndAssertBaseUri(String baseUri) throws IOException {
     PipedOutputStream pipedOutputStream = new PipedOutputStream();
     PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
     Thread thread = new Thread(() -> api.writeAMFModel(pipedOutputStream));
     thread.start();
-    String model = IOUtils.toString(pipedInputStream);
-    assertThat(model, containsString("https://{apiDomain}.ec2.amazonaws.com"));
+    String model = IOUtils.toString(pipedInputStream, StandardCharsets.UTF_8);
+    assertThatBaseUriIsPresent(model, baseUri);
   }
+
+  private void assertThatBaseUriIsPresent(String model, String baseUri) {
+    assertThat(model, containsString(baseUri));
+  }
+
 }
