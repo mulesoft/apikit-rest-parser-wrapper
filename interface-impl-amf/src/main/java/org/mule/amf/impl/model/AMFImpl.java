@@ -17,9 +17,6 @@ import amf.client.render.Raml08Renderer;
 import amf.client.render.Raml10Renderer;
 import amf.client.render.RenderOptions;
 import amf.client.render.Renderer;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiType;
@@ -29,12 +26,17 @@ import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
+import org.mulesoft.common.io.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.builder.JsonOutputBuilder;
 import scala.Option;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.mulesoft.common.io.Output;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
@@ -227,8 +228,7 @@ public class AMFImpl implements ApiSpecification {
   }
 
   public void writeAMFModel(OutputStream outputStream) {
-    try {
-      OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8"));
+    try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
       new AmfGraphRenderer()
           .generateToBuilder(consoleModel.get(),
                              new RenderOptions()
@@ -239,13 +239,22 @@ public class AMFImpl implements ApiSpecification {
                              new JsonOutputBuilder<>(writer, false,
                                                      Output.outputWriter()))
           .get();
-      writer.close();
     } catch (Exception e) {
       throw new RuntimeException("Error trying to dump AMF model", e);
     }
   }
 
+  /**
+   * Updates both webApi's base URI, the one for validation and the other one for the console.
+   *
+   * @param baseUri new base URI value
+   */
   public void updateBaseUri(String baseUri) {
+    updateBaseUri(baseUri, webApi);
+    updateBaseUri(baseUri, (WebApi) consoleModel.get().encodes());
+  }
+
+  private void updateBaseUri(String baseUri, WebApi webApi) {
     if (webApi.servers() != null && webApi.servers().size() > 0) {
       final Server server = webApi.servers().get(0);
       server.withUrl(baseUri);
@@ -253,7 +262,6 @@ public class AMFImpl implements ApiSpecification {
     } else {
       webApi.withServer(baseUri);
     }
-    consoleModel.get().withEncodes(webApi);
   }
 
   public boolean includesCallbacks() {

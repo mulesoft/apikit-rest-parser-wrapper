@@ -6,9 +6,8 @@
  */
 package org.mule.apikit.common;
 
-import org.mule.apikit.model.ActionType;
-
 import org.apache.commons.lang3.StringUtils;
+import org.mule.apikit.model.ActionType;
 
 public class RamlUtils {
 
@@ -33,11 +32,12 @@ public class RamlUtils {
     boolean found = false;
     for (int i = 0; i < split.length; i++) {
       if (split[i].startsWith("baseUri: ")) {
-        found = true;
         split[i] = split[i].replaceFirst(regex, replacement);
         if (!split[i].contains("baseUri: ")) {
           split[i] = "baseUri: " + split[i];
         }
+        found = true;
+        break;
       }
     }
     if (!found) {
@@ -48,6 +48,7 @@ public class RamlUtils {
           } else {
             split[i] = split[i] + "\n" + "baseUri: " + replacement;
           }
+          break;
         }
       }
     }
