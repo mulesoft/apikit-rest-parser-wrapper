@@ -33,6 +33,7 @@
         <allureReportVersion>2.3.4</allureReportVersion>
         <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
         <mockitoVersion>1.10.19</mockitoVersion>
+        <formatter-maven-plugin.version>2.16.0</formatter-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -128,7 +129,7 @@
             <plugin>
                 <groupId>com.marvinformatics.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>1.9.2</version>
+                <version>${formatter-maven-plugin.version}</version>
                 <configuration>
                     <compilerCompliance>1.8</compilerCompliance>
                     <compilerSource>1.8</compilerSource>
