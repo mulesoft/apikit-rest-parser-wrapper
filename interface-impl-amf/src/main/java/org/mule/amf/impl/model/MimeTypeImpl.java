@@ -82,7 +82,7 @@ public class MimeTypeImpl implements MimeType {
 
     String mediaType = payload.mediaType().value();
 
-    if (mediaType.startsWith("multipart/") || mediaType.equals("application/x-www-form-urlencoded")) {
+    if (mediaType.startsWith("multipart/form-data") || mediaType.equals("application/x-www-form-urlencoded")) {
 
       if (!(shape instanceof NodeShape)) {
         return emptyMap();
