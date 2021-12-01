@@ -154,8 +154,8 @@ public class ActionImpl implements Action {
   }
 
   /**
-   * Looks for all the uri parameters found either from the resource or from the operation's request (if any).
-   * "Version" is an special uri param so it is ignored.
+   * Looks for all the uri parameters found either from the resource or from the operation's request (if any). "Version" is an
+   * special uri param so it is ignored.
    *
    * @param resource
    * @return

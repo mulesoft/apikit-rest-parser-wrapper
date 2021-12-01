@@ -27,8 +27,8 @@ public class ReferencesResolver {
   }
 
   /**
-   * if parseResult has been resolved, reuse that
-   * else parse ApiReference using AMF parser
+   * if parseResult has been resolved, reuse that else parse ApiReference using AMF parser
+   * 
    * @param reference
    * @return list of API Spec references
    */

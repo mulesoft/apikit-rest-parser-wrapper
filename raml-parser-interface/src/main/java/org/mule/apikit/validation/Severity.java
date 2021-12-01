@@ -7,6 +7,7 @@
 package org.mule.apikit.validation;
 
 public enum Severity {
+
   INFO, WARNING, ERROR;
 
   public static Severity fromString(String severity) {
