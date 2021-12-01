@@ -77,7 +77,7 @@ public class CompatibilityTestCase extends AbstractCompatibilityTestCase {
       e.printStackTrace();
     }
 
-    // Parse java dumped file  
+    // Parse java dumped file
     final ApiParser dumpedRamlWrapper = createJavaParserWrapper(ramlDumpPath.toUri().toString(), isRaml08);
     final ApiSpecification dumpedRaml = dumpedRamlWrapper.parse();
     assertNotNull(dumpedRaml);

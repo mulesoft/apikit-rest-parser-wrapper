@@ -43,10 +43,10 @@ public class ResponseImplTest {
 
   @Test
   public void getHeadersTest() {
-    assertEquals(1, response.getHeaders().size());//TODO: APIKIT-2509 check difference with amf
+    assertEquals(1, response.getHeaders().size());// TODO: APIKIT-2509 check difference with amf
   }
 
-  @Test(expected = UnsupportedOperationException.class) //TODO: APIKIT-2509 check difference with amf
+  @Test(expected = UnsupportedOperationException.class) // TODO: APIKIT-2509 check difference with amf
   public void getInstanceTest() {
     response.getInstance();
   }
