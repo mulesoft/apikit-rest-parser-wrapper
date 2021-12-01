@@ -8,7 +8,7 @@ package org.mule.apikit.model;
 
 public interface SecurityReference {
 
-  //TODO this class is initialized
+  // TODO this class is initialized
   String getName();
 
   Object getInstance();

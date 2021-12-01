@@ -109,7 +109,8 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiSpecification parse() {
-    // We are forced to create a brand new environment so this object (and therefore the original document) is not referenced anymore
+    // We are forced to create a brand new environment so this object (and therefore the original document) is not referenced
+    // anymore
     AMFParserWrapper parserWrapper = AMFParserWrapperFactory.getParser(apiRef, executionEnvironment);
     return new AMFImpl(webApi.get(), getReferences(document.get().references()), parserWrapper, apiRef.getVendor(),
                        apiRef.getLocation(), apiUri);

@@ -42,9 +42,7 @@ class ParameterValidationStrategyFactory {
   }
 
   /**
-   * Need to validate as YAML in case of
-   * - ArrayShape
-   * - UnionShape
+   * Need to validate as YAML in case of - ArrayShape - UnionShape
    *
    * @param anyShape
    * @return whether YAML validation is needed
