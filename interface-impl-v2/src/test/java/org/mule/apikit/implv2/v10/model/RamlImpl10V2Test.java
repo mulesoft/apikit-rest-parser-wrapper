@@ -67,7 +67,7 @@ public class RamlImpl10V2Test {
 
   @Test(expected = UnsupportedOperationException.class)
   public void getResourceTest() {
-    api.getResource("/leagues");//Check difference with amf parser
+    api.getResource("/leagues");// Check difference with amf parser
   }
 
   @Test

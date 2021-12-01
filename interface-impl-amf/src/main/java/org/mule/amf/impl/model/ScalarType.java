@@ -17,6 +17,7 @@ import static org.mule.amf.impl.model.ScalarType.ScalarTypes.STRING_ID;
 import static org.mule.amf.impl.model.ScalarType.ScalarTypes.TIME_ID;
 
 enum ScalarType {
+
   STRING(STRING_ID, "string"),
   BOOLEAN(BOOLEAN_ID, "boolean"),
   NUMBER(NUMBER_ID, "number"),
