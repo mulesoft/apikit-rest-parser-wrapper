@@ -17,7 +17,7 @@
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
-        <raml.parser.version>0.8.41</raml.parser.version>
+        <raml.parser.version>0.8.43</raml.parser.version>
         <commons.io.version>2.7</commons.io.version>
     </properties>
 
@@ -31,10 +31,6 @@
                 <exclusion>
                     <groupId>commons-io</groupId>
                     <artifactId>commons-io</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
