@@ -100,8 +100,7 @@ public class ResourceImpl implements Resource {
   }
 
   /**
-   * Looks for all the uri parameters found at the endpoint.
-   * "Version" is an special uri param so it is ignored.
+   * Looks for all the uri parameters found at the endpoint. "Version" is an special uri param so it is ignored.
    *
    * @param resource
    * @return

@@ -77,7 +77,7 @@ public class ParameterImplTest {
   @Test
   public void isRepeatTest() {
     assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isRepeat());
-    //        assertTrue(queryParams.get(TAGS_QUERY_PARAM).isRepeat()); Check difference with amf
+    // assertTrue(queryParams.get(TAGS_QUERY_PARAM).isRepeat()); Check difference with amf
   }
 
   @Test
@@ -113,7 +113,7 @@ public class ParameterImplTest {
     queryParams.get(AUTHOR_QUERY_PARAM).getInstance();
   }
 
-  @Test //TODO: APIKIT-2509 check difference with amf
+  @Test // TODO: APIKIT-2509 check difference with amf
   public void getMetadataTest() {
     assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).getMetadata().getMetadataFormat().getValidMimeTypes()
         .contains("application/json"));
@@ -121,7 +121,7 @@ public class ParameterImplTest {
 
   @Test
   public void isScalarTest() {
-    assertTrue(queryParams.get(ISBN_QUERY_PARAM).isScalar());//TODO: APIKIT-2509 check difference with amf
+    assertTrue(queryParams.get(ISBN_QUERY_PARAM).isScalar());// TODO: APIKIT-2509 check difference with amf
     assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).isScalar());
   }
 

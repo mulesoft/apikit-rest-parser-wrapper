@@ -10,8 +10,8 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * This class has been implemented to work around an issue of the deprecated raml parser v1
- * for version 0.8 apis with spaces in the path
+ * This class has been implemented to work around an issue of the deprecated raml parser v1 for version 0.8 apis with spaces in
+ * the path
  */
 public class ParserV1FileResourceLoader extends org.raml.parser.loader.FileResourceLoader {
 
