@@ -100,15 +100,15 @@ abstract class AbstractTestCase {
 
   static void assertEqual(final Parameter actual, final Parameter expected) {
     // Different behaviour in Java Parser 08 & 10
-    //assertThat(actual.getDisplayName(), is(equalTo(expected.getDisplayName())));
+    // assertThat(actual.getDisplayName(), is(equalTo(expected.getDisplayName())));
 
     assertThat(actual.getDefaultValue(), is(equalTo(expected.getDefaultValue())));
     assertThat(actual.isRepeat(), is(expected.isRepeat()));
     assertThat(actual.isArray(), is(expected.isArray()));
-    //  boolean validate(String value);
-    //  String message(String value);
+    // boolean validate(String value);
+    // String message(String value);
     // Different behaviour in Java Parser 08 & 10
-    //assertThat(actual.getDisplayName(), is(equalTo(expected.getDisplayName())));
+    // assertThat(actual.getDisplayName(), is(equalTo(expected.getDisplayName())));
     assertThat(actual.getDescription(), is(equalTo(expected.getDescription())));
     assertThat(actual.getExample(), is(equalTo(expected.getExample())));
     assertThat(actual.getExamples().size(), is(expected.getExamples().size()));

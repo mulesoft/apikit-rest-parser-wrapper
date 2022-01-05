@@ -30,8 +30,10 @@
         <jacoco.version>0.8.5</jacoco.version>
         <allureJunitVersion>2.13.5</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
-        <allure.maven.plugin.version>2.8</allure.maven.plugin.version>
-        <mockitoVersion>1.9.0</mockitoVersion>
+        <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
+        <mockitoVersion>1.10.19</mockitoVersion>
+        <formatter-maven-plugin.version>2.16.0</formatter-maven-plugin.version>
+        <formatter.skip>false</formatter.skip>
     </properties>
 
     <dependencies>
@@ -114,9 +116,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.marvinformatics.formatter</groupId>
+                <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>1.9.2</version>
+                <version>${formatter-maven-plugin.version}</version>
                 <configuration>
                     <compilerCompliance>1.8</compilerCompliance>
                     <compilerSource>1.8</compilerSource>
@@ -135,7 +137,7 @@
                             <goal>validate</goal>
                         </goals>
                         <configuration>
-                            <skipFormatting>false</skipFormatting>
+                            <skipFormatting>${formatter.skip}</skipFormatting>
                         </configuration>
                     </execution>
                 </executions>

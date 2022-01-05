@@ -13,11 +13,10 @@ import java.util.function.Supplier;
 /**
  * Provides a value which may be lazily computed.
  * <p>
- * The value is only computed on the first invokation of {@link #get()}. Subsequent calls to such method
- * will always return the same value.
+ * The value is only computed on the first invokation of {@link #get()}. Subsequent calls to such method will always return the
+ * same value.
  * <p>
- * This class is thread-safe. When invoking {@link #get()}, it is guaranteed that the value will be computed
- * only once.
+ * This class is thread-safe. When invoking {@link #get()}, it is guaranteed that the value will be computed only once.
  *
  * @param <T> the generic type of the provided value
  * @since 1.0
@@ -29,9 +28,8 @@ public class LazyValue<T> implements Supplier<T> {
   private Supplier<T> valueSupplier;
 
   /**
-   * Creates a new instance which lazily obtains its value from the given {@code supplier}.
-   * It is guaranteed that {@link Supplier#get()} will only be invoked once. Because this class is thread-safe,
-   * the supplier is not required to be.
+   * Creates a new instance which lazily obtains its value from the given {@code supplier}. It is guaranteed that
+   * {@link Supplier#get()} will only be invoked once. Because this class is thread-safe, the supplier is not required to be.
    *
    * @param supplier A {@link Supplier} through which the value is obtained
    */

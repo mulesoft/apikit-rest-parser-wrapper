@@ -159,10 +159,9 @@ public class RamlImplV1 implements ApiSpecification {
   }
 
   /**
-   * This method returns a list of String with all the references from the api.
-   * Note that the list returned by this method is based on the ramlPath, so if
-   * for e.g: the path described at ramlPath is relative the list returned will
-   * be of relatives path too, same if it absolute path or uri.
+   * This method returns a list of String with all the references from the api. Note that the list returned by this method is
+   * based on the ramlPath, so if for e.g: the path described at ramlPath is relative the list returned will be of relatives path
+   * too, same if it absolute path or uri.
    *
    * @return list of String with all the references from the api
    */
