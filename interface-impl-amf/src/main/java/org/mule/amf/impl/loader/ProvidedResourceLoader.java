@@ -38,7 +38,7 @@ public class ProvidedResourceLoader implements amf.client.resource.ResourceLoade
       final InputStream stream = resourceLoader.getResourceAsStream(resourceName);
       try {
         final String resourceAsString = IOUtils.toString(stream);
-        final Content content = new Content(resourceAsString, resource.toString());
+        final Content content = new Content(resourceAsString, resourceName);
         future.complete(content);
       } catch (IOException e) {
         future.completeExceptionally(new RuntimeException("Failed to fetch resource '" + resourceName + "'"));
