@@ -6,24 +6,6 @@
  */
 package org.mule.parser.service;
 
-import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mule.parser.service.ParserMode.AUTO;
-
-import java.io.InputStream;
-import org.mule.apikit.loader.ClassPathResourceLoader;
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -33,7 +15,23 @@ import org.mule.apikit.common.ReferencesUtils;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.result.ParseResult;
-import org.mule.parser.service.util.ApiSyncTestResourceLoader;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.lang.Thread.currentThread;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mule.parser.service.ParserMode.AUTO;
 
 @RunWith(Parameterized.class)
 public class GetAllReferencesTestCase {
@@ -76,15 +74,6 @@ public class GetAllReferencesTestCase {
   public void getAllReferencesWithAbsolutePathRoot() throws Exception {
     String path = new File(getResource(apiPath).toURI().getPath()).getAbsolutePath();
     assertReferences(ApiReference.create(path));
-  }
-
-  @Test
-  public void getAllReferencesWithAPISync() throws Exception {
-    String[] groups = apiPath.split("/");
-    CompositeResourceLoader composite = new CompositeResourceLoader(new ApiSyncTestResourceLoader(),
-                                                                    new ClassPathResourceLoader());
-    assertReferences(ApiReference.create(format("resource::%s:%s:%s:raml:zip:%s", groups[0], groups[1], groups[2], groups[3]),
-                                         composite));
   }
 
   private void assertReferences(ApiReference apiReference) throws Exception {
