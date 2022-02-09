@@ -45,6 +45,9 @@ public class ApiSyncResourceLoader implements ResourceLoader {
   }
 
   private String getRootRamlResource(String rootRamlResource) {
+    if (!isSyncProtocol(rootRamlResource)) {
+      throw new RuntimeException("Invalid APISync Resource");
+    }
     return rootRamlResource.substring(0, rootRamlResource.lastIndexOf(":") + 1);
   }
 }
