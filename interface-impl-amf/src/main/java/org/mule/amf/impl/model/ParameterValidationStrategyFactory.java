@@ -18,14 +18,15 @@ class ParameterValidationStrategyFactory {
   }
 
   static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean needsCharEscaping) {
-    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape)
-        : getJsonParameterValidationStrategy(anyShape, needsCharEscaping);
+    if (anyShape instanceof UnionShape) {
+      return new UnionParameterValidationStrategy((UnionShape) anyShape);
+    } else if (isYamlValidationNeeded(anyShape)) {
+      return new YamlParameterValidationStrategy(anyShape);
+    }
+
+    return new JsonParameterValidationStrategy(anyShape, needsCharEscaping);
   }
 
-  private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape,
-                                                                                    boolean needsCharsEscaping) {
-    return new JsonParameterValidationStrategy(anyShape, needsCharsEscaping);
-  }
 
   /**
    * Need to validate as YAML in case of - ArrayShape - UnionShape - AnyShape containing an aggregation of shapes for OAS 3.0
@@ -35,7 +36,7 @@ class ParameterValidationStrategyFactory {
    * @return whether YAML validation is needed
    */
   private static boolean isYamlValidationNeeded(AnyShape anyShape) {
-    return anyShape instanceof ArrayShape || anyShape instanceof UnionShape
+    return anyShape instanceof ArrayShape
         || CollectionUtils.isNotEmpty(anyShape.or()) || CollectionUtils.isNotEmpty(anyShape.and())
         || CollectionUtils.isNotEmpty(anyShape.xone()) || anyShape.not() != null;
   }

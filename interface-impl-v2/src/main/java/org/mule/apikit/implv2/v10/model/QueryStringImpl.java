@@ -6,6 +6,8 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
+import org.mule.apikit.common.ValidationUtils.QueryStringGroup;
+import org.mule.apikit.common.ValidationUtils.QueryStringGroup.QueryStringGroupBuilder;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
 import org.raml.v2.api.model.common.ValidationResult;
@@ -15,6 +17,7 @@ import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.UnionTypeDeclaration;
 import org.raml.v2.internal.impl.v10.type.TypeId;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +27,7 @@ import java.util.Set;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
+import static org.mule.apikit.common.ValidationUtils.validateQueryParams;
 import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
 import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
 
@@ -53,6 +57,7 @@ public class QueryStringImpl implements QueryString {
   }
 
   @Override
+  @Deprecated
   public boolean validate(String value) {
     List<ValidationResult> results = typeDeclaration.validate(value);
     return results.isEmpty();
@@ -84,6 +89,27 @@ public class QueryStringImpl implements QueryString {
           result.put(prop.name(), new ParameterImpl(prop));
         }
       }
+    }
+    return result;
+  }
+
+  @Override
+  public boolean validate(Map<String, List<String>> queryParams) {
+    return validateQueryParams(queryParams, facets(), getRequiredQueryParamsByGroup());
+  }
+
+  private List<QueryStringGroup> getRequiredQueryParamsByGroup() {
+    List<QueryStringGroup> result = new ArrayList<>();
+    for (TypeDeclaration typeDeclaration : getTypeDeclarations()) {
+      QueryStringGroupBuilder queryStringGroupBuilder = QueryStringGroup.builder();
+      if (typeDeclaration instanceof ObjectTypeDeclaration) {
+        ObjectTypeDeclaration objectTypeDeclaration = (ObjectTypeDeclaration) typeDeclaration;
+        queryStringGroupBuilder.supportAdditionalProperties(objectTypeDeclaration.additionalProperties());
+        for (TypeDeclaration property : objectTypeDeclaration.properties()) {
+          queryStringGroupBuilder.withProperty(property.name(), property.required());
+        }
+      }
+      result.add(queryStringGroupBuilder.build());
     }
     return result;
   }

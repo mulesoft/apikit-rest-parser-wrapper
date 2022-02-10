@@ -7,11 +7,16 @@
 package org.mule.amf.impl.model;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.api.ApiReference;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -57,11 +62,26 @@ public class QueryStringImplTest {
   }
 
   @Test
-  public void validateTest() {
+  public void validateStringTest() {
     assertTrue(locationsQueryString.validate("{ \"start\": 2, \"lat\": 12, \"long\": 13 }"));
+    assertFalse(locationsQueryString.validate("{ \"start\": 2, \"lat\": 12, \"long\": 13, \"extraParameter\": true }"));
     assertFalse(locationsQueryString.validate("Not valid query string"));
     assertTrue(emailsQueryString
         .validate("[ { \"subject\": \"Email Subject\", \"to\": [ \"John\" ], \"body\": \"Email body\" } ]"));
+
+  }
+
+  @Test
+  public void validateMapTest() {
+    HashMap<String, List<String>> queryParameters = new HashMap<>();
+    queryParameters.put("start", Collections.singletonList("2"));
+    queryParameters.put("lat", Collections.singletonList("12"));
+    queryParameters.put("long", Collections.singletonList("13"));
+    assertTrue(locationsQueryString.validate(queryParameters));
+
+    queryParameters.put("extraParameter", Collections.singletonList("true"));
+    assertFalse(locationsQueryString.validate(queryParameters));
+
   }
 
   @Test

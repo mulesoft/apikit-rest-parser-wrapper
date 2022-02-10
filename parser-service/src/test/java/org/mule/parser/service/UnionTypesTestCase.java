@@ -34,7 +34,7 @@ public class UnionTypesTestCase {
   private static final String GET_ACTION = "GET";
   private static final String POST_ACTION = "POST";
   private static final String APPLICATION_JSON = "application/json";
-  private static final String PARAM_VALUE = "dateortimestamp";
+  private static final String RESTRICTED_NON_NULLABLE_VALUE = "dateortimestamp";
 
   @Parameterized.Parameter
   public ApiVendor apiVendor;
@@ -73,17 +73,36 @@ public class UnionTypesTestCase {
 
   @Test
   public void testQueryParametersUnion() {
-    Parameter parameter =
-        api.getResources().get(QUERY_PARAM_UNION_RESOURCE).getAction(GET_ACTION).getQueryParameters().get(PARAM_VALUE);
-    assertTrue(parameter.validate("123"));
-    assertTrue(parameter.validate("2020-01-19"));
-    assertFalse(parameter.validate("Hello%20World"));
+    Parameter nonNullableUnionWithRestriction =
+        api.getResources().get(QUERY_PARAM_UNION_RESOURCE).getAction(GET_ACTION).getQueryParameters()
+            .get(RESTRICTED_NON_NULLABLE_VALUE);
+    assertTrue(nonNullableUnionWithRestriction.validate("123"));
+    assertTrue(nonNullableUnionWithRestriction.validate("2020-01-19"));
+    assertFalse(nonNullableUnionWithRestriction.validate("Hello%20World"));
+    assertFalse(nonNullableUnionWithRestriction.validate(null));
+
+    Parameter nullableString =
+        api.getResources().get(QUERY_PARAM_UNION_RESOURCE).getAction(GET_ACTION).getQueryParameters().get("nullableString");
+    assertTrue(nullableString.validate(null));
+    assertTrue(nullableString.validate("Hello world"));
+    if (!parserMode.equals(ParserMode.RAML)) { // auto-quoting is not supported for RAML parser
+      assertTrue(nullableString.validate("123"));
+    }
+
+
+    Parameter nullableNumber =
+        api.getResources().get(QUERY_PARAM_UNION_RESOURCE).getAction(GET_ACTION).getQueryParameters().get("nullableNumber");
+    assertTrue(nullableNumber.validate(null));
+    assertFalse(nullableNumber.validate("Hello world"));
+    assertTrue(nullableNumber.validate("123"));
+
   }
 
   @Test
   public void testUriParametersUnion() {
     Parameter parameter =
-        api.getResources().get(URI_PARAM_UNION_RESOURCE).getAction(GET_ACTION).getResolvedUriParameters().get(PARAM_VALUE);
+        api.getResources().get(URI_PARAM_UNION_RESOURCE).getAction(GET_ACTION).getResolvedUriParameters()
+            .get(RESTRICTED_NON_NULLABLE_VALUE);
     assertTrue(parameter.validate("123"));
     assertTrue(parameter.validate("2020-01-19"));
     assertFalse(parameter.validate("HelloWorld"));
