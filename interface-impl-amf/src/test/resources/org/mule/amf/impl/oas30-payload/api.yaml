@@ -1,0 +1,48 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: sample-api
+
+components:
+  schemas:
+    address:
+      type: object
+      properties:
+        city:
+          type: string
+          example: "Gates Mills"
+        country:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        postalCode:
+          type: string
+          example: "44040"
+        state:
+          type: string
+          example: "OH"
+        street:
+          type: string
+          example: "1665 Berkshire Rd"
+paths:
+  /homebuyingreport:
+    summary: ""
+    description: ""
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "components/schemas/address"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "components/schemas/address"
