@@ -1,0 +1,25 @@
+components:
+  schemas:
+    report-request:
+      type: object
+      properties:
+        broker:
+          $ref: "#/components/schemas/broker"
+    broker:
+      type: object
+      properties:
+        website:
+          type: string
+          nullable: true
+        phone:
+          type: string
+        image:
+          type: string
+          nullable: true
+        fullName:
+          type: string
+        email:
+          type: string
+          nullable: true
+        company:
+          type: string
