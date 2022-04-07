@@ -24,9 +24,21 @@ paths:
       parameters:
         - name: dateortimestamp
           in: query
-          required: true
+          required: false
           schema:
             $ref: '#/components/schemas/dateortimestamp'
+        - name: nullableString
+          in: query
+          required: false
+          schema:
+            type: string
+            nullable: true
+        - name: nullableNumber
+          in: query
+          required: false
+          schema:
+            type: number
+            nullable: true
   /uriparamunion/{dateortimestamp}:
     get:
       responses:

@@ -16,6 +16,7 @@ import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
 import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
+import amf.client.model.domain.UnionShape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import com.google.common.collect.ImmutableSet;
@@ -205,11 +206,20 @@ class ParameterImpl implements Parameter {
     } else if (anyShape instanceof ArrayShape) {
       Shape itemsShape = ((ArrayShape) anyShape).items();
       scalarShape = itemsShape instanceof ScalarShape ? ((ScalarShape) itemsShape) : null;
+    } else if (anyShape instanceof UnionShape) {
+      UnionShape unionShape = (UnionShape) anyShape;
+      return unionShape.anyOf().stream().filter(shape -> shape instanceof ScalarShape)
+          .anyMatch(s -> needQuotes(((ScalarShape) s).dataType().value()));
     }
     if (scalarShape == null) {
       return Boolean.FALSE;
     }
-    String dataType = scalarShape.dataType().value();
+
+    return needQuotes(scalarShape.dataType().value());
+  }
+
+  static boolean needQuotes(String dataType) {
+
     if (dataType == null) {
       return Boolean.FALSE;
     }

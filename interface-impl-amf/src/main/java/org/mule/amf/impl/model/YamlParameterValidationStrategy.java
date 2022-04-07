@@ -19,7 +19,7 @@ class YamlParameterValidationStrategy implements ParameterValidationStrategy {
   private AnyShape anyShape;
 
   private final LazyValue<PayloadValidator> parameterValidator =
-      new LazyValue<>(() -> anyShape.parameterValidator(APPLICATION_YAML)
+      new LazyValue<>(() -> anyShape.payloadValidator(APPLICATION_YAML)
           .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape)));
 
   YamlParameterValidationStrategy(AnyShape anyShape) {

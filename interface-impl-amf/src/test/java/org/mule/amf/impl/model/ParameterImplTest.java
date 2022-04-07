@@ -121,6 +121,7 @@ public class ParameterImplTest {
       assertTrue(nullableString.validate(null));
     }
     assertTrue(nullableString.validate("123"));
+    assertTrue(nullableString.validate("hola"));
 
   }
 

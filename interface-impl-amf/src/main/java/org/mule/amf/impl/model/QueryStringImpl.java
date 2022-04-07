@@ -14,26 +14,30 @@ import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
 import amf.client.model.domain.UnionShape;
 import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import org.mule.amf.impl.util.LazyValue;
+import org.mule.apikit.common.ValidationUtils.QueryStringGroup;
+import org.mule.apikit.common.ValidationUtils.QueryStringGroup.QueryStringGroupBuilder;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonList;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+import static org.mule.apikit.common.ValidationUtils.validateQueryParams;
 
 public class QueryStringImpl implements QueryString {
 
   private AnyShape schema;
 
-  private final Map<String, Optional<PayloadValidator>> payloadValidatorMap = new HashMap<>();
-  private final String defaultMediaType = APPLICATION_YAML;
+  private LazyValue<PayloadValidator> payloadValidator = new LazyValue<>(() -> {
+    Optional<PayloadValidator> payloadValidator = schema.payloadValidator(APPLICATION_YAML);
+    return payloadValidator.orElseThrow(() -> new RuntimeException("YAML validator not found for query string"));
+  });
 
   public QueryStringImpl(AnyShape anyShape) {
     this.schema = anyShape;
@@ -49,36 +53,10 @@ public class QueryStringImpl implements QueryString {
     return schema instanceof ArrayShape;
   }
 
+  @Deprecated
   @Override
   public boolean validate(final String value) {
-    return validatePayload(value).conforms();
-  }
-
-  private ValidationReport validatePayload(String value) {
-    final String mimeType = getMimeTypeForValue(value);
-
-    Optional<PayloadValidator> payloadValidator;
-    if (!payloadValidatorMap.containsKey(mimeType)) {
-      payloadValidator = schema.payloadValidator(mimeType);
-
-      if (!payloadValidator.isPresent()) {
-        payloadValidator = schema.payloadValidator(defaultMediaType);
-      }
-
-      payloadValidatorMap.put(mimeType, payloadValidator);
-    } else {
-      payloadValidator = payloadValidatorMap.get(mimeType);
-    }
-
-    if (payloadValidator.isPresent()) {
-      try {
-        return payloadValidator.get().validate(mimeType, value).get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException("Unexpected Error validating request", e);
-      }
-    } else {
-      throw new RuntimeException("Unexpected Error validating request");
-    }
+    return payloadValidator.get().syncValidate(APPLICATION_YAML, value).conforms();
   }
 
   @Override
@@ -107,6 +85,27 @@ public class QueryStringImpl implements QueryString {
           result.put(type.name().value(), new ParameterImpl(type));
         }
       }
+    }
+    return result;
+  }
+
+  @Override
+  public boolean validate(Map<String, List<String>> queryParams) {
+    return validateQueryParams(queryParams, facets(), getRequiredQueryParamsByGroup());
+  }
+
+  private List<QueryStringGroup> getRequiredQueryParamsByGroup() {
+    List<QueryStringGroup> result = new ArrayList<>();
+    for (Shape shape : getSchemas()) {
+      QueryStringGroupBuilder queryStringGroupBuilder = QueryStringGroup.builder();
+      if (shape instanceof NodeShape) {
+        NodeShape nodeShape = (NodeShape) shape;
+        queryStringGroupBuilder.supportAdditionalProperties(!nodeShape.closed().value());
+        for (PropertyShape property : nodeShape.properties()) {
+          queryStringGroupBuilder.withProperty(property.name().value(), property.minCount().value() > 0);
+        }
+      }
+      result.add(queryStringGroupBuilder.build());
     }
     return result;
   }
