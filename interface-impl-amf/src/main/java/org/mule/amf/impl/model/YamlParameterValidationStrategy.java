@@ -7,29 +7,49 @@
 package org.mule.amf.impl.model;
 
 import amf.client.model.domain.AnyShape;
+import amf.client.model.domain.ArrayShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
+import static org.mule.apikit.ParserUtils.escapeSpecialCharsInYamlValue;
 
-class YamlParameterValidationStrategy implements ParameterValidationStrategy {
-
-  private AnyShape anyShape;
+class YamlParameterValidationStrategy extends ValidationStrategy {
 
   private final LazyValue<PayloadValidator> parameterValidator =
-      new LazyValue<>(() -> anyShape.parameterValidator(APPLICATION_YAML)
-          .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + anyShape)));
+      new LazyValue<>(() -> schema.parameterValidator(APPLICATION_YAML)
+          .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + schema)));
 
-  YamlParameterValidationStrategy(AnyShape anyShape) {
-    this.anyShape = anyShape;
+  public YamlParameterValidationStrategy(AnyShape anyShape, boolean schemaNeedsQuotes) {
+    super(anyShape, schemaNeedsQuotes);
+  }
+
+  @Override
+  public boolean valueNeedQuotes(String value) {
+    return schemaNeedsQuotes || (value != null && value.startsWith("*"));
+  }
+
+  @Override
+  public boolean needsPreProcess(String value) {
+    String trimmedValue = value.trim();
+    return schema instanceof ArrayShape && !trimmedValue.startsWith("{") && !trimmedValue.startsWith("-");
   }
 
   @Override
   public ValidationReport validate(String value) {
-    String payload = value != null ? value : "null";
-
-    return parameterValidator.get().syncValidate(APPLICATION_YAML, payload);
+    return parameterValidator.get().syncValidate(APPLICATION_YAML, value == null ? "null" : value);
   }
+
+  @Override
+  public String escapeCharsInValue(String value) {
+    return escapeSpecialCharsInYamlValue(value);
+  }
+
+  @Override
+  public String removeLeadingZeros(String value) {
+    return value;
+  }
+
 }

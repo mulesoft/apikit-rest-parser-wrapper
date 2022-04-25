@@ -18,6 +18,7 @@ import amf.client.validate.ValidationReport;
 import org.mule.apikit.model.QueryString;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import static java.util.Collections.singletonList;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
+import static org.mule.apikit.ParserUtils.queryStringAsYamlValue;
 
 public class QueryStringImpl implements QueryString {
 
@@ -50,8 +52,20 @@ public class QueryStringImpl implements QueryString {
   }
 
   @Override
-  public boolean validate(final String value) {
+  public boolean validate(String value) {
     return validatePayload(value).conforms();
+  }
+
+  @Override
+  public boolean validate(Map<String, Collection<?>> queryParams) {
+    String queryStringYaml = queryStringAsYamlValue(facets(), queryParams);
+
+    // If no YAML, empty value ends up in an empty JSON object
+    if (queryStringYaml.isEmpty()) {
+      return validate("{}");
+    }
+
+    return validate(queryStringYaml);
   }
 
   private ValidationReport validatePayload(String value) {

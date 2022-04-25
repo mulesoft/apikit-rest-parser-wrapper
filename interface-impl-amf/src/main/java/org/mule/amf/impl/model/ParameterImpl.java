@@ -16,6 +16,7 @@ import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
 import amf.client.model.domain.ScalarShape;
 import amf.client.model.domain.Shape;
+import amf.client.model.domain.UnionShape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import com.google.common.collect.ImmutableSet;
@@ -24,6 +25,7 @@ import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +35,7 @@ import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.mule.apikit.ParserUtils.getArrayAsYamlValue;
 
 class ParameterImpl implements Parameter {
 
@@ -43,7 +46,6 @@ class ParameterImpl implements Parameter {
   private AnyShape schema;
   private Set<String> allowedEncoding;
   private boolean required;
-  private final Boolean schemaNeedsQuotes;
 
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
@@ -61,9 +63,8 @@ class ParameterImpl implements Parameter {
   ParameterImpl(AnyShape anyShape, boolean required) {
     this.schema = anyShape;
     this.required = required;
-    this.schemaNeedsQuotes = needsQuotes(anyShape);
     this.validationStrategy = ParameterValidationStrategyFactory
-        .getStrategy(anyShape, (anyShape instanceof ScalarShape && schemaNeedsQuotes));
+        .getStrategy(anyShape, needsQuotes(anyShape));
   }
 
   @Override
@@ -72,11 +73,7 @@ class ParameterImpl implements Parameter {
   }
 
   ValidationReport validatePayload(String value) {
-    return validationStrategy.validate(isScalar() ? surroundWithQuotesIfNeeded(value) : value);
-  }
-
-  static String quote(String payload) {
-    return "\"" + payload + "\"";
+    return validationStrategy.validatePayload(value);
   }
 
   private static AnyShape getSchema(amf.client.model.domain.Parameter parameter) {
@@ -93,15 +90,21 @@ class ParameterImpl implements Parameter {
 
   @Override
   public String message(String value) {
-    ValidationReport validationReport = validatePayload(value);
-    if (validationReport.conforms()) {
-      return "OK";
-    } else {
-      return validationReport.results().stream()
-          .findFirst()
-          .map(ValidationResult::message)
-          .orElse("Error");
-    }
+    return getErrorMessageFromReport(validatePayload(value));
+  }
+
+  private String getErrorMessageFromReport(ValidationReport validationReport) {
+    return validationReport.conforms() ? "OK"
+        : validationReport.results().stream()
+            .findFirst()
+            .map(ValidationResult::message)
+            .orElse("Error");
+  }
+
+  @Override
+  public String messageFromValues(Collection<?> values) {
+    String arrayAsYamlValue = getArrayAsYamlValue(this, values);
+    return getErrorMessageFromReport(validatePayload(arrayAsYamlValue));
   }
 
   @Override
@@ -181,7 +184,7 @@ class ParameterImpl implements Parameter {
 
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
-    return (value != null && (value.startsWith("*") || schemaNeedsQuotes)) ? quote(value) : value;
+    return validationStrategy.preProcessValue(value);
   }
 
   @Override
@@ -205,6 +208,8 @@ class ParameterImpl implements Parameter {
     } else if (anyShape instanceof ArrayShape) {
       Shape itemsShape = ((ArrayShape) anyShape).items();
       scalarShape = itemsShape instanceof ScalarShape ? ((ScalarShape) itemsShape) : null;
+    } else if (anyShape instanceof UnionShape) {
+      return ((UnionShape) anyShape).anyOf().stream().anyMatch(shape -> needsQuotes(shape));
     }
     if (scalarShape == null) {
       return Boolean.FALSE;
@@ -215,5 +220,10 @@ class ParameterImpl implements Parameter {
     }
     dataType = dataType.substring(dataType.lastIndexOf('#') + 1);
     return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
+  }
+
+  @Override
+  public boolean validateArray(Collection<?> values) {
+    return validate(getArrayAsYamlValue(this, values));
   }
 }

@@ -8,6 +8,7 @@ package org.mule.apikit.model;
 
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.util.Collection;
 import java.util.Map;
 
 public interface QueryString {
@@ -16,7 +17,25 @@ public interface QueryString {
 
   boolean isArray();
 
+  /**
+   * Validates query string.
+   * <p>
+   * Deprecated since 2.3.0. Use {@link QueryString#validate(Map)} instead.
+   *
+   * @param value query string as YAML value
+   * @return whether is valid or not
+   */
+  @Deprecated
   boolean validate(String value);
+
+  /**
+   * Validates query string.
+   *
+   * @param queryParams collection of parameters that are part of the query string
+   * @return whether query string is valid or not
+   * @since 2.3.0
+   */
+  boolean validate(Map<String, Collection<?>> queryParams);
 
   boolean isScalar();
 

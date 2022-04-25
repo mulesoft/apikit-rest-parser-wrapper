@@ -10,6 +10,8 @@ import amf.client.validate.ValidationReport;
 
 interface ParameterValidationStrategy {
 
-  ValidationReport validate(String value);
+  ValidationReport validatePayload(String value);
+
+  String preProcessValue(String value);
 
 }

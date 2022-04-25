@@ -6,19 +6,19 @@
  */
 package org.mule.apikit.implv1.model.parameter;
 
-import static java.util.Optional.empty;
-import static org.mule.apikit.implv1.MetadataResolver.resolve;
-import static org.mule.apikit.implv1.MetadataResolver.stringType;
-
-import java.util.Optional;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
+import org.raml.model.parameter.AbstractParam;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import org.raml.model.parameter.AbstractParam;
+import static java.util.Optional.empty;
+import static org.mule.apikit.implv1.MetadataResolver.resolve;
+import static org.mule.apikit.implv1.MetadataResolver.stringType;
 
 public class ParameterImpl implements Parameter {
 
@@ -49,8 +49,18 @@ public class ParameterImpl implements Parameter {
     return parameter.validate(s);
   }
 
+  @Override
+  public boolean validateArray(Collection<?> values) {
+    throw new UnsupportedOperationException();
+  }
+
   public String message(String s) {
     return parameter.message(s);
+  }
+
+  @Override
+  public String messageFromValues(Collection<?> values) {
+    throw new UnsupportedOperationException();
   }
 
   public String getDisplayName() {

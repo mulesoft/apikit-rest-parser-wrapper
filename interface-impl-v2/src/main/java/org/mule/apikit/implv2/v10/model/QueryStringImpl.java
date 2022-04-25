@@ -24,6 +24,7 @@ import java.util.Set;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
+import static org.mule.apikit.ParserUtils.queryStringAsYamlValue;
 import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
 import static org.raml.v2.internal.impl.v10.type.TypeId.OBJECT;
 
@@ -56,6 +57,18 @@ public class QueryStringImpl implements QueryString {
   public boolean validate(String value) {
     List<ValidationResult> results = typeDeclaration.validate(value);
     return results.isEmpty();
+  }
+
+  @Override
+  public boolean validate(Map<String, Collection<?>> queryParams) {
+    String queryStringYaml = queryStringAsYamlValue(facets(), queryParams);
+
+    // If no YAML, empty value ends up in an empty JSON object
+    if (queryStringYaml.isEmpty()) {
+      return validate("{}");
+    }
+
+    return validate(queryStringYaml);
   }
 
   @Override
