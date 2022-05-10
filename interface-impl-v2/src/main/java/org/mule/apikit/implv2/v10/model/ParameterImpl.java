@@ -16,10 +16,12 @@ import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
 import org.raml.v2.api.model.v10.datamodel.FileTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.UnionTypeDeclaration;
 import org.raml.v2.api.model.v10.system.types.AnnotableStringType;
 import org.raml.v2.api.model.v10.system.types.MarkdownString;
 import org.raml.v2.internal.impl.v10.type.TypeId;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -34,6 +36,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static org.mule.apikit.ParserUtils.escapeSpecialCharsInYamlValue;
+import static org.mule.apikit.ParserUtils.getArrayAsYamlValue;
+import static org.mule.apikit.ParserUtils.quoteValue;
 import static org.mule.apikit.implv2.v10.MetadataResolver.anyType;
 import static org.mule.apikit.implv2.v10.MetadataResolver.resolve;
 import static org.raml.v2.internal.impl.v10.type.TypeId.ARRAY;
@@ -46,12 +51,11 @@ public class ParameterImpl implements Parameter {
 
   private static final Set<String> NUMBER_DATA_TYPES = ImmutableSet.of(NUMBER.getType(), INTEGER.getType());
   private static final Set<String> BOOLEAN_DATA_TYPES = ImmutableSet.of(BOOLEAN.getType());
-
   private TypeDeclaration typeDeclaration;
   private Collection<String> scalarTypes;
   private Boolean required;
   private Optional<String> defaultValue;
-  private final Boolean typeNeedsQuotes;
+  private final boolean typeNeedsQuotes;
 
   public ParameterImpl(TypeDeclaration typeDeclaration) {
     this.typeDeclaration = typeDeclaration;
@@ -71,8 +75,19 @@ public class ParameterImpl implements Parameter {
   }
 
   @Override
+  public boolean validateArray(Collection<?> values) {
+    return validate(getArrayAsYamlValue(this, values));
+  }
+
+  @Override
   public String message(String value) {
     List<ValidationResult> results = typeDeclaration.validate(value);
+    return results.isEmpty() ? "OK" : results.get(0).getMessage();
+  }
+
+  @Override
+  public String messageFromValues(Collection<?> values) {
+    List<ValidationResult> results = typeDeclaration.validate(getArrayAsYamlValue(this, values));
     return results.isEmpty() ? "OK" : results.get(0).getMessage();
   }
 
@@ -162,7 +177,7 @@ public class ParameterImpl implements Parameter {
 
   @Override
   public String surroundWithQuotesIfNeeded(String value) {
-    return value != null && (value.startsWith("*") || typeNeedsQuotes) ? quote(value) : value;
+    return value != null && typeNeedsQuotes ? quoteValue(escapeSpecialCharsInYamlValue(value)) : value;
   }
 
   @Override
@@ -186,6 +201,10 @@ public class ParameterImpl implements Parameter {
    * @return true if typeSet contains type or parent's types
    */
   private static boolean isOfType(TypeDeclaration type, Collection<String> typesCollection) {
+    if (type.type() == null) {
+      String[] types = type.name().split("\\|");
+      return Arrays.stream(types).anyMatch(t -> typesCollection.contains(t.trim()));
+    }
     return typesCollection.contains(type.type()) || (type.parentTypes() != null
         && !type.parentTypes().isEmpty()
         && type.parentTypes().stream().anyMatch(pt -> typesCollection.contains(pt.type())));
@@ -195,16 +214,18 @@ public class ParameterImpl implements Parameter {
     TypeDeclaration type = typeDeclaration;
     if (type instanceof ArrayTypeDeclaration) {
       type = ((ArrayTypeDeclaration) type).items();
+      if (type instanceof UnionTypeDeclaration) {
+        return ((UnionTypeDeclaration) type).of().stream().anyMatch(t -> needsQuotes(t));
+      }
       if (type instanceof ObjectTypeDeclaration || type instanceof ArrayTypeDeclaration) {
         return Boolean.FALSE;
       }
+    } else if (typeDeclaration instanceof UnionTypeDeclaration) {
+      return ((UnionTypeDeclaration) typeDeclaration).of().stream().anyMatch(t -> needsQuotes(t));
     } else if (!isOfType(type, scalarTypes)) {
       return Boolean.FALSE;
     }
     return !(isOfType(type, NUMBER_DATA_TYPES) || isOfType(type, BOOLEAN_DATA_TYPES));
   }
 
-  static String quote(String payload) {
-    return "\"" + payload + "\"";
-  }
 }

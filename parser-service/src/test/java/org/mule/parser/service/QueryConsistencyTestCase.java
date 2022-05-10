@@ -19,9 +19,11 @@ import org.mule.apikit.model.parameter.Parameter;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mule.apikit.model.ActionType.GET;
@@ -34,12 +36,16 @@ public class QueryConsistencyTestCase {
   private static final String INTEGER_ITEM_PARAM = "integerItemParam";
   private static final String BOOLEAN_ITEM_PARAM = "booleanItemParam";
   private static final String DATETIME_ITEM_PARAM = "datetimeItemParam";
+  private static final String UNION_ITEM_PARAM = "unionItemParam";
+  private static final String NON_STRING_UNION_ITEM_PARAM = "nonStringUnionItemParam";
   private static final String OBJECT_ITEM_PARAM = "objectItemParam";
   private static final String STRING_ITEM_PARAMS = "stringItemParams";
   private static final String NUMERIC_ITEM_PARAMS = "numericItemParams";
   private static final String INTEGER_ITEM_PARAMS = "integerItemParams";
   private static final String BOOLEAN_ITEM_PARAMS = "booleanItemParams";
   private static final String DATETIME_ITEM_PARAMS = "datetimeItemParams";
+  private static final String UNION_ITEM_PARAMS = "unionItemParams";
+  private static final String NON_STRING_UNION_ITEM_PARAMS = "nonStringUnionItemParams";
   private static final String OBJECT_ITEM_PARAMS = "objectItemParams";
 
   private Map<String, Parameter> queryParameters;
@@ -72,97 +78,141 @@ public class QueryConsistencyTestCase {
 
   @Test
   public void testStringValidation() {
-    assertValue(true, STRING_ITEM_PARAM, "test", true);
-    assertValue(true, STRING_ITEM_PARAM, "12345", true);
-    assertValue(true, STRING_ITEM_PARAM, "*test", true);
-    assertValue(false, STRING_ITEM_PARAM, "exceedMaxLength", true);
+    validateConsistency(true, STRING_ITEM_PARAM, "test");
+    validateConsistency(true, STRING_ITEM_PARAM, "12345");
+    validateConsistency(true, STRING_ITEM_PARAM, "*test");
+    validateConsistency(false, STRING_ITEM_PARAM, "exceedMaxLength");
   }
 
 
   @Test
   public void testNumberValidation() {
-    assertValue(true, NUMERIC_ITEM_PARAM, "12345", false);
-    assertValue(true, NUMERIC_ITEM_PARAM, "123.34", false);
-    assertValue(false, NUMERIC_ITEM_PARAM, "ABC", false);
+    validateConsistency(true, NUMERIC_ITEM_PARAM, "12345");
+    validateConsistency(true, NUMERIC_ITEM_PARAM, "123.34");
+    validateConsistency(false, NUMERIC_ITEM_PARAM, "ABC");
   }
 
   @Test
   public void testIntegerValidation() {
-    assertValue(true, INTEGER_ITEM_PARAM, "12345", false);
-    assertValue(false, INTEGER_ITEM_PARAM, "12.55", false);
-    assertValue(false, INTEGER_ITEM_PARAM, "ABC", false);
+    validateConsistency(true, INTEGER_ITEM_PARAM, "12345");
+    validateConsistency(false, INTEGER_ITEM_PARAM, "12.55");
+    validateConsistency(false, INTEGER_ITEM_PARAM, "ABC");
   }
 
   @Test
   public void testBooleanValidation() {
-    assertValue(true, BOOLEAN_ITEM_PARAM, "true", false);
-    assertValue(true, BOOLEAN_ITEM_PARAM, "False", false);
-    assertValue(false, BOOLEAN_ITEM_PARAM, "ABC", false);
+    validateConsistency(true, BOOLEAN_ITEM_PARAM, "true");
+    validateConsistency(true, BOOLEAN_ITEM_PARAM, "False");
+    validateConsistency(false, BOOLEAN_ITEM_PARAM, "ABC");
   }
 
   @Test
   public void testDatetimeValidation() {
-    assertValue(true, DATETIME_ITEM_PARAM, "2016-02-28T16:41:41.090Z", false);
-    assertValue(false, DATETIME_ITEM_PARAM, "12016-02-28T16:41:41.090Z", false);
+    validateConsistency(true, DATETIME_ITEM_PARAM, "2016-02-28T16:41:41.090Z");
+    validateConsistency(false, DATETIME_ITEM_PARAM, "12016-02-28T16:41:41.090Z");
+  }
+
+  @Test
+  public void testUnionValidation() {
+    validateConsistency(true, UNION_ITEM_PARAM, "ABC");
+    validateConsistency(true, UNION_ITEM_PARAM, "123");
+    validateConsistency(true, UNION_ITEM_PARAM, "{\"someField\": \"someValue\"}");
+    validateConsistency(true, UNION_ITEM_PARAM, "\n- \"firstValue\"\n- \"secondValue\"\n");
+  }
+
+  @Test
+  public void testNonStringUnionValidation() {
+    validateConsistency(true, NON_STRING_UNION_ITEM_PARAM, "true");
+    validateConsistency(true, NON_STRING_UNION_ITEM_PARAM, "False");
+    validateConsistency(true, NON_STRING_UNION_ITEM_PARAM, "123");
+    validateConsistency(true, NON_STRING_UNION_ITEM_PARAM, "123.456");
+    validateConsistency(false, NON_STRING_UNION_ITEM_PARAM, "ABC");
+    validateConsistency(false, NON_STRING_UNION_ITEM_PARAM, "\"123\"");
   }
 
   @Test
   public void testObjectValidation() {
-    assertValue(true, OBJECT_ITEM_PARAM,
-                "{\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}",
-                false);
-    assertValue(false, OBJECT_ITEM_PARAM, "{\"integerProp\":\"ABC\"}", false);
+    validateConsistency(true, OBJECT_ITEM_PARAM,
+                        "{\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}");
+    validateConsistency(false, OBJECT_ITEM_PARAM, "{\"integerProp\":\"ABC\"}");
   }
 
   @Test
   public void testStringArrayValidation() {
-    assertValue(true, STRING_ITEM_PARAMS, "\n- \"ABC\"\n- \"12345\"\n- \"*test\"\n- \"A\\\"B\\\"C\"\n", false);
-    assertValue(false, STRING_ITEM_PARAMS, "\n- \"exceedsMaxLength\"\n", false);
+    validateArrayConsistency(true, STRING_ITEM_PARAMS, asList("ABC", "12345", "*test", "AB", "BC", "CD"));
+    validateArrayConsistency(false, STRING_ITEM_PARAMS, asList("exceedsMaxLength"));
+    validateArrayConsistency(false, STRING_ITEM_PARAMS, asList("A"));
   }
 
   @Test
   public void testNumberArrayValidation() {
-    assertValue(true, NUMERIC_ITEM_PARAMS, "\n- 123\n- 45.67", false);
-    assertValue(false, NUMERIC_ITEM_PARAMS, "\n- 123\n- ABC", false);
+    validateArrayConsistency(true, NUMERIC_ITEM_PARAMS, asList("123", "45.67"));
+    validateArrayConsistency(false, NUMERIC_ITEM_PARAMS, asList("123", "ABC"));
   }
 
   @Test
   public void testIntegerArrayValidation() {
-    assertValue(true, INTEGER_ITEM_PARAMS, "\n- 123\n- 4567", false);
-    assertValue(false, INTEGER_ITEM_PARAMS, "\n- ABC\n", false);
+    validateArrayConsistency(true, INTEGER_ITEM_PARAMS, asList("123", "4567"));
+    validateArrayConsistency(false, INTEGER_ITEM_PARAMS, asList("123", "ABC"));
+    validateArrayConsistency(false, INTEGER_ITEM_PARAMS, asList("45.67"));
   }
 
   @Test
   public void testBooleanArrayValidation() {
-    assertValue(true, BOOLEAN_ITEM_PARAMS, "\n- true\n- False", false);
-    assertValue(false, BOOLEAN_ITEM_PARAMS, "\n- ABC", false);
+    validateArrayConsistency(true, BOOLEAN_ITEM_PARAMS, asList("true", "False"));
+    validateArrayConsistency(false, BOOLEAN_ITEM_PARAMS, asList("ABC"));
   }
 
   @Test
   public void testDatetimeArrayValidation() {
-    assertValue(true, DATETIME_ITEM_PARAMS, "\n- \"2016-02-28T16:41:41.090Z\"\n- \"2016-01-28T16:41:41.090Z\"", false);
-    assertValue(false, DATETIME_ITEM_PARAMS, "\n- \"12016-02-28T16:41:41.090Z\"", false);
+    validateArrayConsistency(true, DATETIME_ITEM_PARAMS, asList("2016-02-28T16:41:41.090Z", "2016-01-28T16:41:41.090Z"));
+    validateArrayConsistency(false, DATETIME_ITEM_PARAMS, asList("12016-02-28T16:41:41.090Z"));
+  }
+
+  @Test
+  public void testUnionItemArrayValidation() {
+    validateArrayConsistency(true, UNION_ITEM_PARAMS, asList("ABC", "123", "\"ABC123\"", "*something*", "\\else\\"));
+  }
+
+  @Test
+  public void testNonStringUnionItemArrayValidation() {
+    validateArrayConsistency(true, NON_STRING_UNION_ITEM_PARAMS, asList("123", "45.67", "true", "FALSE"));
+    validateArrayConsistency(false, NON_STRING_UNION_ITEM_PARAMS, asList("123", "ABC"));
   }
 
   @Test
   public void testObjectArrayValidation() {
-    assertValue(true, OBJECT_ITEM_PARAMS,
-                "\n- {\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}\n"
-                    + "- {\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}",
-                false);
-    assertValue(false, OBJECT_ITEM_PARAMS, "\n- {\"integerProp\":ABC}\n- {\"integerProp\":3}", false);
+    validateArrayConsistency(true, OBJECT_ITEM_PARAMS,
+                             asList("{\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}",
+                                    "{\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}"));
+    validateArrayConsistency(false, OBJECT_ITEM_PARAMS, asList("{\"integerProp\":ABC}", "{\"integerProp\":3}"));
   }
 
-  private void assertValue(boolean expectedResult, String queryParamName, String value, boolean yamlNeedsQuotes) {
+  public void validateConsistency(boolean expectedResult, String paramName, String value) {
+    assertQueryParamValue(expectedResult, paramName, value);
+    assertQueryStringValue(expectedResult, singletonMap(paramName, asList(value)));
+  }
+
+  public void validateArrayConsistency(boolean expectedResult, String paramName, List<String> values) {
+    assertQueryParamArrayValue(expectedResult, paramName, values);
+    assertQueryStringValue(expectedResult, singletonMap(paramName, values));
+  }
+
+  private void assertQueryParamValue(boolean expectedResult, String queryParamName, String value) {
     Parameter queryParam = queryParameters.get(queryParamName);
-    boolean validate = queryParam.validate(value);
-    if (expectedResult) {
-      assertTrue(validate);
-    } else {
-      assertFalse(validate);
-    }
-    String yamlValue = getYamlKeyValue(queryParamName, value, yamlNeedsQuotes);
-    validate = queryString.validate(yamlValue);
+    assertExpectation(expectedResult, queryParam.validate(value));
+  }
+
+  private void assertQueryParamArrayValue(boolean expectedResult, String queryParamName, List<String> values) {
+    Parameter queryParam = queryParameters.get(queryParamName);
+    assertExpectation(expectedResult, queryParam.validateArray(values));
+  }
+
+  private void assertQueryStringValue(boolean expectedResult, Map<String, Collection<?>> values) {
+    assertExpectation(expectedResult, queryString.validate(values));
+  }
+
+  public void assertExpectation(boolean expectedResult, boolean validate) {
     if (expectedResult) {
       assertTrue(validate);
     } else {
@@ -170,7 +220,4 @@ public class QueryConsistencyTestCase {
     }
   }
 
-  private String getYamlKeyValue(String paramName, String value, boolean needsQuotes) {
-    return paramName + ": " + (needsQuotes ? "\"" + value + "\"" : value);
-  }
 }

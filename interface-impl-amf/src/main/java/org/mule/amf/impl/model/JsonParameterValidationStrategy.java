@@ -15,27 +15,32 @@ import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
-import static org.mule.amf.impl.model.ParameterImpl.quote;
 
-class JsonParameterValidationStrategy implements ParameterValidationStrategy {
-
-  private final boolean needsCharsEscaping;
-  private ValidatorAware validatorAware;
+class JsonParameterValidationStrategy extends ValidationStrategy {
 
   private final LazyValue<PayloadValidator> jsonValidator =
-      new LazyValue<>(() -> validatorAware.payloadValidator(APPLICATION_JSON)
-          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + validatorAware)));
+      new LazyValue<>(() -> schema.payloadValidator(APPLICATION_JSON)
+          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + schema)));
 
   private final LazyValue<ValidationReport> nullValidationReport = new LazyValue<>(() -> {
-    final PayloadValidator yamlPayloadValidator = validatorAware.payloadValidator(APPLICATION_YAML)
-        .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + validatorAware));
+    final PayloadValidator yamlPayloadValidator = schema.payloadValidator(APPLICATION_YAML)
+        .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + schema));
 
     return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
   });
 
-  JsonParameterValidationStrategy(ValidatorAware validatorAware, boolean needsCharsEscaping) {
-    this.validatorAware = validatorAware;
-    this.needsCharsEscaping = needsCharsEscaping;
+  public JsonParameterValidationStrategy(ValidatorAware validatorAware, boolean schemaNeedsQuotes) {
+    super(validatorAware, schemaNeedsQuotes);
+  }
+
+  @Override
+  public boolean valueNeedQuotes(String value) {
+    return schemaNeedsQuotes;
+  }
+
+  @Override
+  public boolean needsPreProcess(String value) {
+    return true;
   }
 
   @Override
@@ -43,19 +48,18 @@ class JsonParameterValidationStrategy implements ParameterValidationStrategy {
     if (value == null) {
       return nullValidationReport.get();
     }
-
-    return jsonValidator.get().syncValidate(APPLICATION_JSON, getPayload(value));
+    return jsonValidator.get().syncValidate(APPLICATION_JSON, value);
   }
 
-  private String getPayload(String value) {
-    if (needsCharsEscaping && value.startsWith("\"")) {
-      return quote(JSONValue.escape(value.substring(1, value.length() - 1)));
-    }
-    return removeLeadingZeros(value);
+
+  @Override
+  public String escapeCharsInValue(String value) {
+    return JSONValue.escape(value);
   }
 
-  private String removeLeadingZeros(String value) {
-    if (!value.startsWith("0")) {
+  @Override
+  public String removeLeadingZeros(String value) {
+    if (value == null || !value.startsWith("0")) {
       return value;
     }
 

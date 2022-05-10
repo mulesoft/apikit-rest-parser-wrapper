@@ -17,14 +17,14 @@ class ParameterValidationStrategyFactory {
     throw new IllegalStateException("Utility class");
   }
 
-  static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean needsCharEscaping) {
-    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape)
-        : getJsonParameterValidationStrategy(anyShape, needsCharEscaping);
+  static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean schemaNeedsQuotes) {
+    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape, schemaNeedsQuotes)
+        : getJsonParameterValidationStrategy(anyShape, schemaNeedsQuotes);
   }
 
   private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape,
-                                                                                    boolean needsCharsEscaping) {
-    return new JsonParameterValidationStrategy(anyShape, needsCharsEscaping);
+                                                                                    boolean schemaNeedsQuotes) {
+    return new JsonParameterValidationStrategy(anyShape, schemaNeedsQuotes);
   }
 
   /**

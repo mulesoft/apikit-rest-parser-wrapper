@@ -17,12 +17,12 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -69,7 +69,7 @@ public class ParameterImplTest {
     apiLocation = ParameterImplTest.class.getResource("../oas30-query-parameters/api.yaml").toURI().toString();
     ApiReference oas30apiRef = ApiReference.create(apiLocation);
 
-    return Arrays.asList(new Object[][] {
+    return asList(new Object[][] {
         {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()},
         {ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
         {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
@@ -130,17 +130,17 @@ public class ParameterImplTest {
     if (!ApiVendor.OAS_20.equals(apiVendor)) {
       assertTrue(nullableArray.validate(null));
     }
-    assertTrue(nullableArray.validate("- \"Hola\"\n- \"Mundo\""));
+    assertTrue(nullableArray.validateArray(asList("Hola", "Mundo")));
   }
 
   @Test
   public void nonNullableArray() {
     final Parameter nonNullableString = testNullQueryParams.get("nonNullableArray");
     if (!ApiVendor.OAS_20.equals(apiVendor)) {
-      assertFalse(nonNullableString.validate(null));
-      assertEquals("expected type: JSONArray, found: Null", nonNullableString.message(null));
+      assertFalse(nonNullableString.validateArray(null));
+      assertEquals("expected type: JSONArray, found: Null", nonNullableString.messageFromValues(null));
     }
-    assertTrue(nonNullableString.validate("- \"Hola\"\n- \"Mundo\""));
+    assertTrue(nonNullableString.validateArray(asList("Hola", "Mundo")));
   }
 
   @Test
@@ -168,6 +168,37 @@ public class ParameterImplTest {
     assertTrue(parameter.validate("Tests:Tests"));
     assertTrue(parameter.validate("Test:%20Test"));
     assertTrue(parameter.validate("Test%3A%20Test"));
+    assertTrue(parameter.validate("*qwerty*qwerty*"));
+  }
+
+  @Test
+  public void validateSpecialCharactersInArray() {
+    final Parameter nullableArray = testNullQueryParams.get("nullableArray");
+    final Parameter nonNullableArray = testNullQueryParams.get("nonNullableArray");
+    validateArrayValue(nullableArray, nonNullableArray, asList("\\Test\\Test1"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("Test%3A%20Test\\"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("\"foo\" is not \"bar\". specials: \b\r\n\f\t\\/"));
+    validateArrayValue(nullableArray, nonNullableArray, asList(";',|[]+@<>{}`!\"%"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("A',|[]+@<>{}`!\"%"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("1',|[]+@<>{}`!\"%"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("',|[]+@<>{}`!\"%"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("%',|[]+@<>{}`!\"%"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("@',|[]+@<>{}`!\"%"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("%25%3B%27%2C%7C%5B%5D%2B%40%3C%3E%7B%7D%60%21%22%25"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("\"Test:%20Test\""));
+    validateArrayValue(nullableArray, nonNullableArray, asList("Tests:Tests"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("Test:%20Test"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("Test%3A%20Test"));
+    validateArrayValue(nullableArray, nonNullableArray, asList("*qwerty*qwerty*", null));
+    if (!ApiVendor.OAS_20.equals(apiVendor)) {
+      assertTrue(nullableArray.validateArray(null));
+    }
+    assertFalse(nonNullableArray.validateArray(null));
+  }
+
+  public void validateArrayValue(Parameter nullableArray, Parameter nonNullableArray, List<String> values) {
+    assertTrue(nullableArray.validateArray(values));
+    assertTrue(nonNullableArray.validateArray(values));
   }
 
   @Test

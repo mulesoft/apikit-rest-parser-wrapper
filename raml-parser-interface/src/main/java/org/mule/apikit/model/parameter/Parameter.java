@@ -6,10 +6,11 @@
  */
 package org.mule.apikit.model.parameter;
 
-import java.util.Optional;
 import org.mule.metadata.api.model.MetadataType;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Parameter {
 
@@ -23,7 +24,11 @@ public interface Parameter {
 
   boolean validate(String value);
 
+  boolean validateArray(Collection<?> values);
+
   String message(String value);
+
+  String messageFromValues(Collection<?> values);
 
   String getDisplayName();
 
