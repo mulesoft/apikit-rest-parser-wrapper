@@ -40,6 +40,12 @@
             <groupId>org.mule.apikit</groupId>
             <artifactId>raml-parser-interface-impl-amf</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>json</artifactId>
+                    <groupId>org.json</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
