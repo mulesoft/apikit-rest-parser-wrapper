@@ -64,7 +64,7 @@ public class AMFImpl implements ApiSpecification {
     this.references = references;
     this.apiVendor = vendor;
     this.apiLocation = location;
-    this.consoleModel = new LazyValue<>(() -> parser.parseApi());
+    this.consoleModel = new LazyValue<>(parser::parseApi);
     this.parser = parser;
   }
 
