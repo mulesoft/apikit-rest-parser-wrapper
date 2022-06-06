@@ -37,7 +37,7 @@ public class ApiVendorUtils {
     final String maybeDoubleQuotes = "\"?";
     final String maybeDoubleOrSingleQuotes = "[\"']?";
     final String skipWhitespace = "\\s*";
-    final String matchPrefix = notAComment + skipWhitespace + maybeDoubleQuotes + skipWhitespace;
+    final String matchPrefix = notAComment + maybeDoubleQuotes + skipWhitespace;
     final String matchInfix =
         skipWhitespace + maybeDoubleQuotes + skipWhitespace + ":" + skipWhitespace + maybeDoubleOrSingleQuotes + skipWhitespace;
     final String matchPostfix = skipWhitespace + maybeDoubleOrSingleQuotes;
