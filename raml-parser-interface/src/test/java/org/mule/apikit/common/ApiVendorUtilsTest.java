@@ -25,6 +25,7 @@ public class ApiVendorUtilsTest {
     assertApiVendor("raml10.raml", ApiVendor.RAML_10);
     assertApiVendor("swagger.json", ApiVendor.OAS_20);
     assertApiVendor("swagger.json", ApiVendor.OAS_20);
+    assertApiVendor("openapi-unindented.json", ApiVendor.OAS_30);
   }
 
   public void assertApiVendor(String api, ApiVendor apiVendor) {
