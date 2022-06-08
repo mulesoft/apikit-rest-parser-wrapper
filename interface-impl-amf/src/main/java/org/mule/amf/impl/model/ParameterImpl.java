@@ -21,6 +21,7 @@ import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import com.google.common.collect.ImmutableSet;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
+import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
@@ -46,6 +47,14 @@ class ParameterImpl implements Parameter {
   private AnyShape schema;
   private Set<String> allowedEncoding;
   private boolean required;
+
+  private LazyValue<Boolean> isArray = new LazyValue<>(() -> {
+    if (schema instanceof UnionShape) {
+      UnionShape unionShape = (UnionShape) schema;
+      return unionShape.anyOf().stream().allMatch(shape -> shape instanceof ArrayShape);
+    }
+    return schema instanceof ArrayShape;
+  });
 
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
@@ -123,12 +132,12 @@ class ParameterImpl implements Parameter {
 
   @Override
   public boolean isRepeat() {
-    return schema instanceof ArrayShape;
+    return isArray.get();
   }
 
   @Override
   public boolean isArray() {
-    return schema instanceof ArrayShape;
+    return isArray.get();
   }
 
   @Override
