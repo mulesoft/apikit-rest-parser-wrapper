@@ -73,6 +73,8 @@ types:
   objectItems:
     type: array
     items: objectItem
+  unionOfArrays:
+    type: booleanItems | integerItems
   query:
     type: object
     additionalProperties: false
@@ -109,6 +111,8 @@ types:
         type: nonStringUnionItems
       objectItemParams?:
         type: objectItems
+      unionOfArraysParams?:
+        type: unionOfArrays
 
 /testQueryParams:
   get:
@@ -145,6 +149,8 @@ types:
         type: nonStringUnionItems
       objectItemParams?:
         type: objectItems
+      unionOfArraysParams?:
+        type: unionOfArrays
     responses:
       200:
 /testQueryString:

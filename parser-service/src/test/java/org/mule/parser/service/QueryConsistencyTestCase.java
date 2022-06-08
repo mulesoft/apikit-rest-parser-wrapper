@@ -47,6 +47,7 @@ public class QueryConsistencyTestCase {
   private static final String UNION_ITEM_PARAMS = "unionItemParams";
   private static final String NON_STRING_UNION_ITEM_PARAMS = "nonStringUnionItemParams";
   private static final String OBJECT_ITEM_PARAMS = "objectItemParams";
+  private static final String UNION_OF_ARRAYS = "unionOfArraysParams";
 
   private Map<String, Parameter> queryParameters;
   private QueryString queryString;
@@ -186,6 +187,16 @@ public class QueryConsistencyTestCase {
                              asList("{\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}",
                                     "{\"stringProp\":\"test\",\"numberProp\":0.10,\"integerProp\":3,\"booleanProp\":false,\"datetimeProp\":\"2016-02-28T16:41:41.090Z\",\"stringProps\":[\"A\",\"B\"],\"numberProps\":[0,1.26],\"integerProps\": [0, 1, 2],\"booleanProps\":[false,true,true],\"datetimeProps\":[\"2016-02-28T16:41:41.090Z\",\"2016-02-28T16:41:41.090Z\"]}"));
     validateArrayConsistency(false, OBJECT_ITEM_PARAMS, asList("{\"integerProp\":ABC}", "{\"integerProp\":3}"));
+  }
+
+
+  @Test
+  public void testUnionOfArraysValidation() {
+    if (parserMode.equals(ParserMode.AMF)) {// RAML Parser query string union of arrays validation is not supported
+      validateArrayConsistency(true, UNION_OF_ARRAYS, asList("123"));
+      validateArrayConsistency(true, UNION_OF_ARRAYS, asList("false", "true"));
+      validateArrayConsistency(false, UNION_OF_ARRAYS, asList("123", "true"));
+    }
   }
 
   public void validateConsistency(boolean expectedResult, String paramName, String value) {
