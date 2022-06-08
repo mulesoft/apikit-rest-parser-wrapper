@@ -71,7 +71,9 @@ public class ParserUtils {
 
       queryStringYaml.append("\n").append(property).append(": ");
 
-      if (actualQueryParam.size() > 1 || facet.isArray()) {
+      if (actualQueryParam == null) {
+        queryStringYaml.append(facet.surroundWithQuotesIfNeeded(null)).append("\n");
+      } else if (actualQueryParam.size() > 1 || facet.isArray()) {
         for (Object value : actualQueryParam) {
           queryStringYaml.append("\n  - ").append(facet.surroundWithQuotesIfNeeded(valueOf(value)));
         }

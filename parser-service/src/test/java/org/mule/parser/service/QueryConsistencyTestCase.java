@@ -193,8 +193,9 @@ public class QueryConsistencyTestCase {
   @Test
   public void testUnionOfArraysValidation() {
     if (parserMode.equals(ParserMode.AMF)) {// RAML Parser query string union of arrays validation is not supported
-      validateArrayConsistency(true, UNION_OF_ARRAYS, asList("123"));
+      validateArrayConsistency(true, UNION_OF_ARRAYS, asList("123", "456"));
       validateArrayConsistency(true, UNION_OF_ARRAYS, asList("false", "true"));
+      validateArrayConsistency(true, UNION_OF_ARRAYS, null);
       validateArrayConsistency(false, UNION_OF_ARRAYS, asList("123", "true"));
     }
   }
