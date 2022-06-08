@@ -14,6 +14,7 @@ import org.raml.v2.api.model.common.ValidationResult;
 import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
 import org.raml.v2.api.model.v10.datamodel.FileTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.NullTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.UnionTypeDeclaration;
@@ -193,6 +194,12 @@ public class ParameterImpl implements Parameter {
     return empty();
   }
 
+  @Override
+  public boolean isNullable() {
+    return typeDeclaration instanceof NullTypeDeclaration
+        || typeDeclaration instanceof UnionTypeDeclaration && hasNilShape((UnionTypeDeclaration) typeDeclaration);
+  }
+
   /**
    * Returns whether the type or parent's types are part of the type collection.
    *
@@ -228,4 +235,7 @@ public class ParameterImpl implements Parameter {
     return !(isOfType(type, NUMBER_DATA_TYPES) || isOfType(type, BOOLEAN_DATA_TYPES));
   }
 
+  private static boolean hasNilShape(UnionTypeDeclaration unionType) {
+    return unionType.of().stream().anyMatch(NullTypeDeclaration.class::isInstance);
+  }
 }
