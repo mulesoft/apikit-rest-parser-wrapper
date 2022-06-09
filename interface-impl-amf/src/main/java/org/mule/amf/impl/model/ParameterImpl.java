@@ -11,6 +11,7 @@ import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.DataNode;
 import amf.client.model.domain.FileShape;
+import amf.client.model.domain.NilShape;
 import amf.client.model.domain.NodeShape;
 import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
@@ -50,8 +51,7 @@ class ParameterImpl implements Parameter {
 
   private LazyValue<Boolean> isArray = new LazyValue<>(() -> {
     if (schema instanceof UnionShape) {
-      UnionShape unionShape = (UnionShape) schema;
-      return unionShape.anyOf().stream().allMatch(shape -> shape instanceof ArrayShape);
+      return areArrays((UnionShape) schema);
     }
     return schema instanceof ArrayShape;
   });
@@ -210,6 +210,11 @@ class ParameterImpl implements Parameter {
     return empty();
   }
 
+  @Override
+  public boolean validateArray(Collection<?> values) {
+    return validate(getArrayAsYamlValue(this, values));
+  }
+
   private static Boolean needsQuotes(Shape anyShape) {
     ScalarShape scalarShape = null;
     if (anyShape instanceof ScalarShape) {
@@ -231,8 +236,16 @@ class ParameterImpl implements Parameter {
     return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
   }
 
-  @Override
-  public boolean validateArray(Collection<?> values) {
-    return validate(getArrayAsYamlValue(this, values));
+  private static boolean areArrays(UnionShape unionShape) {
+    boolean areArrays = false;
+    for (Shape shape : unionShape.anyOf()) {
+      if (shape instanceof ArrayShape) {
+        areArrays = true;
+      } else if (!(shape instanceof NilShape)) {
+        return false;
+      }
+    }
+
+    return areArrays;
   }
 }
