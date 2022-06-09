@@ -51,7 +51,7 @@ class ParameterImpl implements Parameter {
 
   private LazyValue<Boolean> isArray = new LazyValue<>(() -> {
     if (schema instanceof UnionShape) {
-      return areArrays((UnionShape) schema);
+      return hasAnArrayVariant((UnionShape) schema);
     }
     return schema instanceof ArrayShape;
   });
@@ -236,7 +236,7 @@ class ParameterImpl implements Parameter {
     return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
   }
 
-  private static boolean areArrays(UnionShape unionShape) {
+  private static boolean hasAnArrayVariant(UnionShape unionShape) {
     boolean areArrays = false;
     for (Shape shape : unionShape.anyOf()) {
       if (shape instanceof ArrayShape) {
