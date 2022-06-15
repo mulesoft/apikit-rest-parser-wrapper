@@ -237,15 +237,15 @@ class ParameterImpl implements Parameter {
   }
 
   private static boolean hasAnArrayVariant(UnionShape unionShape) {
-    boolean areArrays = false;
+    boolean hasAnArrayVariant = false;
     for (Shape shape : unionShape.anyOf()) {
       if (shape instanceof ArrayShape) {
-        areArrays = true;
+        hasAnArrayVariant = true;
       } else if (!(shape instanceof NilShape)) {
         return false;
       }
     }
 
-    return areArrays;
+    return hasAnArrayVariant;
   }
 }
