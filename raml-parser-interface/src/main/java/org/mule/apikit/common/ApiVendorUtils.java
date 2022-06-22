@@ -21,8 +21,29 @@ import static org.mule.apikit.model.ApiVendor.RAML_10;
 
 public class ApiVendorUtils {
 
-  private static final String OPENAPI_REGEX = "\\s*\"?\\s*openapi\\s*\"?\\s*:\\s*[\"|']?\\s*3\\.0.\\d+\\s*[\"']?\\s*.*$";
-  private static final String SWAGGER_REGEX = "\\s*\"?\\s*swagger\\s*\"?\\s*:\\s*[\"|']?\\s*2\\.0\\s*[\"']?\\s*.*$";
+  private static final String OPENAPI_REGEX;
+  private static final String SWAGGER_REGEX;
+  static {
+    // We want to match the something like openapi:3.0.<minor> or swagger:3.0.<minor> (with optional "" around either
+    // the spec type or the version).
+    //
+    // The version declaration might appear in an almost arbitrary place on the file (JSON or YAML). We want to match it
+    // nonetheless. The only circumstance where a match should be discarded is if it appears inside a comment. JSON has
+    // no syntax for comments, we just have to forbid YAML comments (they start on a # and end on a newline).
+    //
+    // We process the input line-by-line. It should be enough to assert that no # appears before the version
+    // declaration. This is an overly conservative approximation but should work for any non-adversarial input.
+    final String notAComment = "[^#]*";
+    final String maybeDoubleQuotes = "\"?";
+    final String maybeDoubleOrSingleQuotes = "[\"']?";
+    final String skipWhitespace = "\\s*";
+    final String matchPrefix = notAComment + maybeDoubleQuotes + skipWhitespace;
+    final String matchInfix =
+        skipWhitespace + maybeDoubleQuotes + skipWhitespace + ":" + skipWhitespace + maybeDoubleOrSingleQuotes + skipWhitespace;
+    final String matchPostfix = skipWhitespace + maybeDoubleOrSingleQuotes;
+    OPENAPI_REGEX = matchPrefix + "openapi" + matchInfix + "3\\.0.\\d+" + matchPostfix;
+    SWAGGER_REGEX = matchPrefix + "swagger" + matchInfix + "2\\.0" + matchPostfix;
+  }
   private static final String HEADER_RAML_10 = "#%RAML 1.0";
   private static final String HEADER_RAML_08 = "#%RAML 0.8";
   private static final Pattern OPENAPI_PATTERN = Pattern.compile(OPENAPI_REGEX);
@@ -38,10 +59,10 @@ public class ApiVendorUtils {
         return vendor;
 
       do {
-        if (SWAGGER_PATTERN.matcher(inputLine).matches()) {
+        if (SWAGGER_PATTERN.matcher(inputLine).lookingAt()) {
           return OAS_20;
         }
-        if (OPENAPI_PATTERN.matcher(inputLine).matches()) {
+        if (OPENAPI_PATTERN.matcher(inputLine).lookingAt()) {
           return OAS_30;
         }
       } while ((inputLine = in.readLine()) != null);

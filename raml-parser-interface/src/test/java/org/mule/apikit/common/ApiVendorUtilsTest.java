@@ -7,34 +7,50 @@
 package org.mule.apikit.common;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.mule.apikit.model.ApiVendor;
 
 import java.io.InputStream;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.mule.apikit.common.ApiVendorUtils.deduceApiVendor;
 
+@RunWith(Parameterized.class)
 public class ApiVendorUtilsTest {
 
   private static final String BASE_PATH = "api-vendor-utils-test-resources/";
 
-  @Test
-  public void getApiVendorTest() throws Exception {
-    assertApiVendor("openapi.yaml", ApiVendor.OAS_30);
-    assertApiVendor("openapi.json", ApiVendor.OAS_30);
-    assertApiVendor("raml08.raml", ApiVendor.RAML_08);
-    assertApiVendor("raml10.raml", ApiVendor.RAML_10);
-    assertApiVendor("swagger.json", ApiVendor.OAS_20);
-    assertApiVendor("swagger.json", ApiVendor.OAS_20);
+  private final String testName;
+  private final ApiVendor expectedVendor;
+
+  public ApiVendorUtilsTest(String testName, ApiVendor expectedVendor) {
+    this.testName = testName;
+    this.expectedVendor = expectedVendor;
   }
 
-  public void assertApiVendor(String api, ApiVendor apiVendor) {
-    ApiVendor actual = getApiVendor(BASE_PATH + api);
-    assertEquals(apiVendor, actual);
+  @Parameterized.Parameters(name = "{index}: deduce({0})={1}")
+  public static Iterable<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+        {"openapi.yaml", ApiVendor.OAS_30},
+        {"openapi.json", ApiVendor.OAS_30},
+        {"raml08.raml", ApiVendor.RAML_08},
+        {"raml10.raml", ApiVendor.RAML_10},
+        {"swagger.json", ApiVendor.OAS_20},
+        {"openapi-unindented.json", ApiVendor.OAS_30},
+    });
+  }
+
+  @Test
+  public void assertApiVendor() {
+    ApiVendor actualVendor = getApiVendor(BASE_PATH + testName);
+    assertEquals(expectedVendor, actualVendor);
   }
 
   private static ApiVendor getApiVendor(String path) {
     InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
-    return ApiVendorUtils.deduceApiVendor(inputStream);
+    return deduceApiVendor(inputStream);
   }
 
 }
