@@ -18,11 +18,13 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -195,8 +197,10 @@ public class QueryConsistencyTestCase {
     if (parserMode.equals(ParserMode.AMF)) {// RAML Parser query string union of arrays validation is not supported
       validateArrayConsistency(true, UNION_OF_ARRAYS, asList("123", "456"));
       validateArrayConsistency(true, UNION_OF_ARRAYS, asList("false", "true"));
-      validateArrayConsistency(true, UNION_OF_ARRAYS, null);
       validateArrayConsistency(false, UNION_OF_ARRAYS, asList("123", "true"));
+      validateArrayConsistency(true, UNION_OF_ARRAYS, null);
+      validateArrayConsistency(true, UNION_OF_ARRAYS, singletonList(null));
+      validateArrayConsistency(true, UNION_OF_ARRAYS, singletonList("null"));
     }
   }
 
