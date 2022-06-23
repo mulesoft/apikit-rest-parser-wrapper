@@ -18,7 +18,6 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +49,7 @@ public class QueryConsistencyTestCase {
   private static final String NON_STRING_UNION_ITEM_PARAMS = "nonStringUnionItemParams";
   private static final String OBJECT_ITEM_PARAMS = "objectItemParams";
   private static final String UNION_OF_ARRAYS = "unionOfArraysParams";
+  private static final String NON_NULLABLE_UNION_OF_ARRAYS = "nonNullableUnionOfArraysParams";
 
   private Map<String, Parameter> queryParameters;
   private QueryString queryString;
@@ -201,6 +201,18 @@ public class QueryConsistencyTestCase {
       validateArrayConsistency(true, UNION_OF_ARRAYS, null);
       validateArrayConsistency(true, UNION_OF_ARRAYS, singletonList(null));
       validateArrayConsistency(true, UNION_OF_ARRAYS, singletonList("null"));
+    }
+  }
+
+  @Test
+  public void testNonNullableUnionOfArraysValidation() {
+    if (parserMode.equals(ParserMode.AMF)) {// RAML Parser query string union of arrays validation is not supported
+      validateArrayConsistency(true, NON_NULLABLE_UNION_OF_ARRAYS, asList("123", "456"));
+      validateArrayConsistency(true, NON_NULLABLE_UNION_OF_ARRAYS, asList("false", "true"));
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, asList("123", "true"));
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, null);
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, singletonList(null));
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, singletonList("null"));
     }
   }
 
