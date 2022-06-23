@@ -10,7 +10,6 @@ import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.lang.String.valueOf;
 
@@ -97,7 +96,7 @@ public class ParserUtils {
    */
   private static boolean isNull(Collection<?> paramValues) {
     return paramValues == null ||
-        paramValues.size() == 1 && paramValues.stream().allMatch(param -> param == null || "null".equals(param));
+        paramValues.size() == 1 && paramValues.stream().allMatch(value -> value == null || "null".equals(value));
   }
 
   /**
