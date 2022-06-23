@@ -10,6 +10,7 @@ import org.mule.apikit.model.parameter.Parameter;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.valueOf;
 
@@ -36,7 +37,7 @@ public class ParserUtils {
    * @return YAML representation of array values.
    */
   public static String getArrayAsYamlValue(Parameter facet, Collection<?> paramValues) {
-    if (paramValues == null) {
+    if (isNull(paramValues)) {
       return null;
     }
     StringBuilder builder = new StringBuilder();
@@ -71,7 +72,7 @@ public class ParserUtils {
 
       queryStringYaml.append("\n").append(property).append(": ");
 
-      if (actualQueryParam == null) {
+      if (isNull(actualQueryParam)) {
         queryStringYaml.append(facet.surroundWithQuotesIfNeeded(null)).append("\n");
       } else if (actualQueryParam.size() > 1 || facet.isArray()) {
         for (Object value : actualQueryParam) {
@@ -85,6 +86,18 @@ public class ParserUtils {
       }
     }
     return queryStringYaml.toString();
+  }
+
+  /**
+   * Check if the query parameters values is considered null. Query parameters are being consider null either if the collection is
+   * null, the collection has a single null value or the collection has a single string value 'null'
+   *
+   * @param paramValues
+   * @return true if the query parameters values is considered null otherwise false
+   */
+  private static boolean isNull(Collection<?> paramValues) {
+    return paramValues == null ||
+        paramValues.size() == 1 && paramValues.stream().allMatch(param -> param == null || "null".equals(param));
   }
 
   /**
