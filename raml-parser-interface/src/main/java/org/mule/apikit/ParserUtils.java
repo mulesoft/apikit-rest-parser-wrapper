@@ -88,11 +88,11 @@ public class ParserUtils {
   }
 
   /**
-   * Check if the query parameters values is considered null. Query parameters are being consider null either if the collection is
-   * null, the collection has a single null value or the collection has a single string value 'null'
+   * Check if the values for the query parameter are considered null. Query parameters are considered null when the whole collection is
+   * null, has a single null value or has a single 'null' string value
    *
    * @param paramValues
-   * @return true if the query parameters values is considered null otherwise false
+   * @return true if the values for the query parameter are considered null otherwise false
    */
   private static boolean isNull(Collection<?> paramValues) {
     return paramValues == null ||
