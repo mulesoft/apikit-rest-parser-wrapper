@@ -18,6 +18,7 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +49,29 @@ public class QueryConsistencyTestCase {
   private static final String UNION_ITEM_PARAMS = "unionItemParams";
   private static final String NON_STRING_UNION_ITEM_PARAMS = "nonStringUnionItemParams";
   private static final String OBJECT_ITEM_PARAMS = "objectItemParams";
-  private static final String UNION_OF_ARRAYS = "unionOfArraysParams";
+  private static final String NULLABLE_UNION_OF_ARRAYS = "nullableUnionOfArraysParams";
   private static final String NON_NULLABLE_UNION_OF_ARRAYS = "nonNullableUnionOfArraysParams";
+  private static final String NULLABLE_UNION_OF_NULLABLE_ARRAYS = "nullableUnionOfNullableArraysParams";
+  private static final String NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS = "nonNullableUnionOfNullableArraysParams";
 
   private Map<String, Parameter> queryParameters;
   private QueryString queryString;
+
+  private List<String> nullList;
+
+  private List<String> getNullList() {
+    nullList = new ArrayList<>();
+    nullList.add(null);
+    nullList.add(null);
+    return nullList;
+  }
+
+  private List<String> getStringNullList() {
+    nullList = new ArrayList<>();
+    nullList.add("null");
+    nullList.add("null");
+    return nullList;
+  }
 
   @Parameterized.Parameter
   public ParserMode parserMode;
@@ -191,16 +210,38 @@ public class QueryConsistencyTestCase {
     validateArrayConsistency(false, OBJECT_ITEM_PARAMS, asList("{\"integerProp\":ABC}", "{\"integerProp\":3}"));
   }
 
+  /**
+   * In terms of validation, when the parameter is nullable (for RAML this is a union between nil and something else), a null
+   * value will be considered as a union's value instead of inner type's value. This is because the validator considers the weight
+   * of the outer type to be greater than that of the inner types. Note that a value is considered as null when it is a: - null
+   * Object - "null" String - null Object or "null" String as part of a single element in an array
+   */
 
   @Test
-  public void testUnionOfArraysValidation() {
+  public void testNullableUnionOfArraysValidation() {
     if (parserMode.equals(ParserMode.AMF)) {// RAML Parser query string union of arrays validation is not supported
-      validateArrayConsistency(true, UNION_OF_ARRAYS, asList("123", "456"));
-      validateArrayConsistency(true, UNION_OF_ARRAYS, asList("false", "true"));
-      validateArrayConsistency(false, UNION_OF_ARRAYS, asList("123", "true"));
-      validateArrayConsistency(true, UNION_OF_ARRAYS, null);
-      validateArrayConsistency(true, UNION_OF_ARRAYS, singletonList(null));
-      validateArrayConsistency(true, UNION_OF_ARRAYS, singletonList("null"));
+      validateArrayConsistency(true, NULLABLE_UNION_OF_ARRAYS, asList("123", "456"));
+      validateArrayConsistency(true, NULLABLE_UNION_OF_ARRAYS, asList("false", "true"));
+      validateArrayConsistency(false, NULLABLE_UNION_OF_ARRAYS, asList("123", "true"));
+      validateArrayConsistency(true, NULLABLE_UNION_OF_ARRAYS, null);
+      validateArrayConsistency(true, NULLABLE_UNION_OF_ARRAYS, singletonList(null));
+      validateArrayConsistency(true, NULLABLE_UNION_OF_ARRAYS, singletonList("null"));
+      validateArrayConsistency(false, NULLABLE_UNION_OF_ARRAYS, getNullList());
+      validateArrayConsistency(false, NULLABLE_UNION_OF_ARRAYS, getStringNullList());
+    }
+  }
+
+  @Test
+  public void testNullableUnionOfNullableArraysValidation() {
+    if (parserMode.equals(ParserMode.AMF)) {// RAML Parser query string union of arrays validation is not supported
+      validateArrayConsistency(true, NULLABLE_UNION_OF_NULLABLE_ARRAYS, asList("abc", "def"));
+      validateArrayConsistency(false, NULLABLE_UNION_OF_NULLABLE_ARRAYS, asList("false", "true"));
+      validateArrayConsistency(false, NULLABLE_UNION_OF_NULLABLE_ARRAYS, asList("123", "true"));
+      validateArrayConsistency(true, NULLABLE_UNION_OF_NULLABLE_ARRAYS, null);
+      validateArrayConsistency(true, NULLABLE_UNION_OF_NULLABLE_ARRAYS, singletonList(null));
+      validateArrayConsistency(true, NULLABLE_UNION_OF_NULLABLE_ARRAYS, singletonList("null"));
+      validateArrayConsistency(true, NULLABLE_UNION_OF_NULLABLE_ARRAYS, getNullList());
+      validateArrayConsistency(true, NULLABLE_UNION_OF_NULLABLE_ARRAYS, getStringNullList());
     }
   }
 
@@ -213,6 +254,22 @@ public class QueryConsistencyTestCase {
       validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, null);
       validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, singletonList(null));
       validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, singletonList("null"));
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, getNullList());
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_ARRAYS, getStringNullList());
+    }
+  }
+
+  @Test
+  public void testNonNullableUnionOfNullableArraysValidation() {
+    if (parserMode.equals(ParserMode.AMF)) {// RAML Parser query string union of arrays validation is not supported
+      validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, asList("123", "456"));
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, asList("false", "true"));
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, asList("123", "true"));
+      validateArrayConsistency(false, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, null);
+      validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, singletonList(null));
+      validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, singletonList("null"));
+      validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getNullList());
+      validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getStringNullList());
     }
   }
 

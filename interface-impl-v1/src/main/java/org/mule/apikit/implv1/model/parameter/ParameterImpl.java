@@ -45,6 +45,11 @@ public class ParameterImpl implements Parameter {
     return false;
   }
 
+  @Override
+  public boolean isNullable() {
+    return false;
+  }
+
   public boolean validate(String s) {
     return parameter.validate(s);
   }

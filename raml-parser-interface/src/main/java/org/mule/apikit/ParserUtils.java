@@ -36,7 +36,7 @@ public class ParserUtils {
    * @return YAML representation of array values.
    */
   public static String getArrayAsYamlValue(Parameter facet, Collection<?> paramValues) {
-    if (isNull(paramValues)) {
+    if (paramValues == null || (facet.isNullable() && isNull(paramValues))) {
       return null;
     }
     StringBuilder builder = new StringBuilder();
@@ -67,11 +67,12 @@ public class ParserUtils {
       if (facet == null) {
         return "";
       }
+
       final Collection<?> actualQueryParam = queryParamsCopy.get(property.toString());
 
       queryStringYaml.append("\n").append(property).append(": ");
 
-      if (isNull(actualQueryParam)) {
+      if (actualQueryParam == null || (facet.isNullable() && isNull(actualQueryParam))) {
         queryStringYaml.append(facet.surroundWithQuotesIfNeeded(null)).append("\n");
       } else if (actualQueryParam.size() > 1 || facet.isArray()) {
         for (Object value : actualQueryParam) {
@@ -88,8 +89,8 @@ public class ParserUtils {
   }
 
   /**
-   * Check if the values for the query parameter are considered null. Query parameters are considered null when the whole collection is
-   * null, has a single null value or has a single 'null' string value
+   * Check if the values for the query parameter are considered null. Query parameters are considered null when the whole
+   * collection is null, has a single null value or has a single 'null' string value
    *
    * @param paramValues
    * @return true if the values for the query parameter are considered null otherwise false

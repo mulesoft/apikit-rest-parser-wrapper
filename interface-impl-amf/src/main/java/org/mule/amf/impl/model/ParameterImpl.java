@@ -56,6 +56,13 @@ class ParameterImpl implements Parameter {
     return schema instanceof ArrayShape;
   });
 
+  private LazyValue<Boolean> isNullable = new LazyValue<>(() -> {
+    if (schema instanceof UnionShape) {
+      return hasNilShape((UnionShape) schema);
+    }
+    return schema instanceof NilShape;
+  });
+
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
   }
@@ -138,6 +145,11 @@ class ParameterImpl implements Parameter {
   @Override
   public boolean isArray() {
     return isArray.get();
+  }
+
+  @Override
+  public boolean isNullable() {
+    return isNullable.get();
   }
 
   @Override
@@ -248,4 +260,9 @@ class ParameterImpl implements Parameter {
 
     return hasAnArrayVariant;
   }
+
+  private static boolean hasNilShape(UnionShape unionShape) {
+    return unionShape.anyOf().stream().anyMatch(NilShape.class::isInstance);
+  }
+
 }
