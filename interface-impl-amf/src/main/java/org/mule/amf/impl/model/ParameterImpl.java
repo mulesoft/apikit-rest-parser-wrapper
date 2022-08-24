@@ -11,6 +11,7 @@ import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
 import amf.client.model.domain.DataNode;
 import amf.client.model.domain.FileShape;
+import amf.client.model.domain.NilShape;
 import amf.client.model.domain.NodeShape;
 import amf.client.model.domain.PropertyShape;
 import amf.client.model.domain.ScalarNode;
@@ -21,6 +22,7 @@ import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
 import com.google.common.collect.ImmutableSet;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
+import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
@@ -46,6 +48,12 @@ class ParameterImpl implements Parameter {
   private AnyShape schema;
   private Set<String> allowedEncoding;
   private boolean required;
+
+  private LazyValue<Boolean> isArray = new LazyValue<>(() -> schema instanceof ArrayShape ||
+      schema instanceof UnionShape && hasAnArrayVariant((UnionShape) schema));
+
+  private LazyValue<Boolean> isNullable = new LazyValue<>(() -> schema instanceof NilShape ||
+      schema instanceof UnionShape && hasNilShape((UnionShape) schema));
 
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
     this(getSchema(parameter), parameter.required().value());
@@ -123,12 +131,17 @@ class ParameterImpl implements Parameter {
 
   @Override
   public boolean isRepeat() {
-    return schema instanceof ArrayShape;
+    return isArray.get();
   }
 
   @Override
   public boolean isArray() {
-    return schema instanceof ArrayShape;
+    return isArray.get();
+  }
+
+  @Override
+  public boolean isNullable() {
+    return isNullable.get();
   }
 
   @Override
@@ -201,6 +214,11 @@ class ParameterImpl implements Parameter {
     return empty();
   }
 
+  @Override
+  public boolean validateArray(Collection<?> values) {
+    return validate(getArrayAsYamlValue(this, values));
+  }
+
   private static Boolean needsQuotes(Shape anyShape) {
     ScalarShape scalarShape = null;
     if (anyShape instanceof ScalarShape) {
@@ -222,8 +240,21 @@ class ParameterImpl implements Parameter {
     return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
   }
 
-  @Override
-  public boolean validateArray(Collection<?> values) {
-    return validate(getArrayAsYamlValue(this, values));
+  private static boolean hasAnArrayVariant(UnionShape unionShape) {
+    boolean hasAnArrayVariant = false;
+    for (Shape shape : unionShape.anyOf()) {
+      if (shape instanceof ArrayShape) {
+        hasAnArrayVariant = true;
+      } else if (!(shape instanceof NilShape)) {
+        return false;
+      }
+    }
+
+    return hasAnArrayVariant;
   }
+
+  private static boolean hasNilShape(UnionShape unionShape) {
+    return unionShape.anyOf().stream().anyMatch(NilShape.class::isInstance);
+  }
+
 }
