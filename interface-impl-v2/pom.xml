@@ -26,22 +26,11 @@
             <groupId>org.raml</groupId>
             <artifactId>raml-parser-2</artifactId>
             <version>${raml.parser.2.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mozilla</groupId>
-                    <artifactId>rhino</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mule.apikit</groupId>
             <artifactId>raml-parser-interface</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino</artifactId>
-            <version>${rhino.version}</version>
         </dependency>
     </dependencies>
 
