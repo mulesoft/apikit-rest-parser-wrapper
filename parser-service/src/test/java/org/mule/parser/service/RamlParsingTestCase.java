@@ -67,7 +67,7 @@ public class RamlParsingTestCase {
   @Test
   public void parseApiSyncWithSpacesInName() {
     String relativePath = "api-with-spaces/" + versionNumber + "/api spaces.raml";
-    ResourceLoader loaderMock = resourceLoaderMock(relativePath, "api spaces.raml");
+    ResourceLoader loaderMock = resourceLoaderMock(relativePath, "api%20spaces.raml");
     String apisyncRaml = APISYNC_NOTATION + "api spaces.raml";
     ResourceLoader resourceLoader = new ApiSyncResourceLoader(apisyncRaml, loaderMock);
     ParseResult result = service.parse(ApiReference.create(apisyncRaml, resourceLoader), mode);
