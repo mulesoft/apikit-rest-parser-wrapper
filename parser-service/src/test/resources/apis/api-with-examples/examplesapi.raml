@@ -1,0 +1,203 @@
+#%RAML 1.0
+title: API with Examples
+types:
+  Message:
+    type: string
+  Location:
+    # Type without schema or example
+    type: object
+  Person:
+    # Type with schema and example
+    type: object
+    properties:
+      name: string
+      lastname: string
+      age: integer
+    example:
+      name: Bob
+      lastname: Marley
+      age: 043
+  User:
+    # Type with schema and without example
+    type: Person
+    properties:
+      userId: string
+  Role:
+    # Type without schema and with example in file
+    type: object
+    example: !include RoleExample.yaml
+  Employee:
+    # Type with schema and with examples in NamedExample
+    type: Person
+    properties:
+      role: Role
+    examples: !include EmployeeExamples.raml
+  Org:
+    # Type without schema but with examples
+    type: object
+    examples:
+      softwareCorp:
+        value:
+          name: Software Corp
+          address: 35 Central Street
+          value: Gold
+      acme:
+        name: Acme
+
+/organizations:
+  get:
+      description: Returns all the organizations
+      responses:
+        201:
+          body:
+            application/json:
+              type: Org[]
+        404:
+          description: Not found
+  /{orgId}:
+    post:
+      description: Creates an organization.
+      body:
+        application/json:
+          type: Org
+          example:
+            value:
+              name: Doe Enterprise
+              value: Silver
+      responses:
+        201:
+          body:
+            application/json:
+              type: string
+              example: OK
+    get:
+      description: Returns an organization entity
+      responses:
+        201:
+          body:
+            application/json:
+              type: Org
+        404:
+          description: Not found
+  /users:
+    get:
+      description: Gets all the users from the organization
+      responses:
+        200:
+          body:
+            application/json:
+              type: User[] | nil
+        404:
+          description: Not found
+    /{userId}:
+      put:
+        description: Adds a user entity to the organization
+        body:
+          application/json:
+            type: User | nil
+        responses:
+          200:
+            body:
+              application/json:
+                type: Message | nil
+      get:
+        description: Gets a user entity from the organization
+        responses:
+          200:
+            body:
+              application/json:
+                type: User | nil
+          404:
+            description: Not found
+  /employees:
+    get:
+      description: Gets all the employees from the organization
+      responses:
+        200:
+          body:
+            application/json:
+              type: Employee[]
+              example:
+                value:
+                  - name: "Pedro"
+                    lastname: "Garcia"
+                    age: 042
+                    role: 
+                      name: "Employee Success"
+                  - name: "Marta"
+                    lastname: "Gonzales"
+                    age: 036
+                    role: 
+                      name: "Manager"
+        404:
+          description: Not found
+    /{employeeId}:
+      put:
+        description: Adds a employee entity to the organization
+        body:
+          application/json:
+            type: Employee | nil
+        responses:
+          201:
+            body:
+              application/json:
+                type: Message | nil
+      get:
+        description: Gets a employee entity from the organization
+        responses:
+          200:
+            body:
+              application/json:
+                type: Employee | nil
+          404:
+            description: Not found
+  /locations:
+    get:
+      description: Returns all the locations of the organization
+      responses:
+        200:
+          body:
+            application/json:
+              type: Location[] | nil
+        404:
+          description: Not found
+    /{coordinates}:
+      get:
+        description: Returns nearest location of the organization
+        responses:
+          200:
+            body:
+              application/json:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                examples:
+                  location1:
+                    latitude: 02435.122
+                    longitude: 014.244
+                  location2:
+                    latitude: 02435.122
+                    longitude: 014.244
+          404:
+            description: Not found
+      put:
+        description: Updates the location of the organization
+        body:
+          application/json:
+            type: Location
+            example: |
+              { 
+                "country": "Argentina", 
+                "city": "Buenos Aires",
+                "street": "9 de Julio 123"
+              }
+        responses:
+          201:
+            body:
+              application/json:
+                type: Message | nil
