@@ -202,8 +202,12 @@ class ParameterImpl implements Parameter {
 
   @Override
   public Optional<FileProperties> getFileProperties() {
-    if (schema instanceof FileShape) {
-      FileShape fileShape = (FileShape) schema;
+    Shape shape = schema;
+    if (shape instanceof ArrayShape) {
+      shape = ((ArrayShape) shape).items();
+    }
+    if (shape instanceof FileShape) {
+      FileShape fileShape = (FileShape) shape;
       return of(new FileProperties(fileShape.minLength().value(),
                                    fileShape.maxLength().value(),
                                    fileShape.fileTypes().stream()

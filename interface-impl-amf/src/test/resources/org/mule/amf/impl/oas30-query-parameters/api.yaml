@@ -123,6 +123,29 @@ paths:
               first:
                 contentType: image/png, image/jpeg
         required: true
+  /dynamic-files:
+    post:
+      responses:
+        default:
+          description: ''
+      operationId: POST_dynamic_files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - files
+            encoding:
+              files:
+                contentType: application/octet-stream, image/jpeg, image/png
+        required: true
 components:
   schemas:
     author:
