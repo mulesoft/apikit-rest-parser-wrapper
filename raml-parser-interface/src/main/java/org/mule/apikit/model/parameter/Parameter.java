@@ -52,4 +52,10 @@ public interface Parameter {
 
   Optional<FileProperties> getFileProperties();
 
+  /**
+   * Determines if the parameter allows null values.
+   *
+   * @since 2.4.0
+   */
+  boolean isNullable();
 }
