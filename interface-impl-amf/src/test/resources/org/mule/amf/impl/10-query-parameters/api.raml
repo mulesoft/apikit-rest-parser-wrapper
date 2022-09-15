@@ -7,6 +7,9 @@ types:
       name: string
       lastname: string
       addresses?: array
+  DynamicFiles:
+    type: file
+    fileTypes: [ 'application/octet-stream','image/jpeg','image/png' ]
 
 /testNull:
   get:
@@ -95,3 +98,11 @@ types:
             maxLength: 5000
           second:
             type: file
+
+/dynamic-files:
+  post:
+    body:
+      multipart/form-data:
+        properties:
+          files:
+            type: DynamicFiles[]

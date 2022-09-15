@@ -16,18 +16,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class ParameterImplTest {
 
   private static final String RESOURCE = "/books";
   private static final String RESOURCE_DOCUMENTS = "/documents";
+  private static final String RESOURCE_DYNAMIC_FILES = "/dynamic-files";
   private static final String ACTION_GET = "GET";
   private static final String ACTION_POST = "POST";
   private static final String ISBN = "0321736079";
@@ -38,6 +39,7 @@ public class ParameterImplTest {
   private final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
   private Map<String, Parameter> queryParams;
   private Map<String, List<Parameter>> formParameters;
+  private Map<String, List<Parameter>> fileArrayParameterInForm;
 
   @Before
   public void setUp() throws Exception {
@@ -46,6 +48,8 @@ public class ParameterImplTest {
     ActionImpl action = (ActionImpl) parser.getResources().get(RESOURCE).getAction(ACTION_GET);
     queryParams = action.getQueryParameters();
     formParameters = parser.getResources().get(RESOURCE_DOCUMENTS).getAction(ACTION_POST)
+        .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
+    fileArrayParameterInForm = parser.getResources().get(RESOURCE_DYNAMIC_FILES).getAction(ACTION_POST)
         .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
   }
 
@@ -151,6 +155,7 @@ public class ParameterImplTest {
     assertThat(fileProperties.getMinLength(), equalTo(8));
     assertThat(fileProperties.getMaxLength(), equalTo(5000));
     assertThat(fileProperties.getFileTypes().contains("image/jpeg"), equalTo(true));
+
   }
 
   @Test
@@ -160,6 +165,15 @@ public class ParameterImplTest {
     assertThat(fileProperties.getMinLength(), equalTo(0));
     assertThat(fileProperties.getMaxLength(), equalTo(0));
     assertThat(fileProperties.getFileTypes().isEmpty(), equalTo(true));
+  }
+
+  @Test
+  public void fileArrayParameter() {
+    List<Parameter> parameters = fileArrayParameterInForm.get("files");
+    FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+    assertThat(fileProperties.getMinLength(), equalTo(0));
+    assertThat(fileProperties.getMaxLength(), equalTo(0));
+    assertThat(fileProperties.getFileTypes().size(), equalTo(3));
   }
 
   @Test

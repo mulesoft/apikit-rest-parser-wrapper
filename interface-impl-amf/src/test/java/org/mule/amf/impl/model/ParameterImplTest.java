@@ -23,12 +23,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
@@ -45,12 +45,14 @@ public class ParameterImplTest {
   private static final String PUBLICATION_YEAR_QUERY_PARAM = "publicationYear";
   private static final String TEST_NULL_RESOURCE = "/testNull";
   private static final String MULTIPART_DOCUMENTS = "/documents";
+  private static final String RESOURCE_DYNAMIC_FILES = "/dynamic-files";
   private static final String ACTION_POST = "POST";
   private static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
 
   private static Map<String, Parameter> queryParams;
   private static Map<String, Parameter> testNullQueryParams;
   private static Map<String, List<Parameter>> formParameters;
+  private Map<String, List<Parameter>> fileArrayParameterInForm;
 
   @Parameterized.Parameter
   public ApiVendor apiVendor;
@@ -82,6 +84,8 @@ public class ParameterImplTest {
     queryParams = resource.getAction(ACTION_GET).getQueryParameters();
     testNullQueryParams = apiSpecification.getResource(TEST_NULL_RESOURCE).getAction(ACTION_GET).getQueryParameters();
     formParameters = apiSpecification.getResource(MULTIPART_DOCUMENTS).getAction(ACTION_POST)
+        .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
+    fileArrayParameterInForm = apiSpecification.getResource(RESOURCE_DYNAMIC_FILES).getAction(ACTION_POST)
         .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
   }
 
@@ -330,6 +334,17 @@ public class ParameterImplTest {
       assertThat(props.getMinLength(), equalTo(0));
       assertThat(props.getMaxLength(), equalTo(0));
       assertThat(props.getFileTypes().isEmpty(), equalTo(true));
+    }
+  }
+
+  @Test
+  public void fileArrayParameter() {
+    List<Parameter> parameters = fileArrayParameterInForm.get("files");
+    FileProperties fileProperties = parameters.get(0).getFileProperties().get();
+    assertThat(fileProperties.getMinLength(), equalTo(0));
+    assertThat(fileProperties.getMaxLength(), equalTo(0));
+    if (!ApiVendor.OAS_20.equals(apiVendor)) {
+      assertThat(fileProperties.getFileTypes().size(), equalTo(3));
     }
   }
 

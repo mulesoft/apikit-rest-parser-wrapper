@@ -136,3 +136,18 @@ paths:
           name: second
           type: file
           required: true
+  /dynamic-files:
+    post:
+      responses:
+        default:
+          description: ''
+      operationId: POST_dynamic_files
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: files
+          in: formData
+          required: true
+          type: array
+          items:
+            type: file
