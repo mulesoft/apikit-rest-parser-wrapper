@@ -15,7 +15,8 @@ public class ClassPathResourceLoader implements ResourceLoader {
   @Override
   public URI getResource(String path) {
     try {
-      final URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
+      // The replacement is necessary because MuleApplicationClassLoader fails if the path is percent encoded.
+      final URL resource = Thread.currentThread().getContextClassLoader().getResource(path.replaceAll("%20", " "));
       return resource != null ? resource.toURI() : null;
     } catch (URISyntaxException e) {
       return null;
