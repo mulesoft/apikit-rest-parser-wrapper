@@ -1,0 +1,192 @@
+openapi: 3.0.0
+info:
+  title: serialization parameters
+  version: 1.0.0
+paths:
+  /uri-parameters-scalar-array/{scalar-array}:
+    get:
+      responses:
+        default:
+          description: ''
+    parameters:
+      - name: scalar-array
+        in: path
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+  /uri-parameters-implicit-string/{implicit-string}:
+    get:
+      responses:
+        default:
+          description: ''
+    parameters:
+      - name: implicit-string
+        in: path
+        required: true
+        schema:
+          type: string
+  /uri-parameters-scalar/{scalar}:
+    get:
+      responses:
+        default:
+          description: ''
+    parameters:
+      - name: scalar
+        in: path
+        required: true
+        schema:
+          type: integer
+  /uri-parameters-object/{object-value}:
+    get:
+      responses:
+        default:
+          description: ''
+    parameters:
+      - name: object-value
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+  /uri-parameters-simple-object/{object-value}:
+    get:
+      responses:
+        default:
+          description: ''
+    parameters:
+      - name: object-value
+        in: path
+        style: simple
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+  /uri-parameters-json-object/{object-value}:
+    get:
+      responses:
+        default:
+          description: ''
+    parameters:
+      - name: object-value
+        in: path
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+  /uri-parameters-object-union/{object-value}:
+    get:
+      responses:
+        default:
+          description: ''
+    parameters:
+      - name: object-value
+        in: path
+        required: true
+        schema:
+          anyOf:
+            - $ref: '#/components/schemas/User'
+            - $ref: '#/components/schemas/UserV2'
+
+  /headers-test-case:
+    get:
+      responses:
+        default:
+          description: ''
+      parameters:
+        - name: scalar-array
+          in: header
+          description: header array type => repeated
+          schema:
+            type: array
+            items:
+              type: string
+        - name: implicit-string
+          in: header
+          description: type not defined => string
+          schema:
+            type: string
+        - name: scalar
+          in: header
+          description: header scalar type
+          schema:
+            type: boolean
+        - name: object-value
+          in: header
+          description: object type serialization to json
+          schema:
+            $ref: '#/components/schemas/User'
+        - name: union-object
+          in: header
+          description: union of object types
+          schema:
+            anyOf:
+              - $ref: '#/components/schemas/User'
+              - $ref: '#/components/schemas/UserV2'
+
+  /query-params-test-case:
+    get:
+      responses:
+        default:
+          description: ''
+      parameters:
+        - name: scalar-array
+          in: query
+          description: header array type => repeated
+          schema:
+            type: array
+            items:
+              type: string
+        - name: implicit-string
+          in: query
+          description: type not defined => string
+          schema:
+            type: string
+        - name: scalar
+          in: query
+          description: header scalar type
+          schema:
+            type: boolean
+        - name: object-value
+          in: query
+          description: object type serialization to json
+          schema:
+            $ref: '#/components/schemas/User'
+        - name: union-object
+          in: query
+          description: union of object types
+          schema:
+            anyOf:
+              - $ref: '#/components/schemas/User'
+              - $ref: '#/components/schemas/UserV2'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        firstname:
+          type: string
+        lastname:
+          type: string
+        age:
+          type: number
+      required:
+        - firstname
+        - lastname
+        - age
+    UserV2:
+      type: object
+      properties:
+        firstname:
+          type: string
+        lastname:
+          type: string
+        age:
+          type: number
+        nickname:
+          type: string
+      required:
+        - firstname
+        - lastname
+        - age
+        - nickname

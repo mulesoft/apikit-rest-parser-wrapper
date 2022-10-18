@@ -20,8 +20,7 @@ import amf.client.model.domain.Shape;
 import amf.client.model.domain.UnionShape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
-import com.google.common.collect.ImmutableSet;
-import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
+import org.mule.amf.impl.util.AMFUtils;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
@@ -37,12 +36,10 @@ import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.mule.amf.impl.util.AMFUtils.getSchemaFromContent;
 import static org.mule.apikit.ParserUtils.getArrayAsYamlValue;
 
 class ParameterImpl implements Parameter {
-
-  private static final Set<String> NUMBER_DATA_TYPES = ImmutableSet.of("integer", "float", "number", "long", "double");
-  public static final String BOOLEAN_DATA_TYPE = "boolean";
 
   private final ParameterValidationStrategy validationStrategy;
   private AnyShape schema;
@@ -56,11 +53,12 @@ class ParameterImpl implements Parameter {
       schema instanceof UnionShape && hasNilShape((UnionShape) schema));
 
   ParameterImpl(amf.client.model.domain.Parameter parameter) {
-    this(getSchema(parameter), parameter.required().value());
+    this(getSchema(parameter), parameter.required().value(), ParameterValidationStrategyFactory.getStrategy(parameter));
   }
 
   ParameterImpl(PropertyShape property) {
-    this(castToAnyShape(property.range()), property.minCount().value() > 0);
+    this(AMFUtils.castToAnyShape(property.range()), property.minCount().value() > 0,
+         ParameterValidationStrategyFactory.getStrategy(AMFUtils.castToAnyShape(property.range())));
   }
 
   ParameterImpl(PropertyShape property, Set<String> allowedEncoding) {
@@ -68,11 +66,10 @@ class ParameterImpl implements Parameter {
     this.allowedEncoding = allowedEncoding;
   }
 
-  ParameterImpl(AnyShape anyShape, boolean required) {
+  ParameterImpl(AnyShape anyShape, boolean required, ParameterValidationStrategy parameterValidationStrategy) {
     this.schema = anyShape;
     this.required = required;
-    this.validationStrategy = ParameterValidationStrategyFactory
-        .getStrategy(anyShape, needsQuotes(anyShape));
+    this.validationStrategy = parameterValidationStrategy;
   }
 
   @Override
@@ -86,14 +83,10 @@ class ParameterImpl implements Parameter {
 
   private static AnyShape getSchema(amf.client.model.domain.Parameter parameter) {
     Shape shape = parameter.schema();
-    return castToAnyShape(shape);
-  }
-
-  private static AnyShape castToAnyShape(Shape shape) {
-    if (shape instanceof AnyShape) {
-      return (AnyShape) shape;
+    if (shape == null) {
+      shape = getSchemaFromContent(parameter);
     }
-    throw new UnsupportedSchemaException();
+    return AMFUtils.castToAnyShape(shape);
   }
 
   @Override
@@ -221,27 +214,6 @@ class ParameterImpl implements Parameter {
   @Override
   public boolean validateArray(Collection<?> values) {
     return validate(getArrayAsYamlValue(this, values));
-  }
-
-  private static Boolean needsQuotes(Shape anyShape) {
-    ScalarShape scalarShape = null;
-    if (anyShape instanceof ScalarShape) {
-      scalarShape = ((ScalarShape) anyShape);
-    } else if (anyShape instanceof ArrayShape) {
-      Shape itemsShape = ((ArrayShape) anyShape).items();
-      scalarShape = itemsShape instanceof ScalarShape ? ((ScalarShape) itemsShape) : null;
-    } else if (anyShape instanceof UnionShape) {
-      return ((UnionShape) anyShape).anyOf().stream().anyMatch(shape -> needsQuotes(shape));
-    }
-    if (scalarShape == null) {
-      return Boolean.FALSE;
-    }
-    String dataType = scalarShape.dataType().value();
-    if (dataType == null) {
-      return Boolean.FALSE;
-    }
-    dataType = dataType.substring(dataType.lastIndexOf('#') + 1);
-    return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
   }
 
   private static boolean hasAnArrayVariant(UnionShape unionShape) {
