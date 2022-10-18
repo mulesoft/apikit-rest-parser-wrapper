@@ -20,8 +20,9 @@ import amf.client.model.domain.Shape;
 import amf.client.model.domain.UnionShape;
 import amf.client.validate.ValidationReport;
 import amf.client.validate.ValidationResult;
-import org.mule.amf.impl.util.AMFUtils;
 import org.mule.amf.impl.util.LazyValue;
+import org.mule.amf.impl.validation.ParameterValidationStrategy;
+import org.mule.amf.impl.validation.ParameterValidationStrategyFactory;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
@@ -36,6 +37,7 @@ import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.mule.amf.impl.util.AMFUtils.castToAnyShape;
 import static org.mule.amf.impl.util.AMFUtils.getSchemaFromContent;
 import static org.mule.apikit.ParserUtils.getArrayAsYamlValue;
 
@@ -57,8 +59,8 @@ class ParameterImpl implements Parameter {
   }
 
   ParameterImpl(PropertyShape property) {
-    this(AMFUtils.castToAnyShape(property.range()), property.minCount().value() > 0,
-         ParameterValidationStrategyFactory.getStrategy(AMFUtils.castToAnyShape(property.range())));
+    this(castToAnyShape(property.range()), property.minCount().value() > 0,
+         ParameterValidationStrategyFactory.getStrategy(castToAnyShape(property.range())));
   }
 
   ParameterImpl(PropertyShape property, Set<String> allowedEncoding) {
@@ -86,7 +88,7 @@ class ParameterImpl implements Parameter {
     if (shape == null) {
       shape = getSchemaFromContent(parameter);
     }
-    return AMFUtils.castToAnyShape(shape);
+    return castToAnyShape(shape);
   }
 
   @Override

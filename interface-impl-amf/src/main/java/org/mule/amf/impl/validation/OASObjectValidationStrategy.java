@@ -4,24 +4,27 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.amf.impl.model;
+package org.mule.amf.impl.validation;
 
+import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.NodeShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import com.google.common.base.Joiner;
 import org.mule.amf.impl.exceptions.ParserException;
+import org.mule.amf.impl.util.AMFUtils;
 import org.mule.amf.impl.util.LazyValue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
+import static org.mule.amf.impl.util.AMFUtils.APPLICATION_JSON;
+import static org.mule.amf.impl.util.AMFUtils.castToAnyShape;
 
 public class OASObjectValidationStrategy implements ParameterValidationStrategy {
 
   NodeShape nodeShape;
-  Map<String, ParameterImpl> properties;
+  Map<String, JsonParameterValidationStrategy> properties;
   private final LazyValue<PayloadValidator> jsonValidator =
       new LazyValue<>(() -> nodeShape.payloadValidator(APPLICATION_JSON)
           .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + nodeShape)));
@@ -30,7 +33,10 @@ public class OASObjectValidationStrategy implements ParameterValidationStrategy 
     this.nodeShape = nodeShape;
     this.properties = new HashMap<>();
     nodeShape.properties().forEach(propertyShape -> propertyShape.name().option()
-        .ifPresent(name -> this.properties.put(name, new ParameterImpl(propertyShape))));
+        .ifPresent(name -> {
+          AnyShape anyShape = castToAnyShape(propertyShape.range());
+          this.properties.put(name, new JsonParameterValidationStrategy(anyShape, AMFUtils.needsQuotes(anyShape)));
+        }));
   }
 
   @Override
@@ -40,8 +46,8 @@ public class OASObjectValidationStrategy implements ParameterValidationStrategy 
     for (int i = 0; i < parts.length - 1; i += 2) {
       String key = parts[i];
       String val = parts[i + 1];
-      ParameterImpl facet = properties.get(key);
-      map.put("\"" + key + "\"", facet != null ? facet.surroundWithQuotesIfNeeded(val) : val);
+      JsonParameterValidationStrategy facet = properties.get(key);
+      map.put("\"" + key + "\"", facet != null ? facet.preProcessValue(val) : val);
     }
 
     String jsonValue = "{" + Joiner.on(",").withKeyValueSeparator(":").join(map) + "}";
@@ -51,6 +57,6 @@ public class OASObjectValidationStrategy implements ParameterValidationStrategy 
 
   @Override
   public String preProcessValue(String value) {
-    return null;
+    return value;
   }
 }

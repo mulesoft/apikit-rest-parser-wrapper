@@ -4,14 +4,14 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.amf.impl.model;
+package org.mule.amf.impl.validation;
 
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.NodeShape;
 import amf.client.validate.PayloadValidator;
 import amf.client.validate.ValidationReport;
 import com.google.common.base.Joiner;
+import org.json.simple.JSONValue;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.util.LazyValue;
 
@@ -20,12 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
+import static org.mule.amf.impl.util.AMFUtils.APPLICATION_JSON;
+import static org.mule.amf.impl.util.AMFUtils.needsQuotes;
+import static org.mule.apikit.ParserUtils.quoteValue;
 
 public class OASArrayValidationStrategy implements ParameterValidationStrategy {
 
   AnyShape arrayShape;
-  ParameterImpl facet;
+  JsonParameterValidationStrategy facet;
   private final LazyValue<PayloadValidator> jsonValidator =
       new LazyValue<>(() -> arrayShape.payloadValidator(APPLICATION_JSON)
           .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + arrayShape)));
@@ -34,7 +36,7 @@ public class OASArrayValidationStrategy implements ParameterValidationStrategy {
     AnyShape anyShape = (AnyShape) arrayShape.items();
 
     this.arrayShape = arrayShape;
-    this.facet = new ParameterImpl(anyShape, true, ParameterValidationStrategyFactory.getStrategy(anyShape));
+    this.facet = new JsonParameterValidationStrategy(anyShape);
   }
 
   @Override
@@ -42,7 +44,7 @@ public class OASArrayValidationStrategy implements ParameterValidationStrategy {
     HashMap<String, String> map = new HashMap<>();
     String[] parts = value.split(",");
 
-    List<String> array = Arrays.stream(parts).map(part -> facet.surroundWithQuotesIfNeeded(part)).collect(Collectors.toList());
+    List<String> array = Arrays.stream(parts).map(part -> facet.preProcessValue(part)).collect(Collectors.toList());
 
     String jsonValue = "[" + Joiner.on(",").join(array) + "]";
 
@@ -53,4 +55,5 @@ public class OASArrayValidationStrategy implements ParameterValidationStrategy {
   public String preProcessValue(String value) {
     return null;
   }
+
 }
