@@ -17,6 +17,7 @@ import amf.core.client.platform.model.document.BaseUnit;
 import amf.core.client.platform.model.document.Document;
 import amf.core.client.platform.resource.ResourceLoader;
 import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.AMFValidationResult;
 import amf.core.internal.remote.Spec;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
@@ -25,6 +26,7 @@ import org.mule.apikit.model.api.ApiReference;
 import org.yaml.builder.JsonOutputBuilder;
 
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class AMFParserWrapper {
@@ -33,6 +35,7 @@ public class AMFParserWrapper {
   private final BaseUnit model;
   private final AMFBaseUnitClient client;
   private final Spec spec;
+  private final List<AMFValidationResult> parsingIssues;
 
 
   public AMFParserWrapper(ApiReference apiRef, ExecutionEnvironment execEnv) {
@@ -46,6 +49,7 @@ public class AMFParserWrapper {
 
     AMFParseResult amfParseResult = handleFuture(amfConfiguration.baseUnitClient()
         .parse(URLDecoder.decode(apiRef.getPathAsUri().toString())));
+    this.parsingIssues = amfParseResult.results();
     this.model = amfParseResult.baseUnit();
     this.spec = amfParseResult.sourceSpec();
     this.client = APIConfiguration.fromSpec(spec).baseUnitClient();
@@ -101,5 +105,9 @@ public class AMFParserWrapper {
 
   public Spec getSpec() {
     return spec;
+  }
+
+  public List<AMFValidationResult> getParsingIssues() {
+    return parsingIssues;
   }
 }
