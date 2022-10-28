@@ -6,11 +6,11 @@
  */
 package org.mule.amf.impl.parser.rule;
 
-import amf.core.client.common.position.Position;
-import amf.core.client.common.position.Range;
 import amf.core.client.platform.validation.AMFValidationResult;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.Severity;
+import org.mulesoft.common.client.lexical.Position;
+import org.mulesoft.common.client.lexical.PositionRange;
 
 import java.net.URLDecoder;
 import java.util.List;
@@ -37,7 +37,7 @@ public class ApiValidationResultImpl implements ApiValidationResult {
   @Override
   public String getMessage() {
     Optional<String> location = validationResult.location();
-    Range positionRange = validationResult.position();
+    PositionRange positionRange = validationResult.position();
     if (location.isPresent() && !positionRange.start().isZero()) {
       return format(ERROR_FORMAT, validationResult.message(), URLDecoder.decode(location.get()),
                     getPositionMessage(positionRange.start()));
@@ -61,7 +61,7 @@ public class ApiValidationResultImpl implements ApiValidationResult {
         : Severity.fromString(validationResult.severityLevel());
   }
 
-  private static String getPositionMessage(Position startPosition) {
+  private String getPositionMessage(Position startPosition) {
     return format(POSITION_FORMAT, startPosition.line(), startPosition.column());
   }
 

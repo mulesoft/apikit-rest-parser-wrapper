@@ -150,7 +150,7 @@
                         <id>apply-format</id>
                         <phase>compile</phase>
                         <goals>
-                            <goal>validate</goal>
+                            <goal>format</goal>
                         </goals>
                         <configuration>
                             <skipFormatting>false</skipFormatting>

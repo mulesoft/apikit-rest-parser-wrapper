@@ -61,7 +61,6 @@ public class AMFParserWrapper {
   }
 
   public Document parseApi() throws ParserException {
-    client.transform(model, PipelineId.Editing());
     return (Document) client.transform(model, PipelineId.Editing()).baseUnit();
   }
 
