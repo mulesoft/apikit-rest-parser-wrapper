@@ -6,7 +6,7 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.apicontract.client.platform.AMFElementClient;
+import amf.apicontract.client.platform.AMFConfiguration;
 import amf.apicontract.client.platform.APIConfiguration;
 import amf.core.client.common.validation.ValidationMode;
 import amf.core.client.platform.validation.AMFValidationReport;
@@ -20,16 +20,18 @@ import static org.mule.apikit.ParserUtils.escapeSpecialCharsInYamlValue;
 
 class YamlParameterValidationStrategy extends ValidationStrategy {
 
+  private final AMFConfiguration amfConfiguration;
   private AnyShape anyShape;
 
   private final LazyValue<AMFShapePayloadValidator> parameterValidator =
-      new LazyValue<>(() -> APIConfiguration.API().elementClient().payloadValidatorFor(anyShape, APPLICATION_YAML,
-                                                                                       ValidationMode
-                                                                                           .ScalarRelaxedValidationMode()));
+      new LazyValue<>(() -> getAmfConfiguration().elementClient().payloadValidatorFor(anyShape, APPLICATION_YAML,
+                                                                                      ValidationMode
+                                                                                          .ScalarRelaxedValidationMode()));
 
-  public YamlParameterValidationStrategy(AnyShape anyShape, boolean schemaNeedsQuotes) {
+  public YamlParameterValidationStrategy(AnyShape anyShape, boolean schemaNeedsQuotes, AMFConfiguration amfConfiguration) {
     super(schemaNeedsQuotes);
     this.anyShape = anyShape;
+    this.amfConfiguration = amfConfiguration;
   }
 
   @Override
@@ -58,4 +60,7 @@ class YamlParameterValidationStrategy extends ValidationStrategy {
     return value;
   }
 
+  private AMFConfiguration getAmfConfiguration() {
+    return amfConfiguration;
+  }
 }

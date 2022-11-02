@@ -6,8 +6,8 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.apicontract.client.platform.AMFConfiguration;
 import amf.apicontract.client.platform.model.domain.EndPoint;
-import amf.core.internal.remote.Spec;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
 import org.mule.apikit.model.Resource;
@@ -26,17 +26,17 @@ public class ResourceImpl implements Resource {
   private static final String VERSION = "version";
   private static final Predicate<amf.apicontract.client.platform.model.domain.Parameter> IS_NOT_VERSION =
       p -> !VERSION.equals(p.parameterName().value());
-  private final Spec spec;
+  private final AMFConfiguration amfConfiguration;
 
   private AMFImpl amf;
   private EndPoint endPoint;
   private Map<ActionType, Action> actions;
   private Map<String, Parameter> resolvedUriParameters;
 
-  ResourceImpl(final AMFImpl amf, final EndPoint endPoint, Spec spec) {
+  ResourceImpl(final AMFImpl amf, final EndPoint endPoint, AMFConfiguration amfConfiguration) {
     this.amf = amf;
     this.endPoint = endPoint;
-    this.spec = spec;
+    this.amfConfiguration = amfConfiguration;
   }
 
   @Override
@@ -98,7 +98,7 @@ public class ResourceImpl implements Resource {
   @Override
   public Map<String, Parameter> getResolvedUriParameters() {
     if (resolvedUriParameters == null) {
-      resolvedUriParameters = loadResolvedUriParameters(endPoint, spec);
+      resolvedUriParameters = loadResolvedUriParameters(endPoint, amfConfiguration);
     }
 
     return resolvedUriParameters;
@@ -110,10 +110,10 @@ public class ResourceImpl implements Resource {
    * @param resource
    * @return
    */
-  private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource, Spec spec) {
+  private static Map<String, Parameter> loadResolvedUriParameters(final EndPoint resource, AMFConfiguration amfConfiguration) {
     return resource.parameters().stream()
         .filter(IS_NOT_VERSION)
-        .collect(toMap(p -> p.parameterName().value(), p -> new ParameterImpl(p, spec)));
+        .collect(toMap(p -> p.parameterName().value(), p -> new ParameterImpl(p, amfConfiguration)));
   }
 
   @Override
@@ -136,7 +136,7 @@ public class ResourceImpl implements Resource {
     return getUri();
   }
 
-  public Spec getSpec() {
-    return spec;
+  public AMFConfiguration getAmfConfiguration() {
+    return amfConfiguration;
   }
 }

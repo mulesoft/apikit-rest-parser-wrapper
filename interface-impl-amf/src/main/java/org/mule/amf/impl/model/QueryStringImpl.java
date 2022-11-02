@@ -6,6 +6,7 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.apicontract.client.platform.AMFConfiguration;
 import amf.apicontract.client.platform.APIConfiguration;
 import amf.core.client.common.validation.ValidationMode;
 import amf.core.client.platform.model.domain.PropertyShape;
@@ -25,7 +26,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonList;
 import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
@@ -34,15 +34,15 @@ import static org.mule.apikit.ParserUtils.queryStringAsYamlValue;
 
 public class QueryStringImpl implements QueryString {
 
-  private final Spec spec;
+  private final AMFConfiguration amfConfiguration;
   private AnyShape schema;
 
   private final Map<String, AMFShapePayloadValidator> payloadValidatorMap = new HashMap<>();
   private final String defaultMediaType = APPLICATION_YAML;
 
-  public QueryStringImpl(AnyShape anyShape, Spec spec) {
+  public QueryStringImpl(AnyShape anyShape, AMFConfiguration amfConfiguration) {
     this.schema = anyShape;
-    this.spec = spec;
+    this.amfConfiguration = amfConfiguration;
   }
 
   @Override
@@ -78,10 +78,10 @@ public class QueryStringImpl implements QueryString {
     AMFShapePayloadValidator payloadValidator;
     if (!payloadValidatorMap.containsKey(mimeType)) {
       payloadValidator =
-          APIConfiguration.API().elementClient().payloadValidatorFor(schema, mimeType, ValidationMode.StrictValidationMode());
+          amfConfiguration.elementClient().payloadValidatorFor(schema, mimeType, ValidationMode.StrictValidationMode());
       if (payloadValidator == null) {
-        payloadValidator = APIConfiguration.API().elementClient().payloadValidatorFor(schema, defaultMediaType,
-                                                                                      ValidationMode.StrictValidationMode());
+        payloadValidator = amfConfiguration.elementClient().payloadValidatorFor(schema, defaultMediaType,
+                                                                                ValidationMode.StrictValidationMode());
       }
 
       payloadValidatorMap.put(mimeType, payloadValidator);
@@ -119,7 +119,7 @@ public class QueryStringImpl implements QueryString {
     for (Shape schema : getSchemas()) {
       if (schema instanceof NodeShape) {
         for (PropertyShape type : ((NodeShape) schema).properties()) {
-          result.put(type.name().value(), new ParameterImpl(type, this.spec));
+          result.put(type.name().value(), new ParameterImpl(type, amfConfiguration));
         }
       }
     }

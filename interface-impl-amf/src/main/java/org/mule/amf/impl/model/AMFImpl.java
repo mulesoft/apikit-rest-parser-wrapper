@@ -55,17 +55,15 @@ public class AMFImpl implements ApiSpecification {
   private final transient LazyValue<Document> consoleModel;
   private final String apiLocation;
   private final AMFParserWrapper parser;
-  private final Spec spec;
 
   public AMFImpl(WebApi webApi, List<String> references, AMFParserWrapper parser, ApiVendor vendor, String location, URI uri) {
     this.webApi = webApi;
-    this.spec = parser.getSpec();
+    this.parser = parser;
     this.resources = buildResources(webApi.endPoints());
     this.references = references;
     this.apiVendor = vendor;
     this.apiLocation = location;
     this.consoleModel = new LazyValue<>(parser::parseApi);
-    this.parser = parser;
   }
 
   private Map<String, Map<String, Resource>> buildResources(final List<EndPoint> endPoints) {
@@ -78,7 +76,7 @@ public class AMFImpl implements ApiSpecification {
     String parentKey = parentKey(endPoint);
     Map<String, Resource> parentMap = resources.computeIfAbsent(parentKey, k -> new LinkedHashMap<>());
     String childKey = endPoint.relativePath();
-    parentMap.put(childKey, new ResourceImpl(this, endPoint, spec));
+    parentMap.put(childKey, new ResourceImpl(this, endPoint, parser.getApiConfiguration()));
   }
 
   private static String parentKey(final EndPoint endPoint) {
@@ -135,7 +133,7 @@ public class AMFImpl implements ApiSpecification {
   @Override
   public Map<String, Parameter> getBaseUriParameters() {
     return getServer().<Map<String, Parameter>>map(server -> server.variables().stream()
-        .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p, spec))))
+        .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p, parser.getApiConfiguration()))))
         .orElseGet(Collections::emptyMap);
   }
 

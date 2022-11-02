@@ -39,6 +39,7 @@ public class AMFParserWrapper {
   private final AMFBaseUnitClient client;
   private final Spec spec;
   private final List<AMFValidationResult> parsingIssues;
+  private final AMFConfiguration apiConfiguration;
 
 
   public AMFParserWrapper(ApiReference apiRef, ExecutionEnvironment execEnv) {
@@ -62,12 +63,8 @@ public class AMFParserWrapper {
     this.parsingIssues = amfParseResult.results();
     this.model = amfParseResult.baseUnit();
     this.spec = amfParseResult.sourceSpec();
-    this.client = APIConfiguration.fromSpec(spec).baseUnitClient();
-  }
-
-  private ResourceLoader getResourceLoader() {
-
-    return null;
+    this.apiConfiguration = APIConfiguration.fromSpec(spec).withExecutionEnvironment(execEnv);
+    this.client = apiConfiguration.baseUnitClient();
   }
 
   public Document parseApi() throws ParserException {
@@ -105,7 +102,7 @@ public class AMFParserWrapper {
         .withoutSourceMaps()
         .withoutPrettyPrint()
         .withCompactUris();
-    return APIConfiguration.fromSpec(spec).withRenderOptions(renderOptions).baseUnitClient();
+    return getApiConfiguration().withRenderOptions(renderOptions).baseUnitClient();
   }
 
   public <W> void renderApi(Document document, JsonOutputBuilder<W> wJsonOutputBuilder) {
@@ -114,6 +111,10 @@ public class AMFParserWrapper {
 
   public Spec getSpec() {
     return spec;
+  }
+
+  public AMFConfiguration getApiConfiguration() {
+    return apiConfiguration;
   }
 
   public List<AMFValidationResult> getParsingIssues() {

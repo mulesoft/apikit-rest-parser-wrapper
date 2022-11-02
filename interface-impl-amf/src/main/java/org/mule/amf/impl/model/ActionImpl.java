@@ -6,11 +6,11 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.apicontract.client.platform.AMFConfiguration;
 import amf.apicontract.client.platform.model.domain.Operation;
 import amf.apicontract.client.platform.model.domain.Payload;
 import amf.apicontract.client.platform.model.domain.Request;
 import amf.core.client.platform.model.domain.Shape;
-import amf.core.internal.remote.Spec;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;
@@ -68,15 +68,15 @@ public class ActionImpl implements Action {
   @Override
   public Map<String, Response> getResponses() {
     if (responses == null) {
-      responses = loadResponses(operation, resource.getSpec());
+      responses = loadResponses(operation, resource.getAmfConfiguration());
     }
     return responses;
   }
 
-  private static Map<String, Response> loadResponses(final Operation operation, Spec spec) {
+  private static Map<String, Response> loadResponses(final Operation operation, AMFConfiguration amfConfiguration) {
     Map<String, Response> result = new LinkedHashMap<>();
     for (amf.apicontract.client.platform.model.domain.Response response : operation.responses()) {
-      result.put(response.statusCode().value(), new ResponseImpl(response, spec));
+      result.put(response.statusCode().value(), new ResponseImpl(response, amfConfiguration));
     }
     return result;
   }
@@ -89,13 +89,13 @@ public class ActionImpl implements Action {
   @Override
   public Map<String, MimeType> getBody() {
     if (bodies == null) {
-      bodies = loadBodies(operation, resource.getSpec());
+      bodies = loadBodies(operation, resource.getAmfConfiguration());
     }
 
     return bodies;
   }
 
-  private static Map<String, MimeType> loadBodies(final Operation operation, Spec spec) {
+  private static Map<String, MimeType> loadBodies(final Operation operation, AMFConfiguration amfConfiguration) {
     final Request request = operation.request();
     if (request == null) {
       return emptyMap();
@@ -105,29 +105,29 @@ public class ActionImpl implements Action {
 
     request.payloads().stream()
         .filter(payload -> payload.schema() != null)
-        .forEach(payload -> addMimeTypes(result, payload, spec));
+        .forEach(payload -> addMimeTypes(result, payload, amfConfiguration));
 
     return result;
   }
 
-  private static void addMimeTypes(Map<String, MimeType> result, Payload payload, Spec spec) {
+  private static void addMimeTypes(Map<String, MimeType> result, Payload payload, AMFConfiguration amfConfiguration) {
     if (payload.mediaType().nonNull()) {
-      result.put(payload.mediaType().value(), new MimeTypeImpl(payload, spec));
+      result.put(payload.mediaType().value(), new MimeTypeImpl(payload, amfConfiguration));
     } else {
-      result.put(APPLICATION_JSON, new MimeTypeImpl(payload, spec));
-      result.put(APPLICATION_XML, new MimeTypeImpl(payload, spec));
+      result.put(APPLICATION_JSON, new MimeTypeImpl(payload, amfConfiguration));
+      result.put(APPLICATION_XML, new MimeTypeImpl(payload, amfConfiguration));
     }
   }
 
   @Override
   public Map<String, Parameter> getQueryParameters() {
     if (queryParameters == null) {
-      queryParameters = loadQueryParameters(operation, this.resource.getSpec());
+      queryParameters = loadQueryParameters(operation, this.resource.getAmfConfiguration());
     }
     return queryParameters;
   }
 
-  private static Map<String, Parameter> loadQueryParameters(final Operation operation, Spec spec) {
+  private static Map<String, Parameter> loadQueryParameters(final Operation operation, AMFConfiguration amfConfiguration) {
     final Request request = operation.request();
     if (request == null) {
       return emptyMap();
@@ -135,7 +135,7 @@ public class ActionImpl implements Action {
 
     final Map<String, Parameter> result = new HashMap<>();
     request.queryParameters().forEach(parameter -> {
-      result.put(parameter.parameterName().value(), new ParameterImpl(parameter, spec));
+      result.put(parameter.parameterName().value(), new ParameterImpl(parameter, amfConfiguration));
     });
     return result;
   }
@@ -170,7 +170,8 @@ public class ActionImpl implements Action {
       // If key is duplicated it means that it is declared at resource level and it is overridden in method, so keep the last one
       operationUriParams =
           collectedUriParams.stream()
-              .collect(toMap(p -> p.parameterName().value(), p -> new ParameterImpl(p, ((ResourceImpl) resource).getSpec()),
+              .collect(toMap(p -> p.parameterName().value(),
+                             p -> new ParameterImpl(p, ((ResourceImpl) resource).getAmfConfiguration()),
                              (p1, p2) -> p2));
     }
     final Map<String, Parameter> uriParameters = resource.getResolvedUriParameters();
@@ -195,7 +196,7 @@ public class ActionImpl implements Action {
 
     final Map<String, Parameter> result = new HashMap<>();
     request.headers().forEach(parameter -> {
-      result.put(parameter.parameterName().value(), new ParameterImpl(parameter, resource.getSpec()));
+      result.put(parameter.parameterName().value(), new ParameterImpl(parameter, resource.getAmfConfiguration()));
     });
     return result;
   }
@@ -261,7 +262,7 @@ public class ActionImpl implements Action {
   private QueryString initializeQueryString(Operation op) {
     Request request = op.request();
     Shape shape = request != null ? request.queryString() : null;
-    return shape != null ? new QueryStringImpl((AnyShape) shape, resource.getSpec()) : null;
+    return shape != null ? new QueryStringImpl((AnyShape) shape, resource.getAmfConfiguration()) : null;
   }
 
 }

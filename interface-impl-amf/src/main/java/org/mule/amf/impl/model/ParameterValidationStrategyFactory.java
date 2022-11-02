@@ -6,8 +6,8 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.apicontract.client.platform.AMFConfiguration;
 import amf.apicontract.client.platform.APIConfiguration;
-import amf.core.internal.remote.Spec;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import amf.shapes.client.platform.model.domain.ArrayShape;
 import amf.shapes.client.platform.model.domain.UnionShape;
@@ -19,14 +19,16 @@ class ParameterValidationStrategyFactory {
     throw new IllegalStateException("Utility class");
   }
 
-  static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean needsCharEscaping, Spec spec) {
-    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape, needsCharEscaping)
-        : getJsonParameterValidationStrategy(anyShape, needsCharEscaping, spec);
+  static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean needsCharEscaping,
+                                                 AMFConfiguration amfConfiguration) {
+    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape, needsCharEscaping, amfConfiguration)
+        : getJsonParameterValidationStrategy(anyShape, needsCharEscaping, amfConfiguration);
   }
 
   private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape,
-                                                                                    boolean needsCharsEscaping, Spec spec) {
-    return new JsonParameterValidationStrategy(APIConfiguration.fromSpec(spec).elementClient(), anyShape, needsCharsEscaping);
+                                                                                    boolean needsCharsEscaping,
+                                                                                    AMFConfiguration amfConfiguration) {
+    return new JsonParameterValidationStrategy(amfConfiguration.elementClient(), anyShape, needsCharsEscaping);
   }
 
   /**

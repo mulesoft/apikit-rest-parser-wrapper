@@ -6,6 +6,7 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.apicontract.client.platform.AMFConfiguration;
 import amf.core.client.platform.model.StrField;
 import amf.core.client.platform.model.domain.DataNode;
 import amf.core.client.platform.model.domain.PropertyShape;
@@ -56,24 +57,24 @@ class ParameterImpl implements Parameter {
   private LazyValue<Boolean> isNullable = new LazyValue<>(() -> schema instanceof NilShape ||
       schema instanceof UnionShape && hasNilShape((UnionShape) schema));
 
-  ParameterImpl(amf.apicontract.client.platform.model.domain.Parameter parameter, Spec spec) {
-    this(getSchema(parameter), parameter.required().value(), spec);
+  ParameterImpl(amf.apicontract.client.platform.model.domain.Parameter parameter, AMFConfiguration amfConfiguration) {
+    this(getSchema(parameter), parameter.required().value(), amfConfiguration);
   }
 
-  ParameterImpl(PropertyShape property, Spec spec) {
-    this(castToAnyShape(property.range()), property.minCount().value() > 0, spec);
+  ParameterImpl(PropertyShape property, AMFConfiguration amfConfiguration) {
+    this(castToAnyShape(property.range()), property.minCount().value() > 0, amfConfiguration);
   }
 
-  ParameterImpl(PropertyShape property, Set<String> allowedEncoding, Spec spec) {
-    this(property, spec);
+  ParameterImpl(PropertyShape property, Set<String> allowedEncoding, AMFConfiguration amfConfiguration) {
+    this(property, amfConfiguration);
     this.allowedEncoding = allowedEncoding;
   }
 
-  ParameterImpl(AnyShape anyShape, boolean required, Spec spec) {
+  ParameterImpl(AnyShape anyShape, boolean required, AMFConfiguration amfConfiguration) {
     this.schema = anyShape;
     this.required = required;
     this.validationStrategy = ParameterValidationStrategyFactory
-        .getStrategy(anyShape, needsQuotes(anyShape), spec);
+        .getStrategy(anyShape, needsQuotes(anyShape), amfConfiguration);
   }
 
   @Override
