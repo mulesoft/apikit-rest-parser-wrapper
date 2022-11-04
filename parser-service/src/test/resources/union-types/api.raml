@@ -11,6 +11,21 @@ types:
   dateOnly:
     type: date-only
     example: "2018-08-16"
+  a:
+    enum: ["a"]
+  b:
+    enum: ["b"]
+  unionOfEnumsType:
+    type: a | b
+    example: "a"
+
+/unionOfEnums:
+  post:
+    queryParameters:
+      unionOfEnums: unionOfEnumsType
+    body:
+      application/json:
+        type: unionOfEnumsType
 
 /bodyunion:
   post:
