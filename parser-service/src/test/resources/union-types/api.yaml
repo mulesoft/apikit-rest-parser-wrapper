@@ -39,8 +39,37 @@ paths:
         required: true
         schema:
           $ref: '#/components/schemas/dateortimestamp'
+  /unionOfEnums:
+    post:
+      responses:
+        '200':
+          description: ''
+      operationId: POST_bodyunion
+      parameters:
+        - name: unionOfEnums
+          in: query
+          schema:
+            $ref: '#/components/schemas/unionOfEnums'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/unionOfEnums'
+        required: true
 components:
   schemas:
+    a:
+      type: string
+      enum:
+        - "a"
+    b:
+      type: string
+      enum:
+        - "b"
+    unionOfEnums:
+      oneOf:
+        - $ref: '#/components/schemas/a'
+        - $ref: '#/components/schemas/b'
     timestamp:
       format: int64
       example: 123456
