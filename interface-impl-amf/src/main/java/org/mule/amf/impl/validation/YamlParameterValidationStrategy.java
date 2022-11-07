@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.amf.impl.model;
+package org.mule.amf.impl.validation;
 
 import amf.client.model.domain.AnyShape;
 import amf.client.model.domain.ArrayShape;
@@ -13,7 +13,7 @@ import amf.client.validate.ValidationReport;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.util.LazyValue;
 
-import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
+import static org.mule.amf.impl.util.AMFUtils.APPLICATION_YAML;
 import static org.mule.apikit.ParserUtils.escapeSpecialCharsInYamlValue;
 
 class YamlParameterValidationStrategy extends ValidationStrategy {

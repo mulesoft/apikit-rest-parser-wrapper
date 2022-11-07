@@ -4,10 +4,12 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.amf.impl.model;
+package org.mule.amf.impl.validation;
 
+import amf.client.model.domain.Shape;
 import amf.client.model.domain.ValidatorAware;
 import amf.client.validate.ValidationReport;
+import org.mule.amf.impl.util.AMFUtils;
 
 import static org.mule.apikit.ParserUtils.quoteValue;
 
@@ -18,7 +20,7 @@ abstract class ValidationStrategy implements ParameterValidationStrategy {
 
   protected ValidationStrategy(ValidatorAware schema, boolean schemaNeedsQuotes) {
     this.schema = schema;
-    this.schemaNeedsQuotes = schemaNeedsQuotes;
+    this.schemaNeedsQuotes = AMFUtils.needsQuotes((Shape) schema);
   }
 
   @Override

@@ -4,11 +4,11 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.amf.impl.model;
+package org.mule.amf.impl.validation;
 
 import amf.client.validate.ValidationReport;
 
-interface ParameterValidationStrategy {
+public interface ParameterValidationStrategy {
 
   ValidationReport validatePayload(String value);
 

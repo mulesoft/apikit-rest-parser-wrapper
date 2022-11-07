@@ -1,0 +1,111 @@
+#%RAML 1.0
+title: serialization parameters
+version: 1.0.0
+
+types:
+  User:
+    type: object
+    properties:
+      firstname: string
+      lastname:  string
+      age:       number
+
+  UserV2:
+    type: object
+    properties:
+      firstname: string
+      lastname:  string
+      age:       number
+      nickname:  string
+
+# uri parameters
+/uri-parameters-scalar-array:
+  /{scalar-array}:
+    description: uri parameter array type => [value1, value2]
+    uriParameters:
+      scalar-array:
+        type: array
+        items:
+          type: string
+    get:
+
+/uri-parameters-implicit-string:
+  /{implicit-string}:
+    description: type not defined => string type
+    get:
+
+/uri-parameters-scalar:
+  /{scalar}:
+    description: uri parameter integer type
+    uriParameters:
+      scalar:
+        type: integer
+    get:
+
+/uri-parameters-object:
+  /{object-value}:
+    description: object type serialization to json
+    uriParameters:
+      object-value:
+        type: User
+    get:
+
+/uri-parameters-object-union:
+  /{object-value}:
+    description: union of object types
+    uriParameters:
+      object-value:
+        type: User | UserV2
+    get:
+
+# headers
+/headers-test-case:
+  get:
+    headers:
+      scalar-array:
+        required: false
+        description: header array type => repeated
+        type: array
+        items:
+          type: string
+      implicit-string:
+        required: false
+        description: type not defined => string
+      scalar:
+        required: false
+        description: header scalar type
+        type: boolean
+      object-value:
+        required: false
+        description: object type serialization to json
+        type: User
+      union-object:
+        required: false
+        description: union of object types
+        type: User | UserV2
+
+# query parameters
+/query-params-test-case:
+  get:
+    queryParameters:
+      scalar-array:
+        required: false
+        description: header array type => repeated
+        type: array
+        items:
+          type: string
+      implicit-string:
+        required: false
+        description: type not defined => string
+      scalar:
+        required: false
+        description: header scalar type
+        type: boolean
+      object-value:
+        required: false
+        description: object type serialization to json
+        type: User
+      union-object:
+        required: false
+        description: union of object types
+        type: User | UserV2

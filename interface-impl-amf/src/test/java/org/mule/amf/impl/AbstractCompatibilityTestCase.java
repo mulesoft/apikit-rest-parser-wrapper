@@ -68,8 +68,8 @@ abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
   }
 
   static Collection<Object[]> getData(final URI baseFolder) throws IOException {
-    final List<File> apis = scan(baseFolder);
-
+    List<File> apis = scan(baseFolder);
+    apis = apis.stream().filter(apiFile -> !apiFile.getPath().contains("validation")).collect(toList());
     final List<Object[]> parameters = new ArrayList<>();
     apis.forEach(api -> parameters.add(new Object[] {api, api.getParentFile().getName()}));
 
