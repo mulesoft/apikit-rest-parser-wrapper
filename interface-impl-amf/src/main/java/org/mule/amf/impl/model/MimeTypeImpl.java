@@ -162,8 +162,7 @@ public class MimeTypeImpl implements MimeType {
   private String getExampleValueByMediaType(Example example) {
     String mimeType = firstNonNull(getType(), defaultMediaType);
     if (MediaType.APPLICATION_JSON.equals(mimeType) || MediaType.APPLICATION_YAML.equals(mimeType)) {
-      ShapesElementClient client = ShapesConfiguration.predefined().elementClient();
-      return client.renderExample(example, mimeType);
+      return amfConfiguration.elementClient().renderExample(example, mimeType);
     } else {
       return example.value().value();
     }
