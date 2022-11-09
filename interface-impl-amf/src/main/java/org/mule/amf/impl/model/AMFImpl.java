@@ -75,7 +75,7 @@ public class AMFImpl implements ApiSpecification {
     String parentKey = parentKey(endPoint);
     Map<String, Resource> parentMap = resources.computeIfAbsent(parentKey, k -> new LinkedHashMap<>());
     String childKey = endPoint.relativePath();
-    parentMap.put(childKey, new ResourceImpl(this, endPoint, parser.getApiConfiguration()));
+    parentMap.put(childKey, new ResourceImpl(this, endPoint, parser.getAMFConfiguration()));
   }
 
   private static String parentKey(final EndPoint endPoint) {
@@ -132,7 +132,7 @@ public class AMFImpl implements ApiSpecification {
   @Override
   public Map<String, Parameter> getBaseUriParameters() {
     return getServer().<Map<String, Parameter>>map(server -> server.variables().stream()
-        .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p, parser.getApiConfiguration()))))
+        .collect(toMap(p -> p.name().value(), p -> new ParameterImpl(p, parser.getAMFConfiguration()))))
         .orElseGet(Collections::emptyMap);
   }
 

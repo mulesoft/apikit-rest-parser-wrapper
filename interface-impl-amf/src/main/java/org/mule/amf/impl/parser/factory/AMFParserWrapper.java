@@ -17,7 +17,6 @@ import amf.core.client.platform.model.document.BaseUnit;
 import amf.core.client.platform.model.document.Document;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.AMFValidationResult;
-import amf.core.internal.remote.Spec;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
@@ -35,9 +34,8 @@ public class AMFParserWrapper {
 
   private final BaseUnit model;
   private final AMFBaseUnitClient client;
-  private final Spec spec;
   private final List<AMFValidationResult> parsingIssues;
-  private final AMFConfiguration apiConfiguration;
+  private final AMFConfiguration amfConfiguration;
 
 
   public AMFParserWrapper(ApiReference apiRef, ExecutionEnvironment execEnv) {
@@ -60,8 +58,8 @@ public class AMFParserWrapper {
         .parse(URLDecoder.decode(apiRef.getPathAsUri().toString())));
     this.parsingIssues = amfParseResult.results();
     this.model = amfParseResult.baseUnit();
-    this.apiConfiguration = APIConfiguration.fromSpec(amfParseResult.sourceSpec()).withExecutionEnvironment(execEnv);
-    this.client = apiConfiguration.baseUnitClient();
+    this.amfConfiguration = APIConfiguration.fromSpec(amfParseResult.sourceSpec()).withExecutionEnvironment(execEnv);
+    this.client = this.amfConfiguration.baseUnitClient();
   }
 
   public Document parseApi() throws ParserException {
@@ -97,19 +95,15 @@ public class AMFParserWrapper {
         .withoutSourceMaps()
         .withoutPrettyPrint()
         .withCompactUris();
-    return getApiConfiguration().withRenderOptions(renderOptions).baseUnitClient();
+    return getAMFConfiguration().withRenderOptions(renderOptions).baseUnitClient();
   }
 
   public <W> void renderApi(Document document, JsonOutputBuilder<W> wJsonOutputBuilder) {
     getRenderClient().renderGraphToBuilder(document, wJsonOutputBuilder);
   }
 
-  public Spec getSpec() {
-    return spec;
-  }
-
-  public AMFConfiguration getApiConfiguration() {
-    return apiConfiguration;
+  public AMFConfiguration getAMFConfiguration() {
+    return amfConfiguration;
   }
 
   public List<AMFValidationResult> getParsingIssues() {
