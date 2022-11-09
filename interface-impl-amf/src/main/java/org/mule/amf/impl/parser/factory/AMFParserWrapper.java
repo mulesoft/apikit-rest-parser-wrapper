@@ -73,9 +73,7 @@ public class AMFParserWrapper {
 
 
   public AMFValidationReport getParsingReport(Document resolvedDoc) throws ParserException {
-    AMFValidationReport report = handleFuture(client.validate(resolvedDoc));
-
-    return report;
+    return handleFuture(client.validate(resolvedDoc));
   }
 
   private <T, U> U handleFuture(CompletableFuture<T> f) throws ParserException {
