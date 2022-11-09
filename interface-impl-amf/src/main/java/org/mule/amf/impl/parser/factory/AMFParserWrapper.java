@@ -62,8 +62,7 @@ public class AMFParserWrapper {
         .parse(URLDecoder.decode(apiRef.getPathAsUri().toString())));
     this.parsingIssues = amfParseResult.results();
     this.model = amfParseResult.baseUnit();
-    this.spec = amfParseResult.sourceSpec();
-    this.apiConfiguration = APIConfiguration.fromSpec(spec).withExecutionEnvironment(execEnv);
+    this.apiConfiguration = APIConfiguration.fromSpec(amfParseResult.sourceSpec()).withExecutionEnvironment(execEnv);
     this.client = apiConfiguration.baseUnitClient();
   }
 
