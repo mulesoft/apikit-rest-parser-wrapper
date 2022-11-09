@@ -193,7 +193,7 @@ public class AMFImpl implements ApiSpecification {
   public void writeAMFModel(OutputStream outputStream) {
     try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8"))) {
       parser.renderApi(consoleModel.get(), new JsonOutputBuilder<>(writer, false,
-              Output.outputWriter()));
+                                                                   Output.outputWriter()));
     } catch (IOException e) {
       throw new RuntimeException("Error trying to dump AMF model", e);
     }
