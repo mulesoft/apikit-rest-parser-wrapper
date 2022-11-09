@@ -30,7 +30,8 @@ class YamlParameterValidationStrategy extends ValidationStrategy {
   public YamlParameterValidationStrategy(AnyShape anyShape, boolean schemaNeedsQuotes, AMFConfiguration amfConfiguration) {
     super(schemaNeedsQuotes);
     this.anyShape = anyShape;
-    this.amfConfiguration = amfConfiguration;
+    this.parameterValidator =
+      new LazyValue<>(() -> amfConfiguration.elementClient().payloadValidatorFor(anyShape, APPLICATION_YAML, ValidationMode.ScalarRelaxedValidationMode()));
   }
 
   @Override
