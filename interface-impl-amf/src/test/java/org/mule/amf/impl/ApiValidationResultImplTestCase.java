@@ -6,14 +6,14 @@
  */
 package org.mule.amf.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-
 import amf.core.client.platform.validation.AMFValidationResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.validation.Severity;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 public class ApiValidationResultImplTestCase {
 

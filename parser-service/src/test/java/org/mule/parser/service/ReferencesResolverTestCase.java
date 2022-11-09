@@ -6,20 +6,21 @@
  */
 package org.mule.parser.service;
 
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.references.ReferencesResolver;
+import org.mule.parser.service.strategy.AMFParsingStrategy;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mule.apikit.model.api.ApiReference.create;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.references.ReferencesResolver;
-import org.mule.parser.service.strategy.AMFParsingStrategy;
 
 public class ReferencesResolverTestCase {
 

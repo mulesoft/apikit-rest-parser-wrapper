@@ -14,7 +14,6 @@ import amf.core.client.platform.model.domain.ScalarNode;
 import amf.core.client.platform.model.domain.Shape;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.AMFValidationResult;
-import amf.core.internal.remote.Spec;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import amf.shapes.client.platform.model.domain.ArrayShape;
 import amf.shapes.client.platform.model.domain.FileShape;

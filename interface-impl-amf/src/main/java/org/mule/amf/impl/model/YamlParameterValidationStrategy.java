@@ -7,7 +7,6 @@
 package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFConfiguration;
-import amf.apicontract.client.platform.APIConfiguration;
 import amf.core.client.common.validation.ValidationMode;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;

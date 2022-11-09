@@ -6,6 +6,19 @@
  */
 package org.mule.parser.service;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
+import org.mule.apikit.loader.ApiSyncResourceLoader;
+import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
+
+import java.net.URL;
+import java.util.stream.Collectors;
+
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
@@ -17,20 +30,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mule.parser.service.ParserMode.AMF;
 import static org.mule.parser.service.ParserMode.RAML;
-
-import org.mule.apikit.loader.ApiSyncResourceLoader;
-import org.mule.apikit.loader.ResourceLoader;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.result.ParseResult;
-
-import java.net.URL;
-import java.util.stream.Collectors;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class RamlParsingTestCase {

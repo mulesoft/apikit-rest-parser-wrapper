@@ -6,15 +6,14 @@
  */
 package org.mule.apikit.implv1.parser.rule;
 
-import static org.mule.apikit.validation.Severity.WARNING;
-import static org.raml.parser.rule.ValidationResult.Level.WARN;
-
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.Severity;
+import org.raml.parser.rule.ValidationResult;
 
 import java.util.Optional;
 
-import org.raml.parser.rule.ValidationResult;
+import static org.mule.apikit.validation.Severity.WARNING;
+import static org.raml.parser.rule.ValidationResult.Level.WARN;
 
 public class ApiValidationResultImpl implements ApiValidationResult {
 

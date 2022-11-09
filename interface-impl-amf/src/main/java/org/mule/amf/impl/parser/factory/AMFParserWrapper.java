@@ -15,14 +15,12 @@ import amf.core.client.platform.config.RenderOptions;
 import amf.core.client.platform.execution.ExecutionEnvironment;
 import amf.core.client.platform.model.document.BaseUnit;
 import amf.core.client.platform.model.document.Document;
-import amf.core.client.platform.resource.ResourceLoader;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.AMFValidationResult;
 import amf.core.internal.remote.Spec;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
-import org.mule.apikit.loader.ApiSyncResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.yaml.builder.JsonOutputBuilder;
 

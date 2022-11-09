@@ -10,7 +10,6 @@ import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Server;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
 import amf.core.client.platform.model.document.Document;
-import amf.core.internal.remote.Spec;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.util.LazyValue;
 import org.mule.apikit.ApiType;

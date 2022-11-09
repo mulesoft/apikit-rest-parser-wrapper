@@ -6,16 +6,15 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import static java.util.Optional.ofNullable;
-
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
+import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import static java.util.Optional.ofNullable;
 
 public class ResponseImpl implements Response {
 

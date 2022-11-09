@@ -7,7 +7,6 @@
 package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFConfiguration;
-import amf.apicontract.client.platform.APIConfiguration;
 import amf.apicontract.client.platform.model.domain.Encoding;
 import amf.apicontract.client.platform.model.domain.Payload;
 import amf.core.client.common.validation.ValidationMode;
@@ -15,7 +14,6 @@ import amf.core.client.platform.model.domain.PropertyShape;
 import amf.core.client.platform.model.domain.Shape;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
-import amf.core.internal.remote.Spec;
 import amf.shapes.client.platform.ShapesConfiguration;
 import amf.shapes.client.platform.ShapesElementClient;
 import amf.shapes.client.platform.model.domain.AnyShape;

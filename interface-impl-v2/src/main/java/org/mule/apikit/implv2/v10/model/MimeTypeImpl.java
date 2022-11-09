@@ -6,14 +6,14 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-import static org.mule.apikit.implv2.v10.model.RamlImpl10V2.getTypeAsString;
-
 import org.mule.apikit.implv2.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.apikit.validation.ApiValidationResult;
+import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
+import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.api.model.v10.datamodel.UnionTypeDeclaration;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,10 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
-import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
-import org.raml.v2.api.model.v10.datamodel.UnionTypeDeclaration;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static org.mule.apikit.implv2.v10.model.RamlImpl10V2.getTypeAsString;
 
 public class MimeTypeImpl implements MimeType {
 

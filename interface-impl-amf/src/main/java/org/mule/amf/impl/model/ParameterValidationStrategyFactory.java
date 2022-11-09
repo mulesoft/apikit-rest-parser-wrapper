@@ -7,7 +7,6 @@
 package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFConfiguration;
-import amf.apicontract.client.platform.APIConfiguration;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import amf.shapes.client.platform.model.domain.ArrayShape;
 import amf.shapes.client.platform.model.domain.UnionShape;

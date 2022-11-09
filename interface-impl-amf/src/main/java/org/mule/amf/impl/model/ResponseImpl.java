@@ -7,7 +7,6 @@
 package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFConfiguration;
-import amf.core.internal.remote.Spec;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
