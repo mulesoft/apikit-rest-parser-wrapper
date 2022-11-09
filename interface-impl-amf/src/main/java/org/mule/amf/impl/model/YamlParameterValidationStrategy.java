@@ -19,13 +19,8 @@ import static org.mule.apikit.ParserUtils.escapeSpecialCharsInYamlValue;
 
 class YamlParameterValidationStrategy extends ValidationStrategy {
 
-  private final AMFConfiguration amfConfiguration;
   private AnyShape anyShape;
-
-  private final LazyValue<AMFShapePayloadValidator> parameterValidator =
-      new LazyValue<>(() -> getAmfConfiguration().elementClient().payloadValidatorFor(anyShape, APPLICATION_YAML,
-                                                                                      ValidationMode
-                                                                                          .ScalarRelaxedValidationMode()));
+  private  LazyValue<AMFShapePayloadValidator> parameterValidator;
 
   public YamlParameterValidationStrategy(AnyShape anyShape, boolean schemaNeedsQuotes, AMFConfiguration amfConfiguration) {
     super(schemaNeedsQuotes);
@@ -60,7 +55,4 @@ class YamlParameterValidationStrategy extends ValidationStrategy {
     return value;
   }
 
-  private AMFConfiguration getAmfConfiguration() {
-    return amfConfiguration;
-  }
 }
