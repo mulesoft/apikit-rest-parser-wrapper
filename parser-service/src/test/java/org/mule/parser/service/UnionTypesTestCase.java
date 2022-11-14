@@ -35,6 +35,8 @@ public class UnionTypesTestCase {
   private static final String POST_ACTION = "POST";
   private static final String APPLICATION_JSON = "application/json";
   private static final String PARAM_VALUE = "dateortimestamp";
+  private static final String UNION_OF_ENUMS_RESOURCE = "/unionOfEnums";
+  private static final String UNION_OF_ENUMS_PARAM = "unionOfEnums";
 
   @Parameterized.Parameter
   public ApiVendor apiVendor;
@@ -89,4 +91,18 @@ public class UnionTypesTestCase {
     assertFalse(parameter.validate("HelloWorld"));
   }
 
+  @Test
+  public void testUnionOfEnums() {
+    Parameter parameter =
+        api.getResources().get(UNION_OF_ENUMS_RESOURCE).getAction(POST_ACTION).getQueryParameters().get(UNION_OF_ENUMS_PARAM);
+    assertTrue(parameter.validate("a"));
+    assertTrue(parameter.validate("b"));
+    assertFalse(parameter.validate("c"));
+
+    MimeType body = api.getResources().get(UNION_OF_ENUMS_RESOURCE).getAction(POST_ACTION).getBody().get(APPLICATION_JSON);
+    assertTrue(body.validate("a").isEmpty());
+    assertTrue(body.validate("b").isEmpty());
+    assertFalse(body.validate("c").isEmpty());
+
+  }
 }
