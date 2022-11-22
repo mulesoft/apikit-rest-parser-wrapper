@@ -21,8 +21,6 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -35,7 +33,6 @@ import static java.util.stream.Collectors.toList;
 
 public class AMFParser implements ApiParser {
 
-  private static final Logger logger = LoggerFactory.getLogger(AMFParser.class);
 
   private URI apiUri;
   private ApiReference apiRef;

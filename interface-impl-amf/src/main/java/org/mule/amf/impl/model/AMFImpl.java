@@ -20,8 +20,6 @@ import org.mule.apikit.model.SecurityScheme;
 import org.mule.apikit.model.Template;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mulesoft.common.io.Output;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.builder.JsonOutputBuilder;
 import scala.Option;
 
@@ -46,7 +44,6 @@ import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
 public class AMFImpl implements ApiSpecification {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AMFImpl.class);
   private final WebApi webApi;
   private final Map<String, Map<String, Resource>> resources;
   private final List<String> references;

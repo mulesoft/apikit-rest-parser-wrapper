@@ -14,8 +14,6 @@ import amf.core.client.platform.model.domain.PropertyShape;
 import amf.core.client.platform.model.domain.Shape;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
-import amf.shapes.client.platform.ShapesConfiguration;
-import amf.shapes.client.platform.ShapesElementClient;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import amf.shapes.client.platform.model.domain.Example;
 import amf.shapes.client.platform.model.domain.NodeShape;

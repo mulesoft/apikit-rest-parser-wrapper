@@ -8,7 +8,6 @@
 package org.mule.amf.impl.parser.rule;
 
 import amf.core.client.platform.validation.AMFValidationResult;
-import amf.core.internal.annotations.LexicalInformation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.amf.impl.AMFParser;
@@ -25,6 +24,7 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static scala.Option.empty;
 
 public class ApiValidationResultImplTest {
 
@@ -121,9 +121,8 @@ public class ApiValidationResultImplTest {
   @Test
   public void testWithoutDetails() throws Exception {
     Position start = new Position(0, 0, 0);
-    Option<String> location = Option.empty();
     String message = CUSTOM_ERROR_MESSAGE;
-    AMFValidationResult validationResult = createAMFValidationResult(message, start, location);
+    AMFValidationResult validationResult = createAMFValidationResult(message, start, empty());
     ApiValidationResultImpl apiValidationResult = new ApiValidationResultImpl(validationResult);
     String actualMessage = apiValidationResult.getMessage();
     String expectedMessage = CUSTOM_ERROR_MESSAGE;
@@ -131,8 +130,6 @@ public class ApiValidationResultImplTest {
   }
 
   public AMFValidationResult createAMFValidationResult(String message, Position startPosition, Option<String> location) {
-    Option<LexicalInformation> position =
-        Option.apply(new LexicalInformation(new PositionRange(startPosition, new Position(0, 0, 0))));
     return new AMFValidationResult(message, "level", "targetNode", "", "validationId",
                                    new PositionRange(startPosition, new Position(0, 0, 0)), location.getOrElse(() -> ""));
   }
