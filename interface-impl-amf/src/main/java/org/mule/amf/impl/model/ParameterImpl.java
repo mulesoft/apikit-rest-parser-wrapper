@@ -34,6 +34,7 @@ import java.util.Set;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
@@ -104,9 +105,7 @@ class ParameterImpl implements Parameter {
   private String getErrorMessageFromReport(ValidationReport validationReport) {
     return validationReport.conforms() ? "OK"
         : validationReport.results().stream()
-            .findFirst()
-            .map(ValidationResult::message)
-            .orElse("Error");
+            .map(result -> result.message().replace("\n", "")).collect(joining("\n"));
   }
 
   @Override
