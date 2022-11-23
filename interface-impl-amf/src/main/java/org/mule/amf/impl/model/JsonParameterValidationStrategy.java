@@ -19,22 +19,17 @@ import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 
 class JsonParameterValidationStrategy extends ValidationStrategy {
 
-  private AMFElementClient client;
-  private AnyShape anyShape;
-  private final LazyValue<AMFShapePayloadValidator> jsonValidator =
-      new LazyValue<>(() -> client.payloadValidatorFor(anyShape, APPLICATION_JSON, ValidationMode.StrictValidationMode()));
-
-
-  private final LazyValue<AMFValidationReport> nullValidationReport = new LazyValue<>(() -> {
-    AMFShapePayloadValidator yamlPayloadValidator =
-        client.payloadValidatorFor(anyShape, APPLICATION_YAML, ValidationMode.StrictValidationMode());
-    return yamlPayloadValidator.syncValidate("null");
-  });
+  private LazyValue<AMFShapePayloadValidator> jsonValidator;
+  private LazyValue<AMFValidationReport> nullValidationReport;
 
   public JsonParameterValidationStrategy(AMFElementClient client, AnyShape anyShape, boolean schemaNeedsQuotes) {
     super(schemaNeedsQuotes);
-    this.client = client;
-    this.anyShape = anyShape;
+    this.jsonValidator = new LazyValue<>(() -> client.payloadValidatorFor(anyShape, APPLICATION_JSON, ValidationMode.StrictValidationMode()));
+    this.nullValidationReport = new LazyValue<>(() -> {
+      AMFShapePayloadValidator yamlPayloadValidator =
+        client.payloadValidatorFor(anyShape, APPLICATION_YAML, ValidationMode.StrictValidationMode());
+      return yamlPayloadValidator.syncValidate("null");
+    });
   }
 
   @Override

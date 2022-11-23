@@ -6,7 +6,7 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.apicontract.client.platform.AMFConfiguration;
+import amf.apicontract.client.platform.AMFElementClient;
 import amf.core.client.common.validation.ValidationMode;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
@@ -22,11 +22,11 @@ class YamlParameterValidationStrategy extends ValidationStrategy {
   private AnyShape anyShape;
   private LazyValue<AMFShapePayloadValidator> parameterValidator;
 
-  public YamlParameterValidationStrategy(AnyShape anyShape, boolean schemaNeedsQuotes, AMFConfiguration amfConfiguration) {
+  public YamlParameterValidationStrategy(AnyShape anyShape, boolean schemaNeedsQuotes, AMFElementClient amfElementClient) {
     super(schemaNeedsQuotes);
     this.anyShape = anyShape;
     this.parameterValidator =
-        new LazyValue<>(() -> amfConfiguration.elementClient().payloadValidatorFor(anyShape, APPLICATION_YAML,
+        new LazyValue<>(() -> amfElementClient.payloadValidatorFor(anyShape, APPLICATION_YAML,
                                                                                    ValidationMode.ScalarRelaxedValidationMode()));
   }
 

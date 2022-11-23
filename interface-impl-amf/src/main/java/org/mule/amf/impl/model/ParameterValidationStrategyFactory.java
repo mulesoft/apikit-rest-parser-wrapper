@@ -7,6 +7,7 @@
 package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFConfiguration;
+import amf.apicontract.client.platform.AMFElementClient;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import amf.shapes.client.platform.model.domain.ArrayShape;
 import amf.shapes.client.platform.model.domain.UnionShape;
@@ -19,15 +20,10 @@ class ParameterValidationStrategyFactory {
   }
 
   static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean needsCharEscaping,
-                                                 AMFConfiguration amfConfiguration) {
-    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape, needsCharEscaping, amfConfiguration)
-        : getJsonParameterValidationStrategy(anyShape, needsCharEscaping, amfConfiguration);
-  }
+                                                 AMFElementClient amfElementClient) {
 
-  private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape,
-                                                                                    boolean needsCharsEscaping,
-                                                                                    AMFConfiguration amfConfiguration) {
-    return new JsonParameterValidationStrategy(amfConfiguration.elementClient(), anyShape, needsCharsEscaping);
+    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape, needsCharEscaping, amfElementClient)
+        : new JsonParameterValidationStrategy(amfElementClient, anyShape, needsCharEscaping);
   }
 
   /**

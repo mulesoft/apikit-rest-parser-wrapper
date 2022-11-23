@@ -74,7 +74,7 @@ class ParameterImpl implements Parameter {
     this.schema = anyShape;
     this.required = required;
     this.validationStrategy = ParameterValidationStrategyFactory
-        .getStrategy(anyShape, needsQuotes(anyShape), amfConfiguration);
+        .getStrategy(anyShape, needsQuotes(anyShape), amfConfiguration.elementClient());
   }
 
   @Override

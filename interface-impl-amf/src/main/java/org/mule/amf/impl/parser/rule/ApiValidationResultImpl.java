@@ -61,7 +61,7 @@ public class ApiValidationResultImpl implements ApiValidationResult {
         : Severity.fromString(validationResult.severityLevel());
   }
 
-  private String getPositionMessage(Position startPosition) {
+  private static String getPositionMessage(Position startPosition) {
     return format(POSITION_FORMAT, startPosition.line(), startPosition.column());
   }
 
