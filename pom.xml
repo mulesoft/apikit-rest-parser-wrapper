@@ -158,7 +158,7 @@
                         <id>apply-format</id>
                         <phase>compile</phase>
                         <goals>
-                            <goal>format</goal>
+                            <goal>validate</goal>
                         </goals>
                         <configuration>
                             <skipFormatting>${formatter.skip}</skipFormatting>

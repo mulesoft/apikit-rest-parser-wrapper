@@ -24,10 +24,11 @@ class JsonParameterValidationStrategy extends ValidationStrategy {
 
   public JsonParameterValidationStrategy(AMFElementClient client, AnyShape anyShape, boolean schemaNeedsQuotes) {
     super(schemaNeedsQuotes);
-    this.jsonValidator = new LazyValue<>(() -> client.payloadValidatorFor(anyShape, APPLICATION_JSON, ValidationMode.StrictValidationMode()));
+    this.jsonValidator =
+        new LazyValue<>(() -> client.payloadValidatorFor(anyShape, APPLICATION_JSON, ValidationMode.StrictValidationMode()));
     this.nullValidationReport = new LazyValue<>(() -> {
       AMFShapePayloadValidator yamlPayloadValidator =
-        client.payloadValidatorFor(anyShape, APPLICATION_YAML, ValidationMode.StrictValidationMode());
+          client.payloadValidatorFor(anyShape, APPLICATION_YAML, ValidationMode.StrictValidationMode());
       return yamlPayloadValidator.syncValidate("null");
     });
   }
