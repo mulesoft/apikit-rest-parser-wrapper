@@ -6,18 +6,19 @@
  */
 package org.mule.amf.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mule.amf.impl.model.AMFImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.api.ApiReference;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 public class OasPayloadValidationTestCase {
 

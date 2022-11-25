@@ -6,14 +6,6 @@
  */
 package org.mule.apikit.common.test;
 
-import static java.lang.String.format;
-import static java.lang.String.join;
-import static java.lang.Thread.currentThread;
-import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-
-import java.net.URISyntaxException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -21,6 +13,15 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.api.ApiReference;
+
+import java.net.URISyntaxException;
+
+import static java.lang.String.format;
+import static java.lang.String.join;
+import static java.lang.Thread.currentThread;
+import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 @RunWith(Parameterized.class)
 public class ApiReferenceTestCase {

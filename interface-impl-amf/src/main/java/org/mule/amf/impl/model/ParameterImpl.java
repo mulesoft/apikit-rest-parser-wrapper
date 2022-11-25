@@ -6,20 +6,21 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.StrField;
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.DataNode;
-import amf.client.model.domain.FileShape;
-import amf.client.model.domain.NilShape;
-import amf.client.model.domain.NodeShape;
-import amf.client.model.domain.PropertyShape;
-import amf.client.model.domain.ScalarNode;
-import amf.client.model.domain.ScalarShape;
-import amf.client.model.domain.Shape;
-import amf.client.model.domain.UnionShape;
-import amf.client.validate.ValidationReport;
-import amf.client.validate.ValidationResult;
+import amf.apicontract.client.platform.AMFConfiguration;
+import amf.core.client.platform.model.StrField;
+import amf.core.client.platform.model.domain.DataNode;
+import amf.core.client.platform.model.domain.PropertyShape;
+import amf.core.client.platform.model.domain.ScalarNode;
+import amf.core.client.platform.model.domain.Shape;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.AMFValidationResult;
+import amf.shapes.client.platform.model.domain.AnyShape;
+import amf.shapes.client.platform.model.domain.ArrayShape;
+import amf.shapes.client.platform.model.domain.FileShape;
+import amf.shapes.client.platform.model.domain.NilShape;
+import amf.shapes.client.platform.model.domain.NodeShape;
+import amf.shapes.client.platform.model.domain.ScalarShape;
+import amf.shapes.client.platform.model.domain.UnionShape;
 import com.google.common.collect.ImmutableSet;
 import org.mule.amf.impl.exceptions.UnsupportedSchemaException;
 import org.mule.amf.impl.util.LazyValue;
@@ -34,6 +35,7 @@ import java.util.Set;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
@@ -55,24 +57,24 @@ class ParameterImpl implements Parameter {
   private LazyValue<Boolean> isNullable = new LazyValue<>(() -> schema instanceof NilShape ||
       schema instanceof UnionShape && hasNilShape((UnionShape) schema));
 
-  ParameterImpl(amf.client.model.domain.Parameter parameter) {
-    this(getSchema(parameter), parameter.required().value());
+  ParameterImpl(amf.apicontract.client.platform.model.domain.Parameter parameter, AMFConfiguration amfConfiguration) {
+    this(getSchema(parameter), parameter.required().value(), amfConfiguration);
   }
 
-  ParameterImpl(PropertyShape property) {
-    this(castToAnyShape(property.range()), property.minCount().value() > 0);
+  ParameterImpl(PropertyShape property, AMFConfiguration amfConfiguration) {
+    this(castToAnyShape(property.range()), property.minCount().value() > 0, amfConfiguration);
   }
 
-  ParameterImpl(PropertyShape property, Set<String> allowedEncoding) {
-    this(property);
+  ParameterImpl(PropertyShape property, Set<String> allowedEncoding, AMFConfiguration amfConfiguration) {
+    this(property, amfConfiguration);
     this.allowedEncoding = allowedEncoding;
   }
 
-  ParameterImpl(AnyShape anyShape, boolean required) {
+  ParameterImpl(AnyShape anyShape, boolean required, AMFConfiguration amfConfiguration) {
     this.schema = anyShape;
     this.required = required;
     this.validationStrategy = ParameterValidationStrategyFactory
-        .getStrategy(anyShape, needsQuotes(anyShape));
+        .getStrategy(anyShape, needsQuotes(anyShape), amfConfiguration.elementClient());
   }
 
   @Override
@@ -80,11 +82,11 @@ class ParameterImpl implements Parameter {
     return validatePayload(value).conforms();
   }
 
-  ValidationReport validatePayload(String value) {
+  AMFValidationReport validatePayload(String value) {
     return validationStrategy.validatePayload(value);
   }
 
-  private static AnyShape getSchema(amf.client.model.domain.Parameter parameter) {
+  private static AnyShape getSchema(amf.apicontract.client.platform.model.domain.Parameter parameter) {
     Shape shape = parameter.schema();
     return castToAnyShape(shape);
   }
@@ -101,11 +103,11 @@ class ParameterImpl implements Parameter {
     return getErrorMessageFromReport(validatePayload(value));
   }
 
-  private String getErrorMessageFromReport(ValidationReport validationReport) {
+  private String getErrorMessageFromReport(AMFValidationReport validationReport) {
     return validationReport.conforms() ? "OK"
         : validationReport.results().stream()
             .findFirst()
-            .map(ValidationResult::message)
+            .map(AMFValidationResult::message)
             .orElse("Error");
   }
 

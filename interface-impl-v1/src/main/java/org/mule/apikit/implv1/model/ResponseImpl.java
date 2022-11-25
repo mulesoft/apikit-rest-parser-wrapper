@@ -10,12 +10,11 @@ import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Response;
 import org.mule.apikit.model.parameter.Parameter;
+import org.raml.model.parameter.Header;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import org.raml.model.parameter.Header;
 
 public class ResponseImpl implements Response {
 

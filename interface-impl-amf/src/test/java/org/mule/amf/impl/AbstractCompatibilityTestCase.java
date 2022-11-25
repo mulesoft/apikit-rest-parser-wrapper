@@ -6,10 +6,7 @@
  */
 package org.mule.amf.impl;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Collections;
+import org.junit.Assert;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -26,11 +23,13 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.junit.Assert;
+import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertNotNull;
 
 abstract class AbstractCompatibilityTestCase extends AbstractTestCase {
 

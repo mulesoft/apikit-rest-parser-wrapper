@@ -6,13 +6,6 @@
  */
 package org.mule.parser.service.strategy;
 
-import static java.util.Collections.singletonList;
-import static org.mule.apikit.model.ApiVendor.RAML_08;
-import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
-import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
-
-import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import org.mule.apikit.ApiParser;
 import org.mule.apikit.implv1.ParserWrapperV1;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -23,6 +16,14 @@ import org.mule.parser.service.references.ReferencesResolver;
 import org.mule.parser.service.result.DefaultParseResult;
 import org.mule.parser.service.result.ExceptionParseResult;
 import org.mule.parser.service.result.ParseResult;
+
+import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static java.util.Collections.singletonList;
+import static org.mule.apikit.model.ApiVendor.RAML_08;
+import static org.mule.parser.service.strategy.ValidationReportHelper.errors;
+import static org.mule.parser.service.strategy.ValidationReportHelper.warnings;
 
 public class RamlParsingStrategy implements ParsingStrategy {
 

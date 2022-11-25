@@ -6,9 +6,11 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.AnyShape;
-import amf.client.model.domain.ArrayShape;
-import amf.client.model.domain.UnionShape;
+import amf.apicontract.client.platform.AMFConfiguration;
+import amf.apicontract.client.platform.AMFElementClient;
+import amf.shapes.client.platform.model.domain.AnyShape;
+import amf.shapes.client.platform.model.domain.ArrayShape;
+import amf.shapes.client.platform.model.domain.UnionShape;
 import org.apache.commons.collections.CollectionUtils;
 
 class ParameterValidationStrategyFactory {
@@ -17,14 +19,11 @@ class ParameterValidationStrategyFactory {
     throw new IllegalStateException("Utility class");
   }
 
-  static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean schemaNeedsQuotes) {
-    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape, schemaNeedsQuotes)
-        : getJsonParameterValidationStrategy(anyShape, schemaNeedsQuotes);
-  }
+  static ParameterValidationStrategy getStrategy(AnyShape anyShape, boolean needsCharEscaping,
+                                                 AMFElementClient amfElementClient) {
 
-  private static JsonParameterValidationStrategy getJsonParameterValidationStrategy(AnyShape anyShape,
-                                                                                    boolean schemaNeedsQuotes) {
-    return new JsonParameterValidationStrategy(anyShape, schemaNeedsQuotes);
+    return isYamlValidationNeeded(anyShape) ? new YamlParameterValidationStrategy(anyShape, needsCharEscaping, amfElementClient)
+        : new JsonParameterValidationStrategy(amfElementClient, anyShape, needsCharEscaping);
   }
 
   /**

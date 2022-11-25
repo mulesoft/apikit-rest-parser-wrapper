@@ -6,16 +6,16 @@
  */
 package org.mule.parser.service;
 
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.strategy.ParsingStrategy;
+
+import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+
 import static org.mule.parser.service.ParserMode.AMF;
 import static org.mule.parser.service.ParserMode.AUTO;
 import static org.mule.parser.service.ParserMode.RAML;
-
-import java.util.concurrent.ScheduledExecutorService;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.result.ParseResult;
-
-import java.util.Optional;
-import org.mule.parser.service.strategy.ParsingStrategy;
 
 public class ParserService {
 

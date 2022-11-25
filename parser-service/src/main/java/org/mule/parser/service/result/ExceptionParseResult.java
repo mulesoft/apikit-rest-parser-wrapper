@@ -6,13 +6,14 @@
  */
 package org.mule.parser.service.result;
 
-import static java.util.Collections.*;
-
 import org.mule.apikit.model.ApiSpecification;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 public class ExceptionParseResult implements ParseResult {
 

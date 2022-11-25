@@ -6,9 +6,9 @@
  */
 package org.mule.apikit.validation;
 
-import static org.mule.apikit.validation.Severity.ERROR;
-
 import java.util.List;
+
+import static org.mule.apikit.validation.Severity.ERROR;
 
 public class DefaultApiValidationReport implements ApiValidationReport {
 

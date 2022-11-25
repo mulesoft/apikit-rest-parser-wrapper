@@ -6,16 +6,16 @@
  */
 package org.mule.parser.service.strategy;
 
-import static java.util.stream.Collectors.toList;
-import static org.mule.apikit.validation.Severity.ERROR;
-import static org.mule.apikit.validation.Severity.WARNING;
-
 import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.Severity;
 import org.mule.parser.service.result.DefaultParsingIssue;
 import org.mule.parser.service.result.ParsingIssue;
 
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+import static org.mule.apikit.validation.Severity.ERROR;
+import static org.mule.apikit.validation.Severity.WARNING;
 
 public class ValidationReportHelper {
 

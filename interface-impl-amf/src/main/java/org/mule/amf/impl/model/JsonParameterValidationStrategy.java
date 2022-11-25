@@ -6,11 +6,12 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.client.model.domain.ValidatorAware;
-import amf.client.validate.PayloadValidator;
-import amf.client.validate.ValidationReport;
+import amf.apicontract.client.platform.AMFElementClient;
+import amf.core.client.common.validation.ValidationMode;
+import amf.core.client.platform.validation.AMFValidationReport;
+import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
+import amf.shapes.client.platform.model.domain.AnyShape;
 import org.json.simple.JSONValue;
-import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
@@ -18,19 +19,18 @@ import static org.mule.amf.impl.model.MediaType.APPLICATION_YAML;
 
 class JsonParameterValidationStrategy extends ValidationStrategy {
 
-  private final LazyValue<PayloadValidator> jsonValidator =
-      new LazyValue<>(() -> schema.payloadValidator(APPLICATION_JSON)
-          .orElseThrow(() -> new ParserException(APPLICATION_JSON + " validator not found for shape " + schema)));
+  private LazyValue<AMFShapePayloadValidator> jsonValidator;
+  private LazyValue<AMFValidationReport> nullValidationReport;
 
-  private final LazyValue<ValidationReport> nullValidationReport = new LazyValue<>(() -> {
-    final PayloadValidator yamlPayloadValidator = schema.payloadValidator(APPLICATION_YAML)
-        .orElseThrow(() -> new ParserException(APPLICATION_YAML + " validator not found for shape " + schema));
-
-    return yamlPayloadValidator.syncValidate(APPLICATION_YAML, "null");
-  });
-
-  public JsonParameterValidationStrategy(ValidatorAware validatorAware, boolean schemaNeedsQuotes) {
-    super(validatorAware, schemaNeedsQuotes);
+  public JsonParameterValidationStrategy(AMFElementClient client, AnyShape anyShape, boolean schemaNeedsQuotes) {
+    super(schemaNeedsQuotes);
+    this.jsonValidator =
+        new LazyValue<>(() -> client.payloadValidatorFor(anyShape, APPLICATION_JSON, ValidationMode.StrictValidationMode()));
+    this.nullValidationReport = new LazyValue<>(() -> {
+      AMFShapePayloadValidator yamlPayloadValidator =
+          client.payloadValidatorFor(anyShape, APPLICATION_YAML, ValidationMode.StrictValidationMode());
+      return yamlPayloadValidator.syncValidate("null");
+    });
   }
 
   @Override
@@ -44,11 +44,11 @@ class JsonParameterValidationStrategy extends ValidationStrategy {
   }
 
   @Override
-  public ValidationReport validate(String value) {
+  public AMFValidationReport validate(String value) {
     if (value == null) {
       return nullValidationReport.get();
     }
-    return jsonValidator.get().syncValidate(APPLICATION_JSON, value);
+    return jsonValidator.get().syncValidate(value);
   }
 
 

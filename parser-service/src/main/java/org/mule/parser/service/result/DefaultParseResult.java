@@ -6,11 +6,10 @@
  */
 package org.mule.parser.service.result;
 
+import com.google.common.collect.ImmutableList;
 import org.mule.apikit.model.ApiSpecification;
 
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
 
 public class DefaultParseResult implements ParseResult {
 
