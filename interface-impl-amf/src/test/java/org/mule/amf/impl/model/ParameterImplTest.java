@@ -158,7 +158,7 @@ public class ParameterImplTest {
 
   @Test
   public void validateSpecialCharacters() {
-    final Parameter parameter = queryParams.get(ISBN_QUERY_PARAM);
+    final Parameter parameter = testNullQueryParams.get("nonNullableString");
     assertTrue(parameter.validate("\\TestTest1"));
     assertTrue(parameter.validate("Test%3A%20Test\\"));
     assertTrue(parameter.validate("\"foo\" is not \"bar\". specials: \b\r\n\f\t\\/"));
