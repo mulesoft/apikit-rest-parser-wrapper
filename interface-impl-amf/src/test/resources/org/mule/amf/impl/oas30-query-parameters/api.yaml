@@ -80,6 +80,8 @@ paths:
           required: true
           schema:
             minLength: 10
+            maxLength: 17
+            pattern: ^[-\d]*$
             type: string
             example: '0321736079'
         - name: tags

@@ -91,6 +91,8 @@ paths:
           in: query
         - name: isbn
           minLength: 10
+          maxLength: 17
+          pattern: ^[-\d]*$
           type: string
           in: query
           required: true
