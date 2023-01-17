@@ -64,7 +64,7 @@ public class ParameterImplTest {
   public ApiSpecification apiSpecification;
 
   @Parameterized.Parameters(name = "{0}")
-  public static Collection<Object[]> apiSpecifications() throws Exception {
+  public static Collection<Object[]> apiSpecifications() {
     ApiReference ramlApiRef = getApiReference("../10-query-parameters/api.raml");
     ApiReference oas20apiRef = getApiReference("../oas20-query-parameters/api.yaml");
     ApiReference oas30apiRef = getApiReference("../oas30-query-parameters/api.yaml");
@@ -76,9 +76,13 @@ public class ParameterImplTest {
     });
   }
 
-  private static ApiReference getApiReference(String resourceName) throws URISyntaxException {
-    URI uri = ParameterImplTest.class.getResource(resourceName).toURI();
-    return ApiReference.create(uri);
+  private static ApiReference getApiReference(String resourceName) {
+    try {
+      URI uri = ParameterImplTest.class.getResource(resourceName).toURI();
+      return ApiReference.create(uri);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Before
