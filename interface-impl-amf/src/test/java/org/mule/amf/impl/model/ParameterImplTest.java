@@ -17,6 +17,8 @@ import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -61,21 +63,21 @@ public class ParameterImplTest {
   public ApiSpecification apiSpecification;
 
   @Parameterized.Parameters(name = "{0}")
-  public static Collection apiSpecifications() throws Exception {
-    String apiLocation = ParameterImplTest.class.getResource("../10-query-parameters/api.raml").toURI().toString();
-    ApiReference ramlApiRef = ApiReference.create(apiLocation);
-
-    apiLocation = ParameterImplTest.class.getResource("../oas20-query-parameters/api.yaml").toURI().toString();
-    ApiReference oas20apiRef = ApiReference.create(apiLocation);
-
-    apiLocation = ParameterImplTest.class.getResource("../oas30-query-parameters/api.yaml").toURI().toString();
-    ApiReference oas30apiRef = ApiReference.create(apiLocation);
+  public static Collection<Object[]> apiSpecifications() throws Exception {
+    ApiReference ramlApiRef = getApiReference("../10-query-parameters/api.raml");
+    ApiReference oas20apiRef = getApiReference("../oas20-query-parameters/api.yaml");
+    ApiReference oas30apiRef = getApiReference("../oas30-query-parameters/api.yaml");
 
     return asList(new Object[][] {
-        {ApiVendor.RAML, new AMFParser(ramlApiRef, true).parse()},
-        {ApiVendor.OAS_20, new AMFParser(oas20apiRef, true).parse()},
-        {ApiVendor.OAS_30, new AMFParser(oas30apiRef, true).parse()}
+        {ApiVendor.RAML, new AMFParser(ramlApiRef).parse()},
+        {ApiVendor.OAS_20, new AMFParser(oas20apiRef).parse()},
+        {ApiVendor.OAS_30, new AMFParser(oas30apiRef).parse()}
     });
+  }
+
+  private static ApiReference getApiReference(String resourceName) throws URISyntaxException {
+    URI uri = ParameterImplTest.class.getResource(resourceName).toURI();
+    return ApiReference.create(uri);
   }
 
   @Before
@@ -92,10 +94,8 @@ public class ParameterImplTest {
   @Test
   public void nonNullableInteger() {
     final Parameter nonNullableInteger = testNullQueryParams.get("nonNullableInteger");
-    if (!ApiVendor.OAS_20.equals(apiVendor)) {
-      assertFalse(nonNullableInteger.validate(null));
-      assertEquals("expected type: Integer, found: Null", nonNullableInteger.message(null));
-    }
+    assertFalse(nonNullableInteger.validate(null));
+    assertEquals("expected type: Integer, found: Null", nonNullableInteger.message(null));
     assertTrue(nonNullableInteger.validate("123"));
   }
 
@@ -111,10 +111,8 @@ public class ParameterImplTest {
   @Test
   public void nonNullableString() {
     final Parameter nonNullableString = testNullQueryParams.get("nonNullableString");
-    if (!ApiVendor.OAS_20.equals(apiVendor)) {
-      assertFalse(nonNullableString.validate(null));
-      assertEquals("expected type: String, found: Null", nonNullableString.message(null));
-    }
+    assertFalse(nonNullableString.validate(null));
+    assertEquals("expected type: String, found: Null", nonNullableString.message(null));
     assertTrue(nonNullableString.validate("123"));
   }
 
@@ -140,10 +138,8 @@ public class ParameterImplTest {
   @Test
   public void nonNullableArray() {
     final Parameter nonNullableString = testNullQueryParams.get("nonNullableArray");
-    if (!ApiVendor.OAS_20.equals(apiVendor)) {
-      assertFalse(nonNullableString.validateArray(null));
-      assertEquals("expected type: JSONArray, found: Null", nonNullableString.messageFromValues(null));
-    }
+    assertFalse(nonNullableString.validateArray(null));
+    assertEquals("expected type: JSONArray, found: Null", nonNullableString.messageFromValues(null));
     assertTrue(nonNullableString.validateArray(asList("Hola", "Mundo")));
   }
 
@@ -260,10 +256,12 @@ public class ParameterImplTest {
   @Test
   public void getExamplesTest() {
     assertEquals(0, queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).getExamples().size());
-    if (!ApiVendor.OAS_20.equals(apiVendor)) {
-      assertEquals(2, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
+    int exampleCount = queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size();
+
+    if (ApiVendor.OAS_20.equals(apiVendor)) {
+      assertEquals(0, exampleCount);
     } else {
-      assertEquals(0, queryParams.get(AUTHOR_QUERY_PARAM).getExamples().size());
+      assertEquals(2, exampleCount);
     }
   }
 
@@ -329,7 +327,8 @@ public class ParameterImplTest {
   public void fileParameterWithoutValues() {
     List<Parameter> parameters = formParameters.get("second");
     Optional<FileProperties> fileProperties = parameters.get(0).getFileProperties();
-    if (fileProperties.isPresent()) {
+    if (!ApiVendor.OAS_30.equals(apiVendor)) {
+      assertTrue(fileProperties.isPresent());
       FileProperties props = fileProperties.get();
       assertThat(props.getMinLength(), equalTo(0));
       assertThat(props.getMaxLength(), equalTo(0));
