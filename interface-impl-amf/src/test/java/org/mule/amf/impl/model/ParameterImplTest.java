@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -350,6 +351,27 @@ public class ParameterImplTest {
   @Test
   public void filePropertiesIsEmptyWhenParameterIsNotFile() {
     assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).getFileProperties().isPresent());
+  }
+
+  @Test
+  public void validationCanReportMultipleErrorMessages() {
+    Parameter isbn = queryParams.get(ISBN_QUERY_PARAM);
+
+    String doesNotMatch = "string [%s] does not match pattern ^[-\\d]*$";
+    String tooShort = "expected minLength: 10, actual: %d";
+    String tooLong = "expected maxLength: 17, actual: %d";
+
+
+    String shortInvalidValue = "SHORT";
+    String shortErrorMessage = format(doesNotMatch + "\n" + tooShort, shortInvalidValue, shortInvalidValue.length());
+    assertFalse(isbn.validate(shortInvalidValue));
+    assertEquals(shortErrorMessage, isbn.message(shortInvalidValue));
+
+    String longInvalidValue = String.format("%20s", "LONG");
+    String longErrorMessage = format(doesNotMatch + "\n" + tooLong, longInvalidValue, longInvalidValue.length());
+
+    assertFalse(isbn.validate(longInvalidValue));
+    assertEquals(longErrorMessage, isbn.message(longInvalidValue));
   }
 
 }

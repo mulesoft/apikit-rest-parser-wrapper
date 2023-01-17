@@ -104,11 +104,12 @@ class ParameterImpl implements Parameter {
   }
 
   private String getErrorMessageFromReport(AMFValidationReport validationReport) {
-    return validationReport.conforms() ? "OK"
-        : validationReport.results().stream()
-            .findFirst()
+    return validationReport.conforms()
+        ? "OK"
+        : validationReport.results()
+            .stream()
             .map(AMFValidationResult::message)
-            .orElse("Error");
+            .collect(joining("\n"));
   }
 
   @Override
