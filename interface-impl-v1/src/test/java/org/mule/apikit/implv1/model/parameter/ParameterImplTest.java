@@ -51,6 +51,11 @@ public class ParameterImplTest {
   @Test
   public void getDefaultValueTest() {
     assertNull(stringParameter.getDefaultValue());
+
+    ResourceImpl resource = (ResourceImpl) api.getResource("/history/{version}").getResources().get("/{year}");
+    Map<String, Parameter> queryParameters = resource.getAction("get").getQueryParameters();
+    assertEquals("false", queryParameters.get("includeStatistics").getDefaultValue());
+    assertEquals("0", queryParameters.get("minScoreRate").getDefaultValue());
   }
 
   @Test
@@ -119,12 +124,12 @@ public class ParameterImplTest {
     Map<String, Parameter> queryParams = resource.getAction("GET").getQueryParameters();
     parameter = (ParameterImpl) queryParams.get("includeStatistics");
     metadata = parameter.getMetadata();
-    assertTrue(metadata.getAnnotations().isEmpty());
+    assertFalse(metadata.getAnnotations().isEmpty());
     assertEquals(JAVA, metadata.getMetadataFormat().getId());
 
     parameter = (ParameterImpl) queryParams.get("minScoreRate");
     metadata = parameter.getMetadata();
-    assertTrue(metadata.getAnnotations().isEmpty());
+    assertFalse(metadata.getAnnotations().isEmpty());
     assertEquals(JAVA, metadata.getMetadataFormat().getId());
   }
 
