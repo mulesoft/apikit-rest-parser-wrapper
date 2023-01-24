@@ -75,7 +75,11 @@ public class ParameterImplTest {
   @Test
   public void getDefaultValueTest() {
     assertNull(queryParams.get(ISBN_QUERY_PARAM).getDefaultValue());
+    assertTrue(queryParams.get(ISBN_QUERY_PARAM).getDefaultValues().isEmpty());
     assertNotNull(queryParams.get(TAGS_QUERY_PARAM).getDefaultValue());
+    assertEquals("[\n\"General\"\n]", queryParams.get(TAGS_QUERY_PARAM).getDefaultValue());
+    assertFalse(queryParams.get(TAGS_QUERY_PARAM).getDefaultValues().isEmpty());
+    assertEquals("[\n\"General\"\n]", queryParams.get(TAGS_QUERY_PARAM).getDefaultValues().get(0));
   }
 
   @Test
