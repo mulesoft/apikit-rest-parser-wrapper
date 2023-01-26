@@ -33,10 +33,10 @@ import java.util.Set;
 
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
 import static org.mule.apikit.ParserUtils.escapeSpecialCharsInYamlValue;
 import static org.mule.apikit.ParserUtils.getArrayAsYamlValue;
 import static org.mule.apikit.ParserUtils.quoteValue;
@@ -55,7 +55,7 @@ public class ParameterImpl implements Parameter {
   private TypeDeclaration typeDeclaration;
   private Collection<String> scalarTypes;
   private Boolean required;
-  private Optional<String> defaultValue;
+  private String defaultValue;
   private final boolean typeNeedsQuotes;
 
   public ParameterImpl(TypeDeclaration typeDeclaration) {
@@ -102,11 +102,17 @@ public class ParameterImpl implements Parameter {
 
   @Override
   public String getDefaultValue() {
-    if (defaultValue == null) {
-      defaultValue = ofNullable(typeDeclaration.defaultValue());
+    if (defaultValue != null) {
+      return defaultValue;
     }
+    defaultValue = typeDeclaration.defaultValue();
+    return defaultValue;
+  }
 
-    return defaultValue.orElse(null);
+  @Override
+  public List<String> getDefaultValues() {
+    String value = getDefaultValue();
+    return value != null ? asList(value) : emptyList();
   }
 
   @Override

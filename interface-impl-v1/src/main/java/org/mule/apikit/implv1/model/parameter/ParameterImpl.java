@@ -13,9 +13,12 @@ import org.raml.model.parameter.AbstractParam;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.mule.apikit.implv1.MetadataResolver.resolve;
 import static org.mule.apikit.implv1.MetadataResolver.stringType;
@@ -34,6 +37,12 @@ public class ParameterImpl implements Parameter {
 
   public String getDefaultValue() {
     return parameter.getDefaultValue();
+  }
+
+  @Override
+  public List<String> getDefaultValues() {
+    String value = getDefaultValue();
+    return value != null ? asList(value) : emptyList();
   }
 
   public boolean isRepeat() {

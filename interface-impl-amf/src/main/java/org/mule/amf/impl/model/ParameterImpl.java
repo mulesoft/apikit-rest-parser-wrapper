@@ -8,6 +8,7 @@ package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFConfiguration;
 import amf.core.client.platform.model.StrField;
+import amf.core.client.platform.model.domain.ArrayNode;
 import amf.core.client.platform.model.domain.DataNode;
 import amf.core.client.platform.model.domain.PropertyShape;
 import amf.core.client.platform.model.domain.ScalarNode;
@@ -28,13 +29,18 @@ import org.mule.apikit.model.parameter.FileProperties;
 import org.mule.apikit.model.parameter.Parameter;
 import org.mule.metadata.api.model.MetadataType;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -50,6 +56,8 @@ class ParameterImpl implements Parameter {
   private AnyShape schema;
   private Set<String> allowedEncoding;
   private boolean required;
+
+  private LazyValue<List<String>> defaultValues;
 
   private LazyValue<Boolean> isArray = new LazyValue<>(() -> schema instanceof ArrayShape ||
       schema instanceof UnionShape && hasAnArrayVariant((UnionShape) schema));
@@ -75,6 +83,7 @@ class ParameterImpl implements Parameter {
     this.required = required;
     this.validationStrategy = ParameterValidationStrategyFactory
         .getStrategy(anyShape, needsQuotes(anyShape), amfConfiguration.elementClient());
+    this.defaultValues = new LazyValue<>(() -> getDefaultValuesFromSchema(schema));
   }
 
   @Override
@@ -125,11 +134,13 @@ class ParameterImpl implements Parameter {
 
   @Override
   public String getDefaultValue() {
-    DataNode defaultValue = schema.defaultValue();
-    if (defaultValue instanceof ScalarNode) {
-      return ((ScalarNode) defaultValue).value().value();
-    }
-    return schema.defaultValueStr().option().orElse(null);
+    List<String> defaultValues = getDefaultValues();
+    return !defaultValues.isEmpty() ? defaultValues.get(0) : null;
+  }
+
+  @Override
+  public List<String> getDefaultValues() {
+    return defaultValues.get();
   }
 
   @Override
@@ -264,4 +275,33 @@ class ParameterImpl implements Parameter {
     return unionShape.anyOf().stream().anyMatch(NilShape.class::isInstance);
   }
 
+  public static List<String> getDefaultValuesFromSchema(AnyShape schema) {
+    DataNode dataNode = schema.defaultValue();
+    if (dataNode == null) {
+      return emptyList();
+    }
+    List<String> defaultValuesFromNode = getDefaultValuesFromNode(dataNode);
+    if (defaultValuesFromNode.isEmpty()) {
+      return getDefaultValueAsString(schema).map(v -> asList(v)).orElse(emptyList());
+    }
+    return defaultValuesFromNode;
+  }
+
+  private static Optional<String> getDefaultValueAsString(AnyShape schema) {
+    return ofNullable(schema.defaultValueStr().option().orElse(null));
+  }
+
+  private static List<String> getDefaultValuesFromNode(DataNode dataNode) {
+    if (dataNode instanceof ScalarNode) {
+      return asList(((ScalarNode) dataNode).value().value());
+    } else if (dataNode instanceof ArrayNode) {
+      List<DataNode> members = ((ArrayNode) dataNode).members();
+      List<String> values = new ArrayList<>();
+      for (DataNode member : members) {
+        values.addAll(getDefaultValuesFromNode(member));
+      }
+      return values;
+    }
+    return emptyList();
+  }
 }

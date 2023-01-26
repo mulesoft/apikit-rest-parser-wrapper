@@ -17,7 +17,6 @@ import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.apikit.model.parameter.Parameter;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +25,7 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mule.apikit.model.ActionType.GET;
@@ -91,7 +91,7 @@ public class QueryConsistencyTestCase {
   }
 
   @Before
-  public void setup() throws URISyntaxException {
+  public void setup() {
     Map<String, Resource> resources = api.getResources();
     this.queryParameters = resources.get("/testQueryParams").getAction(GET.name()).getQueryParameters();
     Action testQueryStringAction = resources.get("/testQueryString").getAction(GET.name());
@@ -270,6 +270,27 @@ public class QueryConsistencyTestCase {
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, singletonList("null"));
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getNullList());
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getStringNullList());
+    }
+  }
+
+  @Test
+  public void testDefaultValues() {
+    // Java RAML parser is not returning default values
+    if (parserMode.equals(ParserMode.AMF)) {
+      List<String> defaultValues = queryParameters.get(STRING_ITEM_PARAM).getDefaultValues();
+      assertEquals(1, defaultValues.size());
+      assertEquals("def", defaultValues.get(0));
+
+      defaultValues = queryParameters.get(STRING_ITEM_PARAMS).getDefaultValues();
+      assertEquals(2, defaultValues.size());
+      assertEquals("def", defaultValues.get(0));
+      assertEquals("ault", defaultValues.get(1));
+
+      defaultValues = queryParameters.get(NON_STRING_UNION_ITEM_PARAMS).getDefaultValues();
+      assertEquals(3, defaultValues.size());
+      assertEquals("123", defaultValues.get(0));
+      assertEquals("true", defaultValues.get(1));
+      assertEquals("4.23", defaultValues.get(2));
     }
   }
 
