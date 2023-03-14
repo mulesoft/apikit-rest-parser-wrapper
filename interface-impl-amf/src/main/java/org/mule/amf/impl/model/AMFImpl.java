@@ -6,9 +6,11 @@
  */
 package org.mule.amf.impl.model;
 
+import amf.apicontract.client.platform.AMFBaseUnitClient;
 import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Server;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.core.client.platform.config.RenderOptions;
 import amf.core.client.platform.model.document.Document;
 import org.mule.amf.impl.parser.factory.AMFParserWrapper;
 import org.mule.amf.impl.util.LazyValue;
@@ -26,7 +28,6 @@ import scala.Option;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,7 +53,8 @@ public class AMFImpl implements ApiSpecification {
   private final String apiLocation;
   private final AMFParserWrapper parser;
 
-  public AMFImpl(WebApi webApi, List<String> references, AMFParserWrapper parser, ApiVendor vendor, String location, URI uri) {
+  public AMFImpl(WebApi webApi, List<String> references, ApiVendor vendor, String location,
+                 AMFParserWrapper parser) {
     this.webApi = webApi;
     this.parser = parser;
     this.resources = buildResources(webApi.endPoints());
@@ -169,7 +171,7 @@ public class AMFImpl implements ApiSpecification {
   }
 
   private String renderApi() {
-    return parser.renderApi(consoleModel.get());
+    return renderApi(consoleModel.get());
   }
 
   @Override
@@ -184,20 +186,20 @@ public class AMFImpl implements ApiSpecification {
 
   // This method should only be used by API Console... /shrug
   public String dumpAmf() {
-    return parser.renderApi(consoleModel.get());
+    return renderApi(consoleModel.get());
   }
 
   public void writeAMFModel(OutputStream outputStream) {
     try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8"))) {
-      parser.renderApi(consoleModel.get(), new JsonOutputBuilder<>(writer, false,
-                                                                   Output.outputWriter()));
+      renderApi(consoleModel.get(), new JsonOutputBuilder<>(writer, false,
+                                                            Output.outputWriter()));
     } catch (IOException e) {
       throw new RuntimeException("Error trying to dump AMF model", e);
     }
   }
 
   /**
-   * Updates both webApi's base URI, the one for validation and the other one for the console.
+   * Updates webApi's base URI.
    *
    * @param baseUri new base URI value
    */
@@ -219,6 +221,22 @@ public class AMFImpl implements ApiSpecification {
   public boolean includesCallbacks() {
     return webApi.endPoints().stream().flatMap(endPoint -> endPoint.operations().stream())
         .anyMatch(operation -> isNotEmpty(operation.callbacks()));
+  }
+
+  public String renderApi(Document document) {
+    return getRenderClient().render(document);
+  }
+
+  public AMFBaseUnitClient getRenderClient() {
+    RenderOptions renderOptions = new RenderOptions()
+        .withoutSourceMaps()
+        .withoutPrettyPrint()
+        .withCompactUris();
+    return parser.getAMFConfiguration().withRenderOptions(renderOptions).baseUnitClient();
+  }
+
+  public <W> void renderApi(Document document, JsonOutputBuilder<W> wJsonOutputBuilder) {
+    getRenderClient().renderGraphToBuilder(document, wJsonOutputBuilder);
   }
 
 }

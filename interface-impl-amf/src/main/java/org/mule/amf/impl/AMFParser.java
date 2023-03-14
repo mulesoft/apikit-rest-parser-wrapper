@@ -22,7 +22,6 @@ import org.mule.apikit.validation.ApiValidationReport;
 import org.mule.apikit.validation.ApiValidationResult;
 import org.mule.apikit.validation.DefaultApiValidationReport;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,8 +32,6 @@ import static java.util.stream.Collectors.toList;
 
 public class AMFParser implements ApiParser {
 
-
-  private URI apiUri;
   private ApiReference apiRef;
   private AMFParserWrapper parser;
   private LazyValue<WebApi> webApi;
@@ -60,12 +57,11 @@ public class AMFParser implements ApiParser {
   }
 
   private void initializeParser(ApiReference apiRef, ExecutionEnvironment executionEnvironment) {
+    this.apiRef = apiRef;
     this.executionEnvironment = executionEnvironment;
-    this.apiUri = apiRef.getPathAsUri();
+    this.parser = getParser(apiRef, executionEnvironment);
     this.document = new LazyValue<>(() -> parser.parseApi());
     this.webApi = new LazyValue<>(() -> (WebApi) document.get().encodes());
-    this.apiRef = apiRef;
-    this.parser = getParser(apiRef, executionEnvironment);
   }
 
   public static AMFParserWrapper getParser(ApiReference apiRef, ExecutionEnvironment execEnv) {
@@ -112,11 +108,11 @@ public class AMFParser implements ApiParser {
 
   @Override
   public ApiSpecification parse() {
-    // We are forced to create a brand new environment so this object (and therefore the original document) is not referenced
+    // We are forced to create a brand-new environment so this object (and therefore the original document) is not referenced
     // anymore
     AMFParserWrapper parserWrapper = getParser(apiRef, executionEnvironment);
-    return new AMFImpl(webApi.get(), getReferences(document.get().references()), parserWrapper, apiRef.getVendor(),
-                       apiRef.getLocation(), apiUri);
+    return new AMFImpl(webApi.get(), getReferences(document.get().references()), apiRef.getVendor(),
+                       apiRef.getLocation(), parserWrapper);
   }
 
 }
