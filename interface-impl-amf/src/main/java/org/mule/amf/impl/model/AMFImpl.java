@@ -7,6 +7,7 @@
 package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFBaseUnitClient;
+import amf.apicontract.client.platform.APIConfiguration;
 import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Server;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
@@ -171,7 +172,8 @@ public class AMFImpl implements ApiSpecification {
   }
 
   private String renderApi() {
-    return renderApi(consoleModel.get());
+    Document document = consoleModel.get();
+    return getRenderClient().render(document);
   }
 
   @Override
@@ -224,7 +226,7 @@ public class AMFImpl implements ApiSpecification {
   }
 
   public String renderApi(Document document) {
-    return getRenderClient().render(document);
+    return getRenderClient().render(document, "application/ld+json");
   }
 
   public AMFBaseUnitClient getRenderClient() {
@@ -232,7 +234,10 @@ public class AMFImpl implements ApiSpecification {
         .withoutSourceMaps()
         .withoutPrettyPrint()
         .withCompactUris();
-    return parser.getAMFConfiguration().withRenderOptions(renderOptions).baseUnitClient();
+    return APIConfiguration
+        .fromSpec(parser.getSpec())
+        .withExecutionEnvironment(parser.getExecutionEnvironment())
+        .withRenderOptions(renderOptions).baseUnitClient();
   }
 
   public <W> void renderApi(Document document, JsonOutputBuilder<W> wJsonOutputBuilder) {
