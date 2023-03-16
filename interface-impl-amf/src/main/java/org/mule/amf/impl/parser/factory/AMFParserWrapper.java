@@ -16,6 +16,7 @@ import amf.core.client.platform.model.document.BaseUnit;
 import amf.core.client.platform.model.document.Document;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.AMFValidationResult;
+import amf.core.internal.remote.Spec;
 import org.mule.amf.impl.exceptions.ParserException;
 import org.mule.amf.impl.loader.ExchangeDependencyResourceLoader;
 import org.mule.amf.impl.loader.ProvidedResourceLoader;
@@ -34,6 +35,7 @@ public class AMFParserWrapper {
   private AMFBaseUnitClient client;
   private List<AMFValidationResult> parsingIssues;
   private AMFConfiguration amfConfiguration;
+  private Spec spec;
 
   public AMFParserWrapper(ApiReference apiRef, ExecutionEnvironment execEnv) {
     this.apiRef = apiRef;
@@ -59,7 +61,8 @@ public class AMFParserWrapper {
         .parse(URLDecoder.decode(apiRef.getPathAsUri().toString())));
     this.parsingIssues = amfParseResult.results();
     BaseUnit model = amfParseResult.baseUnit();
-    this.amfConfiguration = APIConfiguration.fromSpec(amfParseResult.sourceSpec()).withExecutionEnvironment(executionEnvironment);
+    this.spec = amfParseResult.sourceSpec();
+    this.amfConfiguration = APIConfiguration.fromSpec(spec).withExecutionEnvironment(executionEnvironment);
     this.client = this.amfConfiguration.baseUnitClient();
     return (Document) client.transform(model, PipelineId.Editing()).baseUnit();
   }
@@ -89,5 +92,13 @@ public class AMFParserWrapper {
 
   public List<AMFValidationResult> getParsingIssues() {
     return parsingIssues;
+  }
+
+  public Spec getSpec() {
+    return spec;
+  }
+
+  public ExecutionEnvironment getExecutionEnvironment() {
+    return executionEnvironment;
   }
 }
