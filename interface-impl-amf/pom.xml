@@ -61,7 +61,7 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>71.1</version>
+            <version>73.1</version>
         </dependency>
         <!-- Tests -->
         <dependency>
