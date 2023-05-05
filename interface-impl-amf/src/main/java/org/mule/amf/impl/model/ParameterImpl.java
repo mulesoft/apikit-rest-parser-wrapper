@@ -59,11 +59,9 @@ class ParameterImpl implements Parameter {
 
   private LazyValue<List<String>> defaultValues;
 
-  private LazyValue<Boolean> isArray = new LazyValue<>(() -> schema instanceof ArrayShape ||
-      schema instanceof UnionShape && hasAnArrayVariant((UnionShape) schema));
+  private LazyValue<Boolean> isArray = new LazyValue<>(() -> hasShape(schema, ArrayShape.class));
 
-  private LazyValue<Boolean> isNullable = new LazyValue<>(() -> schema instanceof NilShape ||
-      schema instanceof UnionShape && hasNilShape((UnionShape) schema));
+  private LazyValue<Boolean> isNullable = new LazyValue<>(() -> hasShape(schema, NilShape.class));
 
   ParameterImpl(amf.apicontract.client.platform.model.domain.Parameter parameter, AMFConfiguration amfConfiguration) {
     this(getSchema(parameter), parameter.required().value(), amfConfiguration);
@@ -258,21 +256,23 @@ class ParameterImpl implements Parameter {
     return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
   }
 
-  private static boolean hasAnArrayVariant(UnionShape unionShape) {
-    boolean hasAnArrayVariant = false;
-    for (Shape shape : unionShape.anyOf()) {
-      if (shape instanceof ArrayShape) {
-        hasAnArrayVariant = true;
-      } else if (!(shape instanceof NilShape)) {
-        return false;
-      }
-    }
-
-    return hasAnArrayVariant;
+  private static boolean hasShape(Shape shape, Class<?> shapeClass) {
+    return shapeClass.isInstance(shape) ||
+        shape instanceof UnionShape && containsShape((UnionShape) shape, shapeClass);
   }
 
-  private static boolean hasNilShape(UnionShape unionShape) {
-    return unionShape.anyOf().stream().anyMatch(NilShape.class::isInstance);
+  private static boolean containsShape(UnionShape unionShape, Class<?> shapeClass) {
+    for (Shape shape : unionShape.anyOf()) {
+      if (shapeClass.isInstance(shape)) {
+        return true;
+      }
+      if (shape instanceof UnionShape) {
+        if (containsShape((UnionShape) shape, shapeClass)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   public static List<String> getDefaultValuesFromSchema(AnyShape schema) {

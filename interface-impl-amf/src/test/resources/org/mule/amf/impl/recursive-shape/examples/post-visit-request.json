@@ -1,45 +1,63 @@
 {
-  "resourceType":"ActivityDefinition",
-  "status":"active",
-  "id": "28d9888a-e91b46a9-a84c-ab2d8e8af457",
-  "title":"TELEMED",
-  "description":"Telemedicine Visit",
-  "subtitle":"1",
-  "extension":[
-    {
-      "url":"http://hl7.org/fhir/StructureDefinition/timing-daysOfCycle",
-      "extension":[
-        {
-          "url":"day",
-          "valueInteger":0
+  "resource": {
+    "resourceType": "ActivityDefinition",
+    "status": "active",
+    "id": "28d9888a-e91b46a9-a84c-ab2d8e8af457",
+    "title": "TELEMED",
+    "description": "Telemedicine Visit",
+    "subtitle": "1",
+    "observationRequirement": [
+      {
+        "test": "test"
+      }
+    ],
+    "observationResultRequirement": [
+      {
+        "test": "test"
+      }
+    ],
+    "transform": "test",
+    "specimenRequirement": [
+      {
+        "test": "test"
+      }
+    ],
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/timing-daysOfCycle",
+        "extension": [
+          {
+            "url": "day",
+            "valueInteger": 0
+          }
+        ]
+      }
+    ],
+    "timingRange": {
+      "low": {
+        "value": 0,
+        "unit": "day"
+      },
+      "high": {
+        "value": 0,
+        "unit": "day"
+      }
+    },
+    "dynamicValue": [
+      {
+        "path": "Questionnaire/62baa9b8-f3d2-11ea-adc1-0242ac120002",
+        "expression": {
+          "language": "text/fhirpath",
+          "name": "test"
         }
-      ]
-    }
-  ],
-  "timingRange":{
-    "low":{
-      "value":0,
-      "unit":"day"
-    },
-    "high":{
-      "value":0,
-      "unit":"day"
-    }
-  },
-  "dynamicValue":[
-    {
-      "path":"Questionnaire/62baa9b8-f3d2-11ea-adc1-0242ac120002",
-      "expression":{
-        "language":"text/fhirpath",
-        "name":"Telemedicine Visit"
+      },
+      {
+        "path": "Questionnaire/28d9888a-e91b46a9-a84c-ab2d8e8af457",
+        "expression": {
+          "language": "text/fhirpath",
+          "name": "test"
+        }
       }
-    },
-    {
-      "path":"Questionnaire/28d9888a-e91b46a9-a84c-ab2d8e8af457",
-      "expression":{
-        "language":"text/fhirpath",
-        "name":"*Investigator - Telemedicine ProgressNote"
-      }
-    }
-  ]
+    ]
+  }
 }
