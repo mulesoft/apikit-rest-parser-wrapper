@@ -94,7 +94,8 @@ types:
   repeatable:
     type: integerItems | booleanItems | nil
   notRepeatable:
-    type: integerItems | nullableString
+    type: integerItems | nullableString #Since integerItems is an array we should consider this repeatable, we keep
+                                        #this behaviour to avoid a breaking change but this will be reviewed at W-13183582
   query:
     type: object
     additionalProperties: false
