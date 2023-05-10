@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -59,9 +60,11 @@ class ParameterImpl implements Parameter {
 
   private LazyValue<List<String>> defaultValues;
 
-  private LazyValue<Boolean> isArray = new LazyValue<>(() -> hasShape(schema, ArrayShape.class));
+  private LazyValue<Boolean> isArray = new LazyValue<>(() -> schema instanceof ArrayShape ||
+      schema instanceof UnionShape && hasAnArrayVariant((UnionShape) schema));
 
-  private LazyValue<Boolean> isNullable = new LazyValue<>(() -> hasShape(schema, NilShape.class));
+  private LazyValue<Boolean> isNullable = new LazyValue<>(() -> schema instanceof NilShape ||
+      schema instanceof UnionShape && hasNilShape((UnionShape) schema));
 
   ParameterImpl(amf.apicontract.client.platform.model.domain.Parameter parameter, AMFConfiguration amfConfiguration) {
     this(getSchema(parameter), parameter.required().value(), amfConfiguration);
@@ -256,23 +259,17 @@ class ParameterImpl implements Parameter {
     return !(NUMBER_DATA_TYPES.contains(dataType) || BOOLEAN_DATA_TYPE.equals(dataType));
   }
 
-  private static boolean hasShape(Shape shape, Class<?> shapeClass) {
-    return shapeClass.isInstance(shape) ||
-        shape instanceof UnionShape && containsShape((UnionShape) shape, shapeClass);
+  private static boolean hasAnArrayVariant(UnionShape unionShape) {
+    return flatMapUnionShapes(unionShape).noneMatch(shape -> !(shape instanceof ArrayShape || shape instanceof NilShape));
   }
 
-  private static boolean containsShape(UnionShape unionShape, Class<?> shapeClass) {
-    for (Shape shape : unionShape.anyOf()) {
-      if (shapeClass.isInstance(shape)) {
-        return true;
-      }
-      if (shape instanceof UnionShape) {
-        if (containsShape((UnionShape) shape, shapeClass)) {
-          return true;
-        }
-      }
-    }
-    return false;
+  private static boolean hasNilShape(UnionShape unionShape) {
+    return flatMapUnionShapes(unionShape).anyMatch(NilShape.class::isInstance);
+  }
+
+  private static Stream<Shape> flatMapUnionShapes(UnionShape unionShape) {
+    return unionShape.anyOf().stream()
+        .flatMap(shape -> shape instanceof UnionShape ? flatMapUnionShapes((UnionShape) shape) : Stream.of(shape));
   }
 
   public static List<String> getDefaultValuesFromSchema(AnyShape schema) {

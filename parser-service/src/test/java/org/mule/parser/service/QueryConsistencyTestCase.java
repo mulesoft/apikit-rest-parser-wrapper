@@ -53,6 +53,8 @@ public class QueryConsistencyTestCase {
   private static final String NON_NULLABLE_UNION_OF_ARRAYS = "nonNullableUnionOfArraysParams";
   private static final String NULLABLE_UNION_OF_NULLABLE_ARRAYS = "nullableUnionOfNullableArraysParams";
   private static final String NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS = "nonNullableUnionOfNullableArraysParams";
+  private static final String REPEATABLE = "repeatableParams";
+  private static final String NOT_REPEATABLE = "notRepeatableParams";
 
   private Map<String, Parameter> queryParameters;
   private QueryString queryString;
@@ -270,6 +272,14 @@ public class QueryConsistencyTestCase {
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, singletonList("null"));
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getNullList());
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getStringNullList());
+    }
+  }
+
+  @Test
+  public void testRepeatable() {
+    if (parserMode.equals(ParserMode.AMF)) {
+      validateArrayConsistency(true, REPEATABLE, asList("123", "456"));
+      validateArrayConsistency(false, NOT_REPEATABLE, asList("123", "456"));
     }
   }
 
