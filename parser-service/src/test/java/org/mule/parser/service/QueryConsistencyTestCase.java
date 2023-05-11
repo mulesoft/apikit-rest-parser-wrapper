@@ -213,8 +213,8 @@ public class QueryConsistencyTestCase {
   }
 
   /**
-   * Note that a value is considered as null when it is a: - null Object - "null" String - null Object or "null" String
-   * as part of a single element in an array.
+   * Note that a value is considered as null when it is a: - null Object - "null" String - null Object or "null" String as part of
+   * a single element in an array.
    */
 
   @Test
