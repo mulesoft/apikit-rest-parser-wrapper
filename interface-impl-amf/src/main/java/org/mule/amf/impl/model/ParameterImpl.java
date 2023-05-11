@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -259,20 +260,16 @@ class ParameterImpl implements Parameter {
   }
 
   private static boolean hasAnArrayVariant(UnionShape unionShape) {
-    boolean hasAnArrayVariant = false;
-    for (Shape shape : unionShape.anyOf()) {
-      if (shape instanceof ArrayShape) {
-        hasAnArrayVariant = true;
-      } else if (!(shape instanceof NilShape)) {
-        return false;
-      }
-    }
-
-    return hasAnArrayVariant;
+    return flatMapUnionShapes(unionShape).noneMatch(shape -> !(shape instanceof ArrayShape || shape instanceof NilShape));
   }
 
   private static boolean hasNilShape(UnionShape unionShape) {
-    return unionShape.anyOf().stream().anyMatch(NilShape.class::isInstance);
+    return flatMapUnionShapes(unionShape).anyMatch(NilShape.class::isInstance);
+  }
+
+  private static Stream<Shape> flatMapUnionShapes(UnionShape unionShape) {
+    return unionShape.anyOf().stream()
+        .flatMap(shape -> shape instanceof UnionShape ? flatMapUnionShapes((UnionShape) shape) : Stream.of(shape));
   }
 
   public static List<String> getDefaultValuesFromSchema(AnyShape schema) {

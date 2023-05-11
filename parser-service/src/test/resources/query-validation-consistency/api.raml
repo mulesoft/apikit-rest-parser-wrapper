@@ -91,6 +91,11 @@ types:
     type: booleanItems | integerItems
   nonNullableUnionOfNullableArrays:
     type: nullableStringItems | nullableIntegerItems
+  repeatable:
+    type: integerItems | booleanItems | nil
+  notRepeatable:
+    type: integerItems | nullableString
+
   query:
     type: object
     additionalProperties: false
@@ -137,6 +142,10 @@ types:
         type: nonNullableUnionOfNullableArrays
       nullableScalarParams?:
         type: nullableStringItems
+      repeatableParams?:
+        type: repeatable
+      notRepeatableParams?:
+        type: notRepeatable
 
 /testQueryParams:
   get:
@@ -183,6 +192,10 @@ types:
         type: nonNullableUnionOfNullableArrays
       nullableScalarParams?:
         type: nullableStringItems
+      repeatableParams?:
+        type: repeatable
+      notRepeatableParams?:
+        type: notRepeatable
     responses:
       200:
 /testQueryString:

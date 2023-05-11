@@ -53,6 +53,8 @@ public class QueryConsistencyTestCase {
   private static final String NON_NULLABLE_UNION_OF_ARRAYS = "nonNullableUnionOfArraysParams";
   private static final String NULLABLE_UNION_OF_NULLABLE_ARRAYS = "nullableUnionOfNullableArraysParams";
   private static final String NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS = "nonNullableUnionOfNullableArraysParams";
+  private static final String REPEATABLE = "repeatableParams";
+  private static final String NOT_REPEATABLE = "notRepeatableParams";
 
   private Map<String, Parameter> queryParameters;
   private QueryString queryString;
@@ -211,10 +213,8 @@ public class QueryConsistencyTestCase {
   }
 
   /**
-   * In terms of validation, when the parameter is nullable (for RAML this is a union between nil and something else), a null
-   * value will be considered as a union's value instead of inner type's value. This is because the validator considers the weight
-   * of the outer type to be greater than that of the inner types. Note that a value is considered as null when it is a: - null
-   * Object - "null" String - null Object or "null" String as part of a single element in an array
+   * Note that a value is considered as null when it is a: - null Object - "null" String - null Object or "null" String as part of
+   * a single element in an array.
    */
 
   @Test
@@ -270,6 +270,14 @@ public class QueryConsistencyTestCase {
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, singletonList("null"));
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getNullList());
       validateArrayConsistency(true, NON_NULLABLE_UNION_OF_NULLABLE_ARRAYS, getStringNullList());
+    }
+  }
+
+  @Test
+  public void testRepeatable() {
+    if (parserMode.equals(ParserMode.AMF)) {
+      validateArrayConsistency(true, REPEATABLE, asList("123", "456"));
+      validateArrayConsistency(false, NOT_REPEATABLE, asList("123", "456"));
     }
   }
 
