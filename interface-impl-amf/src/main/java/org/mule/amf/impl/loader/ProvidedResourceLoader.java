@@ -7,6 +7,9 @@
 package org.mule.amf.impl.loader;
 
 import amf.core.client.common.remote.Content;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import org.apache.commons.io.IOUtils;
 import org.mule.apikit.loader.ResourceLoader;
 
@@ -31,22 +34,59 @@ public class ProvidedResourceLoader implements amf.core.client.platform.resource
       throw new RuntimeException("Failed to apply.");
     }
 
-    final URI resource = resourceLoader.getResource(resourceName);
+    try {
+      InputStream streamResource = getResourceFromURI(resourceName);
 
-    if (resource != null) {
-      final InputStream stream = resourceLoader.getResourceAsStream(resourceName);
-      try {
-        final String resourceAsString = IOUtils.toString(stream);
-        final Content content = new Content(resourceAsString, resourceName);
-        future.complete(content);
-      } catch (IOException e) {
-        future.completeExceptionally(new RuntimeException("Failed to fetch resource '" + resourceName + "'"));
+      if (streamResource != null) {
+        future.complete(new Content(getContentFromStream(streamResource), resourceName));
+        return future;
       }
-    } else {
-      future.completeExceptionally(new Exception("Failed to fetch resource '" + resourceName + "'"));
-    }
 
-    return future;
+      URI resourceUri = resourceLoader.getResource(resourceName);
+
+      if (resourceUri != null) {
+        streamResource = resourceLoader.getResourceAsStream(resourceName);
+        future.complete(new Content(getContentFromStream(streamResource), resourceUri.toString()));
+        return future;
+      }
+      future.completeExceptionally(new Exception("Failed to fetch resource '" + resourceName + "'"));
+      return future;
+
+    } catch (Exception e) {
+      future.completeExceptionally(new RuntimeException("Failed to fetch resource '" + resourceName + "'", e));
+      return future;
+    }
+  }
+
+  private String getContentFromStream(InputStream stream) {
+    try {
+      return IOUtils.toString(stream);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private boolean isValidUri(String resourceName) {
+    try {
+      new URI(resourceName);
+      return true;
+    } catch (URISyntaxException e) {
+      return false;
+    }
+  }
+
+  private InputStream getResourceFromURI(String resourceName) {
+    try {
+      if (!isValidUri(resourceName)) {
+        return null;
+      }
+      URL url = new URI(resourceName).toURL();
+      URLConnection urlConnection = url.openConnection();
+      urlConnection.setUseCaches(false);
+      return urlConnection.getInputStream();
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
 
