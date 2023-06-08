@@ -18,7 +18,7 @@
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
         <raml.parser.version>0.8.49</raml.parser.version>
-        <commons.io.version>2.7</commons.io.version>
+        <commons.io.version>2.13.0</commons.io.version>
     </properties>
 
     <dependencies>
