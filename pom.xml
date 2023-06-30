@@ -27,7 +27,7 @@
 
         <jackson.databind.version>2.15.2</jackson.databind.version>
         <guava.version>32.1.0-jre</guava.version>
-        <json.version>20230227</json.version>
+        <json.version>20230618</json.version>
         <hamcrestVersion>1.3</hamcrestVersion>
         <junit.version>4.13.2</junit.version>
         <jacoco.version>0.8.5</jacoco.version>
