@@ -36,16 +36,15 @@ public class QueryStringImplTest {
     String apiLocation = this.getClass().getResource("../10-query-string/api.raml").toURI().toString();
     ApiReference apiRef = ApiReference.create(apiLocation);
     ApiSpecification api = new AMFParser(apiRef).parse();
-    ResourceImpl resource = (ResourceImpl) api.getResource("/locations");
-    ActionImpl action = (ActionImpl) resource.getAction(GET_ACTION);
-    locationsQueryString = action.queryString();
-    ResourceImpl emails = (ResourceImpl) api.getResources().get("/emails");
-    action = (ActionImpl) emails.getResources().get("/details").getAction(GET_ACTION);
-    emailQueryString = action.queryString();
-    action = (ActionImpl) emails.getResources().get("/historySince").getAction(GET_ACTION);
-    historySinceQueryString = action.queryString();
-    action = (ActionImpl) emails.getResources().get("/pets").getAction(GET_ACTION);
-    petsQueryString = action.queryString();
+
+    locationsQueryString = getQueryString(api, "/locations");
+    emailQueryString = getQueryString(api, "/emails");
+    historySinceQueryString = getQueryString(api, "/historySince");
+    petsQueryString = getQueryString(api, "/pets");
+  }
+
+  private static QueryString getQueryString(ApiSpecification api, String resource) {
+    return api.getResource(resource).getAction(GET_ACTION).queryString();
   }
 
   @Test
