@@ -19,6 +19,32 @@ types:
       to: array
       body: string
 
+  cat:
+    type: object
+    properties:
+      name: string
+      color: string
+    additionalProperties: false
+  dog:
+    type: object
+    properties:
+      name: string
+      fangs: string
+    additionalProperties: false
+  parrot:
+    type: object
+    properties:
+      name: string
+      wings: number
+    additionalProperties: false
+  hasHome:
+    type: object
+    properties:
+      homeAddress: string
+    additionalProperties: false
+  homeAnimal:
+    type: cat | dog | parrot
+
 /locations:
   get:
     queryString:
@@ -47,3 +73,8 @@ types:
     get:
       queryString:
         type: datetime
+
+  /pets:
+    get:
+      queryString:
+        type: homeAnimal
