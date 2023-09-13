@@ -19,6 +19,32 @@ types:
       to: array
       body: string
 
+  cat:
+    type: object
+    properties:
+      name: string
+      color: string
+    additionalProperties: false
+  dog:
+    type: object
+    properties:
+      name: string
+      fangs: string
+    additionalProperties: false
+  parrot:
+    type: object
+    properties:
+      name: string
+      wings: number
+    additionalProperties: false
+  hasHome:
+    type: object
+    properties:
+      homeAddress: string
+    additionalProperties: false
+  homeAnimal:
+    type: cat | dog | parrot
+
 /locations:
   get:
     queryString:
@@ -36,14 +62,18 @@ types:
             location: 1,2
 
 /emails:
-  /details:
-    get:
-      queryString:
-        type: Email
-        default: |
-          { "subject": "sdfd", "to": [ "ds" ], "body": "fdssfd" }
+  get:
+    queryString:
+      type: Email
+      default: |
+        { "subject": "Email Subject", "to": [ "to@email.test" ], "body": "Email Body" }
 
-  /historySince:
-    get:
-      queryString:
-        type: datetime
+/historySince:
+  get:
+    queryString:
+      type: datetime
+
+/pets:
+  get:
+    queryString:
+      type: homeAnimal
