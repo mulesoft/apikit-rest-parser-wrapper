@@ -27,7 +27,6 @@
 
         <jackson.databind.version>2.15.2</jackson.databind.version>
         <guava.version>32.1.0-jre</guava.version>
-        <json.version>20230227</json.version>
         <hamcrestVersion>1.3</hamcrestVersion>
         <junit.version>4.13.2</junit.version>
         <jacoco.version>0.8.5</jacoco.version>
@@ -51,11 +50,6 @@
             <version>${guava.version}</version>
         </dependency>
         <dependency>
-            <artifactId>json</artifactId>
-            <groupId>org.json</groupId>
-            <version>${json.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.mule.runtime</groupId>
             <artifactId>mule-metadata-model-api</artifactId>
             <version>${mule.metadata.api.version}</version>
@@ -66,12 +60,6 @@
             <artifactId>mule-metadata-model-json</artifactId>
             <version>${mule.metadata.api.version}</version>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>json</artifactId>
-                    <groupId>org.json</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Tests -->
@@ -100,6 +88,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- W-14306521: Temporary bump until AMF updates their dependency on org.json -->
+            <!-- Maybe also needed to bump the org.json dependency on org.mule.runtime:mule-metadata-model-json -->
+            <dependency>
+                <artifactId>json</artifactId>
+                <groupId>org.json</groupId>
+                <version>20231013</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

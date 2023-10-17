@@ -11,7 +11,6 @@ import amf.core.client.common.validation.ValidationMode;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
 import amf.shapes.client.platform.model.domain.AnyShape;
-import org.json.simple.JSONValue;
 import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
@@ -54,7 +53,47 @@ class JsonParameterValidationStrategy extends ValidationStrategy {
 
   @Override
   public String escapeCharsInValue(String value) {
-    return JSONValue.escape(value);
+    StringBuffer buf = new StringBuffer(value.length());
+    value.codePoints().forEachOrdered(codepoint -> {
+      // See https://www.json.org/json-en.html for the reference on how strings are encoded
+      switch (codepoint) {
+        case '"':
+          buf.append("\\\"");
+          break;
+        case '\\':
+          buf.append("\\\\");
+          break;
+        case '\b':
+          buf.append("\\b");
+          break;
+        case '\f':
+          buf.append("\\f");
+          break;
+        case '\n':
+          buf.append("\\n");
+          break;
+        case '\r':
+          buf.append("\\r");
+          break;
+        case '\t':
+          buf.append("\\t");
+          break;
+        default:
+          if (Character.isISOControl(codepoint)) {
+            final char[] intoHex = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+            buf.append("\\u");
+            buf.append(intoHex[(codepoint >> 24) & 0xFF]);
+            buf.append(intoHex[(codepoint >> 16) & 0xFF]);
+            buf.append(intoHex[(codepoint >> 8) & 0xFF]);
+            buf.append(intoHex[(codepoint >> 0) & 0xFF]);
+          } else {
+            // Any codepoint except " or \ or control characters
+            buf.appendCodePoint(codepoint);
+          }
+          break;
+      }
+    });
+    return buf.toString();
   }
 
   @Override
