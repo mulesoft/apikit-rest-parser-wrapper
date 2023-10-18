@@ -55,7 +55,12 @@ class JsonParameterValidationStrategy extends ValidationStrategy {
   public String escapeCharsInValue(String value) {
     StringBuffer buf = new StringBuffer(value.length());
     value.codePoints().forEachOrdered(codepoint -> {
-      // See https://www.json.org/json-en.html for the reference on how strings are encoded
+      // ECMA-404:
+      // All code points may be placed within the quotation marks except for the code points that must be escaped:
+      // quotation mark (U+0022), reverse solidus (U+005C), and the control characters U+0000 to U+001F.
+      //
+      // See: https://www.ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf
+      // and https://www.json.org/json-en.html
       switch (codepoint) {
         case '"':
           buf.append("\\\"");
@@ -79,13 +84,11 @@ class JsonParameterValidationStrategy extends ValidationStrategy {
           buf.append("\\t");
           break;
         default:
-          if (Character.isISOControl(codepoint)) {
+          if (0x00 <= codepoint && codepoint <= 0x1F) {
             final char[] intoHex = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-            buf.append("\\u");
-            buf.append(intoHex[(codepoint >> 24) & 0xFF]);
-            buf.append(intoHex[(codepoint >> 16) & 0xFF]);
-            buf.append(intoHex[(codepoint >> 8) & 0xFF]);
-            buf.append(intoHex[(codepoint >> 0) & 0xFF]);
+            buf.append("\\u00");
+            buf.append(intoHex[(codepoint >> 4) & 0xF]);
+            buf.append(intoHex[(codepoint >> 0) & 0xF]);
           } else {
             // Any codepoint except " or \ or control characters
             buf.appendCodePoint(codepoint);

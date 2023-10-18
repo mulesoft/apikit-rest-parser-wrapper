@@ -174,6 +174,7 @@ public class ParameterImplTest {
     assertTrue(parameter.validate("Test:%20Test"));
     assertTrue(parameter.validate("Test%3A%20Test"));
     assertTrue(parameter.validate("*qwerty*qwerty*"));
+    assertTrue(parameter.validate("\0\u0001\u001f"));
   }
 
   @Test
@@ -195,6 +196,7 @@ public class ParameterImplTest {
     validateArrayValue(nullableArray, nonNullableArray, asList("Test:%20Test"));
     validateArrayValue(nullableArray, nonNullableArray, asList("Test%3A%20Test"));
     validateArrayValue(nullableArray, nonNullableArray, asList("*qwerty*qwerty*", null));
+    validateArrayValue(nullableArray, nonNullableArray, asList("\0\u0001\u001f"));
     if (!ApiVendor.OAS_20.equals(apiVendor)) {
       assertTrue(nullableArray.validateArray(null));
     }
@@ -317,6 +319,30 @@ public class ParameterImplTest {
     assertEquals(value, queryParams.get(RATING_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
     value = "true";
     assertEquals(value, queryParams.get(BORROWED_QUERY_PARAM).surroundWithQuotesIfNeeded(value));
+  }
+
+  @Test
+  public void surroundWithQuotesIfNeededDoesShortEscapes() {
+    final Parameter param = testNullQueryParams.get("nonNullableString");
+    String value = "Hello\"World\\this\bis\fa\nreally\rdumb\ttest/";
+    String escaped = "\"Hello\\\"World\\\\this\\bis\\fa\\nreally\\rdumb\\ttest/\"";
+    assertEquals(escaped, param.surroundWithQuotesIfNeeded(value));
+  }
+
+  @Test
+  public void surroundWithQuotesIfNeededDoesEscapesControlCodes() {
+    final Parameter param = testNullQueryParams.get("nonNullableString");
+    String value = "\0\u0001\u001f";
+    String escaped = "\"\\u0000\\u0001\\u001F\"";
+    assertEquals(escaped, param.surroundWithQuotesIfNeeded(value));
+  }
+
+  @Test
+  public void surroundWithQuotesIfNeededSupportsNonASCIICodepoints() {
+    final Parameter param = testNullQueryParams.get("nonNullableString");
+    String value = "áéíóúñü�𝄞";
+    String escaped = "\"áéíóúñü�𝄞\"";
+    assertEquals(escaped, param.surroundWithQuotesIfNeeded(value));
   }
 
   @Test
