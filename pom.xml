@@ -55,12 +55,6 @@
             <version>${mule.metadata.api.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mule.runtime</groupId>
-            <artifactId>mule-metadata-model-json</artifactId>
-            <version>${mule.metadata.api.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Tests -->
         <dependency>
@@ -88,18 +82,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- W-14306521: Temporary bump until AMF updates their dependency on org.json -->
-            <!-- Maybe also needed to bump the org.json dependency on org.mule.runtime:mule-metadata-model-json -->
-            <dependency>
-                <artifactId>json</artifactId>
-                <groupId>org.json</groupId>
-                <version>20231013</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
