@@ -32,6 +32,24 @@
             <artifactId>raml-parser-interface</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mule.runtime</groupId>
+            <artifactId>mule-metadata-model-json</artifactId>
+            <version>${mule.metadata.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
-
+    <dependencyManagement>
+        <dependencies>
+            <!-- W-14306521: Bump because the version provided by mule-metadata-model-json is too old. -->
+            <!-- This is a cosmetic bump in order to alleviate false positives by static analysis tools. It does not -->
+            <!-- affect the org.json version used by mule-metadata-model-json during execution (that will be decided -->
+            <!-- by the mule runtime). -->
+            <dependency>
+                <artifactId>json</artifactId>
+                <groupId>org.json</groupId>
+                <version>20231013</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
