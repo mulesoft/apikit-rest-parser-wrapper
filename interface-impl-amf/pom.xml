@@ -39,17 +39,6 @@
             <groupId>org.mule.amf</groupId>
             <artifactId>amf-xml-extension_2.12</artifactId>
             <version>${amf.xml.extension.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>icu4j</artifactId>
-                    <groupId>com.ibm.icu</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.icu</groupId>
-            <artifactId>icu4j</artifactId>
-            <version>71.1</version>
         </dependency>
         <!-- Tests -->
         <dependency>
