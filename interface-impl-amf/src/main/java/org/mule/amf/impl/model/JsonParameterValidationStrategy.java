@@ -11,7 +11,6 @@ import amf.core.client.common.validation.ValidationMode;
 import amf.core.client.platform.validation.AMFValidationReport;
 import amf.core.client.platform.validation.payload.AMFShapePayloadValidator;
 import amf.shapes.client.platform.model.domain.AnyShape;
-import org.json.simple.JSONValue;
 import org.mule.amf.impl.util.LazyValue;
 
 import static org.mule.amf.impl.model.MediaType.APPLICATION_JSON;
@@ -54,7 +53,50 @@ class JsonParameterValidationStrategy extends ValidationStrategy {
 
   @Override
   public String escapeCharsInValue(String value) {
-    return JSONValue.escape(value);
+    StringBuffer buf = new StringBuffer(value.length());
+    value.codePoints().forEachOrdered(codepoint -> {
+      // ECMA-404:
+      // All code points may be placed within the quotation marks except for the code points that must be escaped:
+      // quotation mark (U+0022), reverse solidus (U+005C), and the control characters U+0000 to U+001F.
+      //
+      // See: https://www.ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf
+      // and https://www.json.org/json-en.html
+      switch (codepoint) {
+        case '"':
+          buf.append("\\\"");
+          break;
+        case '\\':
+          buf.append("\\\\");
+          break;
+        case '\b':
+          buf.append("\\b");
+          break;
+        case '\f':
+          buf.append("\\f");
+          break;
+        case '\n':
+          buf.append("\\n");
+          break;
+        case '\r':
+          buf.append("\\r");
+          break;
+        case '\t':
+          buf.append("\\t");
+          break;
+        default:
+          if (0x00 <= codepoint && codepoint <= 0x1F) {
+            final char[] intoHex = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+            buf.append("\\u00");
+            buf.append(intoHex[(codepoint >> 4) & 0xF]);
+            buf.append(intoHex[(codepoint >> 0) & 0xF]);
+          } else {
+            // Any codepoint except " or \ or control characters
+            buf.appendCodePoint(codepoint);
+          }
+          break;
+      }
+    });
+    return buf.toString();
   }
 
   @Override
