@@ -6,44 +6,44 @@
  */
 package org.mule.parser.service;
 
+import java.io.InputStream;
+import java.util.Optional;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.references.ReferencesResolver;
-import org.mule.parser.service.strategy.AMFParsingStrategy;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mule.apikit.model.api.ApiReference.create;
 
 public class ReferencesResolverTestCase {
 
-  @Ignore
   @Test
-  public void amfThrowExceptionParsingApiReference() throws Exception {
-    AMFParsingStrategy parsingStrategy = Mockito.mock(AMFParsingStrategy.class);
-    when(parsingStrategy.parse(any(ApiReference.class))).thenThrow(new RuntimeException("Testing exception"));
-
-    setFinalStatic(ReferencesResolver.class.getDeclaredField("amfParsingStrategy"), parsingStrategy);
-
+  public void amfThrowExceptionParsingApiReference() {
     ReferencesResolver referencesResolver = new ReferencesResolver();
+    assertThat(referencesResolver.getReferences(new ApiReference() {
 
-    assertThat(referencesResolver.getReferences(create("path/to/api.raml")), equalTo(emptyList()));
+      @Override
+      public String getLocation() {
+        throw new RuntimeException("Testing exception");
+      }
+
+      @Override
+      public String getFormat() {
+        throw new RuntimeException("Testing exception");
+      }
+
+      @Override
+      public InputStream resolve() {
+        throw new RuntimeException("Testing exception");
+      }
+
+      @Override
+      public Optional<ResourceLoader> getResourceLoader() {
+        throw new RuntimeException("Testing exception");
+      }
+    }), equalTo(emptyList()));
   }
-
-  private void setFinalStatic(Field field, Object newValue) throws Exception {
-    field.setAccessible(true);
-    Field modifiersField = Field.class.getDeclaredField("modifiers");
-    modifiersField.setAccessible(true);
-    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-    field.set(null, newValue);
-  }
-
 }
