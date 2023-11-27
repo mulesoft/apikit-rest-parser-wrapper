@@ -26,6 +26,12 @@ public class ApiSyncTestCase {
   }
 
   @Test
+  public void oasReferences() {
+    assertTrue(getResult("resource::d39537b4-3db4-4277-ad3d-76b1bd78aa26:folders:1.0.0:oas:zip:api.json")
+        .success());
+  }
+
+  @Test
   public void resourceNameWithSpacesTestCase() {
     assertTrue(getResult("resource::c8cdb7d6-e052-449a-97f3-049f032ad03a:american-flights-api:1.0.5:raml:zip:american flights api.raml")
         .success());
