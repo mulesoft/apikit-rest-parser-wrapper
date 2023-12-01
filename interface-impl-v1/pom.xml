@@ -17,8 +17,7 @@
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
 
-        <raml.parser.version>0.8.49</raml.parser.version>
-        <commons.io.version>2.7</commons.io.version>
+        <raml.parser.version>0.8.50</raml.parser.version>
     </properties>
 
     <dependencies>
@@ -26,18 +25,6 @@
             <groupId>org.raml</groupId>
             <artifactId>raml-parser</artifactId>
             <version>${raml.parser.version}</version>
-            <!--SE-11881 : Black Duck Scan Issues (2.4 version)-->
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-io</groupId>
-                    <artifactId>commons-io</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons.io.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mule.apikit</groupId>
