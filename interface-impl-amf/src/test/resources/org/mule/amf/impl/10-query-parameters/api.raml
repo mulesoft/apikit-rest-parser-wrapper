@@ -32,6 +32,9 @@ types:
         nonNullableArray:
             type: string[]
             required: false
+        arrayWithNullElements:
+            type: (string | nil)[]
+            required: false
 
 /books:
   get:

@@ -41,6 +41,13 @@ paths:
             type: array
             items:
               type: string
+        - name: arrayWithNullElements
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              nullable: true
   /books:
     get:
       responses:
