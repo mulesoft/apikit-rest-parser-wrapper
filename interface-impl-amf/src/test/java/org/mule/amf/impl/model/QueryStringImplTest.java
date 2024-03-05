@@ -158,10 +158,6 @@ public class QueryStringImplTest {
     }));
   }
 
-  @Test
-  public void nullableParameterQueryString() {
-
-  }
 
   @Test
   public void isScalarTest() {
