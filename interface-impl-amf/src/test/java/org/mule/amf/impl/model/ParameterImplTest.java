@@ -152,8 +152,12 @@ public class ParameterImplTest {
   public void nullsInsideArrays() {
     final Parameter withoutNulls = testNullQueryParams.get("nullableArray");
     final Parameter withNulls = testNullQueryParams.get("arrayWithNullElements");
-    assertFalse(withoutNulls.validateArray(asList(null, null, null)));
-    assertTrue(withNulls.validateArray(asList(null, null, null)));
+    // A string that says "null" is not a null value
+    assertFalse(withoutNulls.validateArray(asList("null", "nil")));
+    // A null value is a null value!
+    assertFalse(withoutNulls.validateArray(asList("null", "nil", null)));
+    // And those values are legal on the other array
+    assertTrue(withNulls.validateArray(asList("null", "nil", null)));
   }
 
   @Test

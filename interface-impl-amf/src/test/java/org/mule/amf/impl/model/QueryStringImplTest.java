@@ -137,14 +137,14 @@ public class QueryStringImplTest {
 
       {
         put("nullableString", singletonList(null));
-        put("nonNullableString", singletonList(""));
+        put("nonNullableString", singletonList("null"));
       }
     }));
 
     assertFalse(nullableQueryString.validate(new HashMap<String, Collection<?>>() {
 
       {
-        put("nullableString", singletonList(""));
+        put("nullableString", singletonList("null"));
         put("nonNullableString", singletonList(null));
       }
     }));
@@ -152,8 +152,8 @@ public class QueryStringImplTest {
     assertTrue(nullableQueryString.validate(new HashMap<String, Collection<?>>() {
 
       {
-        put("nullableString", singletonList(""));
-        put("nonNullableString", singletonList(""));
+        put("nullableString", singletonList("null"));
+        put("nonNullableString", singletonList("null"));
       }
     }));
   }
