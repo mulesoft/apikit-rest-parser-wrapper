@@ -149,6 +149,14 @@ public class ParameterImplTest {
   }
 
   @Test
+  public void nullsInsideArrays() {
+    final Parameter withoutNulls = testNullQueryParams.get("nullableArray");
+    final Parameter withNulls = testNullQueryParams.get("arrayWithNullElements");
+    assertFalse(withoutNulls.validateArray(asList(null, null, null)));
+    assertTrue(withNulls.validateArray(asList(null, null, null)));
+  }
+
+  @Test
   public void validateTest() {
     assertTrue(queryParams.get(AUTHOR_QUERY_PARAM).validate("{ \"name\": \"Jose\", \"lastname\": \"Perez\" }"));
     assertFalse(queryParams.get(PUBLICATION_YEAR_QUERY_PARAM).validate("Not valid value"));
@@ -195,7 +203,6 @@ public class ParameterImplTest {
     validateArrayValue(nullableArray, nonNullableArray, asList("Tests:Tests"));
     validateArrayValue(nullableArray, nonNullableArray, asList("Test:%20Test"));
     validateArrayValue(nullableArray, nonNullableArray, asList("Test%3A%20Test"));
-    validateArrayValue(nullableArray, nonNullableArray, asList("*qwerty*qwerty*", null));
     validateArrayValue(nullableArray, nonNullableArray, asList("\0\u0001\u001f"));
     if (!ApiVendor.OAS_20.equals(apiVendor)) {
       assertTrue(nullableArray.validateArray(null));

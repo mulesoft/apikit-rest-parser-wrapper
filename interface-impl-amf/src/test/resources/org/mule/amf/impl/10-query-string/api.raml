@@ -77,3 +77,11 @@ types:
   get:
     queryString:
       type: homeAnimal
+
+/nullable:
+  get:
+    queryString:
+      type: object
+      properties:
+        nullableString: string | nil
+        nonNullableString: string

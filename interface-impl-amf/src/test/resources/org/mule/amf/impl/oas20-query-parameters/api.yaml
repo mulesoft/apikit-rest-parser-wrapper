@@ -70,6 +70,13 @@ paths:
           items:
             type: string
           required: true
+        - name: arrayWithNullElements
+          in: query
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: null
   /books:
     get:
       operationId: GET_books

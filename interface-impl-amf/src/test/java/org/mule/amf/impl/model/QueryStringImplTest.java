@@ -30,6 +30,7 @@ public class QueryStringImplTest {
   private QueryString emailQueryString;
   private QueryString historySinceQueryString;
   private QueryString petsQueryString;
+  private QueryString nullableQueryString;
 
   @Before
   public void setUp() throws Exception {
@@ -41,6 +42,7 @@ public class QueryStringImplTest {
     emailQueryString = getQueryString(api, "/emails");
     historySinceQueryString = getQueryString(api, "/historySince");
     petsQueryString = getQueryString(api, "/pets");
+    nullableQueryString = getQueryString(api, "/nullable");
   }
 
   private static QueryString getQueryString(ApiSpecification api, String resource) {
@@ -119,6 +121,46 @@ public class QueryStringImplTest {
         put("wings", singletonList("1"));
       }
     }));
+  }
+
+  @Test
+  public void nullableFieldsTest() {
+    assertFalse(nullableQueryString.validate(new HashMap<String, Collection<?>>() {
+
+      {
+        put("nullableString", singletonList(null));
+        put("nonNullableString", singletonList(null));
+      }
+    }));
+
+    assertTrue(nullableQueryString.validate(new HashMap<String, Collection<?>>() {
+
+      {
+        put("nullableString", singletonList(null));
+        put("nonNullableString", singletonList(""));
+      }
+    }));
+
+    assertFalse(nullableQueryString.validate(new HashMap<String, Collection<?>>() {
+
+      {
+        put("nullableString", singletonList(""));
+        put("nonNullableString", singletonList(null));
+      }
+    }));
+
+    assertTrue(nullableQueryString.validate(new HashMap<String, Collection<?>>() {
+
+      {
+        put("nullableString", singletonList(""));
+        put("nonNullableString", singletonList(""));
+      }
+    }));
+  }
+
+  @Test
+  public void nullableParameterQueryString() {
+
   }
 
   @Test

@@ -11,8 +11,6 @@ import org.mule.apikit.model.parameter.Parameter;
 import java.util.Collection;
 import java.util.Map;
 
-import static java.lang.String.valueOf;
-
 public class ParserUtils {
 
   public static String resolveVersion(String path, String version) {
@@ -42,7 +40,7 @@ public class ParserUtils {
     StringBuilder builder = new StringBuilder();
 
     paramValues.forEach(paramValue -> {
-      String value = valueOf(paramValue);
+      String value = valueOfPreservingNull(paramValue);
       builder.append("- ");
       builder.append(facet.surroundWithQuotesIfNeeded(value));
       builder.append("\n");
@@ -76,12 +74,12 @@ public class ParserUtils {
         queryStringYaml.append(facet.surroundWithQuotesIfNeeded(null)).append("\n");
       } else if (actualQueryParam.size() > 1 || facet.isArray()) {
         for (Object value : actualQueryParam) {
-          queryStringYaml.append("\n  - ").append(facet.surroundWithQuotesIfNeeded(valueOf(value)));
+          queryStringYaml.append("\n  - ").append(facet.surroundWithQuotesIfNeeded(valueOfPreservingNull(value)));
         }
         queryStringYaml.append("\n");
       } else {
         for (Object value : actualQueryParam) {
-          queryStringYaml.append(facet.surroundWithQuotesIfNeeded(valueOf(value))).append("\n");
+          queryStringYaml.append(facet.surroundWithQuotesIfNeeded(valueOfPreservingNull(value))).append("\n");
         }
       }
     }
@@ -98,6 +96,16 @@ public class ParserUtils {
   private static boolean isNull(Collection<?> paramValues) {
     return paramValues == null ||
         paramValues.size() == 1 && paramValues.stream().allMatch(value -> value == null || "null".equals(value));
+  }
+
+  /**
+   * Like {@link String#valueOf(Object)} but instead of returning "null" it just preserves the null value
+   *
+   * @param obj An {@code Object}
+   * @return Either {@code null} (if {@code obj} is null) or the result of {@code obj.toString()}
+   */
+  private static String valueOfPreservingNull(Object obj) {
+    return obj != null ? obj.toString() : null;
   }
 
   /**
