@@ -158,7 +158,6 @@ public class QueryStringImplTest {
     }));
   }
 
-
   @Test
   public void isScalarTest() {
     assertFalse(locationsQueryString.isScalar());
