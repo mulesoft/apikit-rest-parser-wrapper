@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * The software in this package is published under the terms of the CPAL v1.0
+ * license, a copy of which has been included with this distribution in the
+ * LICENSE.txt file.
+ */
+package org.mule.validation.attributes;
+
+import com.google.common.collect.Maps;
+import org.mule.validation.exception.InvalidQueryStringException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.QueryString;
+import org.mule.apikit.model.parameter.Parameter;
+import org.mule.extension.http.api.HttpRequestAttributes;
+import org.mule.runtime.api.util.MultiMap;
+
+public class QueryStringValidator implements AttributesValidator {
+
+  private final Action action;
+
+  public QueryStringValidator(Action action) {
+    this.action = action;
+  }
+
+  public void validate(HttpRequestAttributes attributes) throws InvalidQueryStringException {
+    QueryString expected = action.queryString();
+    if (!shouldProcessQueryString(expected))
+      return;
+
+    String queryString = buildQueryString(expected, attributes.getQueryParams());
+
+    if (!expected.validate(queryString)) {
+      throw new InvalidQueryStringException("\"Invalid value for query string\"");
+    }
+  }
+
+  private boolean shouldProcessQueryString(QueryString queryString) {
+    return queryString != null && !queryString.isArray() && !queryString.isScalar();
+  }
+
+  private String buildQueryString(QueryString expected, MultiMap<String, String> queryParams) {
+    StringBuilder result = new StringBuilder();
+
+    Map<String, Parameter> facetsWithDefault = getFacetsWithDefaultValue(expected.facets());
+
+    for (Object property : queryParams.keySet()) {
+      facetsWithDefault.remove(property.toString());
+      final List<String> actualQueryParam = queryParams.getAll(property.toString());
+
+      result.append("\n").append(property).append(": ");
+
+      if (actualQueryParam.size() > 1 || expected.isFacetArray(property.toString())) {
+        for (Object o : actualQueryParam) {
+          result.append("\n  - ").append(o);
+        }
+        result.append("\n");
+      } else {
+        for (Object o : actualQueryParam) {
+          result.append(o).append("\n");
+        }
+      }
+    }
+
+    for (Entry<String, Parameter> entry : facetsWithDefault.entrySet())
+      result.append(entry.getKey()).append(": ").append(entry.getValue().getDefaultValue()).append("\n");
+
+    if (result.length() > 0)
+      return result.toString();
+    if (expected.getDefaultValue() != null)
+      return expected.getDefaultValue();
+
+    return "{}";
+  }
+
+  private Map<String, Parameter> getFacetsWithDefaultValue(Map<String, Parameter> facets) {
+    HashMap<String, Parameter> result = Maps.newHashMap();
+    for (Entry<String, Parameter> entry : facets.entrySet()) {
+      if (entry.getValue().getDefaultValue() != null)
+        result.put(entry.getKey(), entry.getValue());
+    }
+    return result;
+  }
+}
