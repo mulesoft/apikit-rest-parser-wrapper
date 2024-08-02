@@ -1,0 +1,20 @@
+#%RAML 1.0
+---
+title: test x-www-form-urlencoded API
+
+/url-encoded-with-default:
+  post:
+    body:
+      application/x-www-form-urlencoded:
+        properties:
+          first:
+            type: string
+            default: primo
+            required: false
+          second:
+            type: string
+          third:
+            type: boolean
+            required: true
+    responses:
+      201: ~
