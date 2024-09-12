@@ -43,7 +43,9 @@ public class ExchangeDependencyResourceLoader implements ResourceLoader {
     if (matcher.find()) {
 
       final int dependencyIndex = path.lastIndexOf(matcher.group(0));
-      final String resourceName = dependencyIndex <= 0 ? path : path.substring(dependencyIndex);
+      final String resourceName = dependencyIndex <= 0 ? path.replace("%20", " ")
+          : path.substring(dependencyIndex).replace("%20", " ");
+
       return resourceLoader.fetch(Paths.get(workingDir.getPath(), resourceName).toUri().toString());
     }
 
