@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
@@ -49,7 +50,7 @@ public class MimeTypeImpl implements MimeType {
 
   private final Payload payload;
   private final Shape shape;
-  private final Map<String, AMFShapePayloadValidator> payloadValidatorMap = new HashMap<>();
+  private final Map<String, AMFShapePayloadValidator> payloadValidatorMap = new ConcurrentHashMap<>();
   private final String defaultMediaType;
   private final AMFConfiguration amfConfiguration;
   private Map<String, List<Parameter>> formParameters;
