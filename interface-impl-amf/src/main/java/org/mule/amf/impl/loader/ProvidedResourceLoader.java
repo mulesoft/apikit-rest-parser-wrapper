@@ -10,6 +10,7 @@ import amf.core.client.common.remote.Content;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+
 import org.apache.commons.io.IOUtils;
 import org.mule.apikit.loader.ResourceLoader;
 
@@ -30,6 +31,8 @@ public class ProvidedResourceLoader implements amf.core.client.platform.resource
   public CompletableFuture<Content> fetch(String resourceName) {
     final CompletableFuture<Content> future = new CompletableFuture<>();
 
+
+
     if (resourceName == null || resourceName.isEmpty()) {
       throw new RuntimeException("Failed to apply.");
     }
@@ -43,17 +46,19 @@ public class ProvidedResourceLoader implements amf.core.client.platform.resource
       }
 
       URI resourceUri = resourceLoader.getResource(resourceName);
-
       if (resourceUri != null) {
         streamResource = resourceLoader.getResourceAsStream(resourceName);
         future.complete(new Content(getContentFromStream(streamResource), resourceUri.toString()));
         return future;
       }
-      future.completeExceptionally(new Exception("Failed to fetch resource '" + resourceName + "'"));
+      future.completeExceptionally(new Exception("Failed to fetch resource sep17 RESOURCE Loader: " + resourceLoader.getClass()
+          + "  '" + resourceName + "'"));
+
       return future;
 
     } catch (Exception e) {
-      future.completeExceptionally(new RuntimeException("Failed to fetch resource '" + resourceName + "'", e));
+      future.completeExceptionally(new RuntimeException("Failed to fetch resource sep17 RESOURCE Loader: "
+          + resourceLoader.getClass() + " stackTrace: " + e.getStackTrace() + "  '" + resourceName + "'", e));
       return future;
     }
   }

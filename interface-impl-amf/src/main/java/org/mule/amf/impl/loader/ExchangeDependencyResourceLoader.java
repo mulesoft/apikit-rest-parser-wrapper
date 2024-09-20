@@ -33,7 +33,6 @@ public class ExchangeDependencyResourceLoader implements ResourceLoader {
   @Override
   public CompletableFuture<Content> fetch(String path) {
     final CompletableFuture<Content> future = new CompletableFuture<>();
-
     if (path == null || path.isEmpty()) {
       future.completeExceptionally(new Exception("Failed to apply."));
       return future;
@@ -46,7 +45,7 @@ public class ExchangeDependencyResourceLoader implements ResourceLoader {
       final String resourceName = dependencyIndex <= 0 ? path.replace("%20", " ")
           : path.substring(dependencyIndex).replace("%20", " ");
 
-      return resourceLoader.fetch(Paths.get(workingDir.getPath(), resourceName).toUri().toString());
+      return resourceLoader.fetch(Paths.get(workingDir.getPath(), resourceName).toUri().toString().replace("%20", " "));
     }
 
     return resourceLoader.fetch(path);

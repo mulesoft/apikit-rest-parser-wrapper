@@ -56,7 +56,7 @@ public class ApiSyncUtils {
       String groupId = exchangeMatcher.group(1);
       String artifactId = exchangeMatcher.group(2);
       String version = exchangeMatcher.group(3);
-      String filePath = exchangeMatcher.group(4);
+      String filePath = exchangeMatcher.group(4); // try this? //todo
       apiSyncResource = String.format(RESOURCE_FORMAT, groupId, artifactId,
                                       version, RAML_FRAGMENT_CLASSIFIER,
                                       EXCHANGE_TYPE, filePath);
