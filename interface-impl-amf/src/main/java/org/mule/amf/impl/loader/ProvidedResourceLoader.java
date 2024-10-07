@@ -58,7 +58,7 @@ public class ProvidedResourceLoader implements amf.core.client.platform.resource
 
     } catch (Exception e) {
       future.completeExceptionally(new RuntimeException("Failed to fetch resource sep17 RESOURCE Loader: "
-          + resourceLoader.getClass() + " stackTrace: " + e.getStackTrace() + "  '" + resourceName + "'", e));
+          + "resource Loader class - " + resourceLoader.getClass() + " stackTrace: " + e.getStackTrace()  + "  resourceName:'" + resourceName + "' , "+ e.getMessage(), e));
       return future;
     }
   }
