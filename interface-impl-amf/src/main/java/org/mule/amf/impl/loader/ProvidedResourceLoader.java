@@ -43,6 +43,7 @@ public class ProvidedResourceLoader implements amf.core.client.platform.resource
       }
 
       URI resourceUri = resourceLoader.getResource(resourceName);
+
       if (resourceUri != null) {
         streamResource = resourceLoader.getResourceAsStream(resourceName);
         future.complete(new Content(getContentFromStream(streamResource), resourceUri.toString()));
