@@ -408,12 +408,12 @@ public class ParameterImplTest {
 
 
     String shortInvalidValue = "SHORT";
-    String shortErrorMessage = format(doesNotMatch + "\n" + tooShort, shortInvalidValue, shortInvalidValue.length());
+    String shortErrorMessage = format(tooShort + "\n" + doesNotMatch, shortInvalidValue.length(), shortInvalidValue);
     assertFalse(isbn.validate(shortInvalidValue));
     assertEquals(shortErrorMessage, isbn.message(shortInvalidValue));
 
     String longInvalidValue = String.format("%20s", "LONG");
-    String longErrorMessage = format(doesNotMatch + "\n" + tooLong, longInvalidValue, longInvalidValue.length());
+    String longErrorMessage = format(tooLong + "\n" + doesNotMatch, longInvalidValue.length(), longInvalidValue);
 
     assertFalse(isbn.validate(longInvalidValue));
     assertEquals(longErrorMessage, isbn.message(longInvalidValue));
