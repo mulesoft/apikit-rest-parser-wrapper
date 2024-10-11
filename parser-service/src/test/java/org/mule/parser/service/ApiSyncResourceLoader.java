@@ -35,7 +35,7 @@ public class ApiSyncResourceLoader implements ResourceLoader {
       String artifact = parts[1];
       String version = parts[2];
       String classifier = parts[3];
-      String file = parts[5];
+      String file = parts[5].replaceAll(" ", "%20");
 
       return new URI(
                      format("%s%s/%s/%s/%s/%s-%s-%s.zip!/%s", protocol, localRepository,
