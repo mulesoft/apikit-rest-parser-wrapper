@@ -50,7 +50,7 @@ class ApiSyncApiRef implements ApiReference {
     version = parts[2];
     classifier = parts[3];
     packager = parts[4];
-    file = parts[5].replaceAll(" ", "%20");
+    file = parts[5];
   }
 
   public boolean equals(ApiSyncApiRef resource, Boolean checkVersion) {
