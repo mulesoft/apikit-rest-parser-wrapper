@@ -16,7 +16,7 @@
         <licensePath>../LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>../formatter.xml</formatterConfigPath>
         <sonar.jacoco.reportPaths>../target/jacoco.exec</sonar.jacoco.reportPaths>
-        <commons.io.version>2.15.1</commons.io.version>
+        <commons.io.version>2.18.0</commons.io.version>
     </properties>
 
     <dependencies>
