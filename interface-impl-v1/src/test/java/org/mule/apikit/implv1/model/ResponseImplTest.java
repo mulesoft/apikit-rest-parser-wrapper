@@ -7,7 +7,7 @@
 
 package org.mule.apikit.implv1.model;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.implv1.ParserWrapperV1;
@@ -74,7 +74,7 @@ public class ResponseImplTest {
 
   @Test
   public void setHeadersTest() {
-    assertEquals(MapUtils.EMPTY_MAP, response.getHeaders());
+    assertEquals(Collections.emptyMap(), response.getHeaders());
     Map<String, Parameter> headers = new HashMap<>();
     headers.put(CONTENT_TYPE, new ParameterImpl(new Header()));
     response.setHeaders(headers);

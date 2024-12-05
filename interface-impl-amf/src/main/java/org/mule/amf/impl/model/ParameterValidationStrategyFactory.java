@@ -6,12 +6,11 @@
  */
 package org.mule.amf.impl.model;
 
-import amf.apicontract.client.platform.AMFConfiguration;
 import amf.apicontract.client.platform.AMFElementClient;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import amf.shapes.client.platform.model.domain.ArrayShape;
 import amf.shapes.client.platform.model.domain.UnionShape;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 class ParameterValidationStrategyFactory {
 

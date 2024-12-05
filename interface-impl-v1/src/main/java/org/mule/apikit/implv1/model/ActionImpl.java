@@ -6,7 +6,7 @@
  */
 package org.mule.apikit.implv1.model;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.mule.apikit.implv1.model.parameter.ParameterImpl;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.ActionType;

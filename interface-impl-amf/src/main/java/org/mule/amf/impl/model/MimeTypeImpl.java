@@ -19,7 +19,6 @@ import amf.shapes.client.platform.model.domain.Example;
 import amf.shapes.client.platform.model.domain.NodeShape;
 import amf.shapes.client.platform.model.domain.UnionShape;
 import amf.xml.client.platform.plugin.XmlValidationPlugin;
-import org.apache.commons.collections.CollectionUtils;
 import org.mule.amf.impl.parser.rule.ApiValidationResultImpl;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.parameter.Parameter;
@@ -41,8 +40,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.apache.commons.collections.MapUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.MapUtils.isNotEmpty;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.mule.amf.impl.model.MediaType.getMimeTypeForValue;
 
@@ -135,7 +134,7 @@ public class MimeTypeImpl implements MimeType {
 
     if (shape == null) {
       List<Example> examplesList = payload.examples();
-      if (CollectionUtils.isNotEmpty(examplesList)) {
+      if (isNotEmpty(examplesList)) {
         return getExampleValueByMediaType(examplesList.get(0));
       }
     }
