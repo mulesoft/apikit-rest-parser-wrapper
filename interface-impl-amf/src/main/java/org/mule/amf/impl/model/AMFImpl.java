@@ -40,7 +40,7 @@ import java.util.Optional;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.mule.apikit.ApiType.AMF;
 import static org.mule.apikit.common.RamlUtils.replaceBaseUri;
 
