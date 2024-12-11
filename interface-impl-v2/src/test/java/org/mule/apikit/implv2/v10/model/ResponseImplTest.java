@@ -6,7 +6,6 @@
  */
 package org.mule.apikit.implv2.v10.model;
 
-import org.apache.commons.collections.MapUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserWrapperV2;
@@ -58,11 +57,11 @@ public class ResponseImplTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void setBodyTest() {
-    response.setBody(MapUtils.EMPTY_MAP);
+    response.setBody(Collections.emptyMap());
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void setHeadersTest() {
-    response.setHeaders(MapUtils.EMPTY_MAP);
+    response.setHeaders(Collections.emptyMap());
   }
 }
