@@ -23,12 +23,13 @@
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
-        <mule.metadata.api.version>1.1.0</mule.metadata.api.version>
+        <mule.metadata.api.version>1.8.1</mule.metadata.api.version>
 
         <jackson.databind.version>2.16.1</jackson.databind.version>
         <guava.version>32.1.0-jre</guava.version>
         <hamcrestVersion>1.3</hamcrestVersion>
         <junit.version>5.9.3</junit.version>
+        <commons.collections4.version>4.4</commons.collections4.version>
         <mockito-junit-jupiter.version>4.11.0</mockito-junit-jupiter.version>
         <jacoco.version>0.8.10</jacoco.version>
         <allureJunitVersion>2.18.1</allureJunitVersion>
@@ -81,6 +82,11 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito-junit-jupiter.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons.collections4.version}</version>
         </dependency>
     </dependencies>
 
