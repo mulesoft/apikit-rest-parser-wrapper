@@ -1,0 +1,74 @@
+#%RAML 1.0
+title: Sample API
+baseUri: http://localhost:8081
+
+/resource:
+  get:
+    queryParameters:
+      string:
+        type: string[]
+        required: false
+      number:
+        type: number[]
+        required: false
+      integer:
+        type: integer[]
+        required: false
+      boolean:
+        type: boolean[]
+        required: false
+      date:
+        type: date-only[]
+        required: false
+      file:
+        type: file[]
+        required: false
+      nil:
+        type: nil[]
+        required: false
+/constrains:
+  get:
+    queryParameters:
+        sized:
+            type: string
+            required: true
+            minLength: 2
+            maxLength: 3
+            pattern: '[^0-9]*'
+        optionalString:
+            type: string
+            required: false
+        optionalBoolean:
+            type: boolean
+            required: false
+        withDefaultValue:
+            type: string
+            default: 'defaultValue'
+
+/testNull:
+  get:
+    queryParameters:
+        nullableString:
+            type: string | nil
+            required: false
+        nonNullableString:
+            type: string
+            required: false
+        nullableInteger:
+            type: integer | nil
+            required: false
+        nonNullableInteger:
+            type: integer
+            required: false
+
+/defaultValue:
+  get:
+    queryParameters:
+        withDefaultValue:
+          type: string
+          required: false
+          default: 'f4l0p4'
+        otherWithDefaultValue:
+          type: string
+          required: false
+          default: 'agasdg'
