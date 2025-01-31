@@ -36,7 +36,7 @@
         <allureReportVersion>2.3.4</allureReportVersion>
         <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
         <mockitoVersion>1.10.19</mockitoVersion>
-        <formatter-maven-plugin.version>2.16.0</formatter-maven-plugin.version>
+        <formatter-maven-plugin.version>2.24.1</formatter-maven-plugin.version>
         <formatter.skip>false</formatter.skip>
     </properties>
 
