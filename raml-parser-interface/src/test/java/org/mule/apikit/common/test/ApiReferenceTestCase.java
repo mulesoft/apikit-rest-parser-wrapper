@@ -41,7 +41,9 @@ public class ApiReferenceTestCase {
   @Parameters(name = "API: {0} VENDOR: {1} FORMAT: {2}")
   public static Iterable<Object[]> data() {
     return asList(new Object[][] {
-        {"oas-sync/examples/2.0/petstore.json", ApiVendor.OAS_20, "JSON", "oas"}
+        {"oas-sync/examples/2.0/petstore.json", ApiVendor.OAS_20, "JSON", "oas"},
+        {"oas-sync/examples/2.0/file with spaces.json", ApiVendor.OAS_20, "JSON", "oas"}, // This fails with NPE
+        {"oas-sync/examples/2.0/another%20file%20with%20spaces.json", ApiVendor.OAS_20, "JSON", "oas"} // This works
     });
   }
 
