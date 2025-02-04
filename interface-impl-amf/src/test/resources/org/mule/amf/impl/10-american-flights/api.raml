@@ -16,19 +16,19 @@ types:
         enum: [SFO, LAX, CLE]
     responses: 
       200:
-        body: 
+        body:
           application/json:
             type: AmericanFlight[]
             examples: !include exchange_modules/68ef9520-24e9-4cf2-b2f5-620025690913/training-american-flights-example/1.0.1/AmericanFlightsExample.raml
   post:
     displayName: Add a flight
-    body: 
+    body:
       application/json:
         type: AmericanFlight
         examples: !include examples/AmericanFlightNoIDExample.raml
     responses: 
       201:
-        body: 
+        body:
           application/json:
             example:
               message: Flight added (but not really)
@@ -42,7 +42,7 @@ types:
       displayName: Get a flight by ID
       responses: 
         200:
-          body: 
+          body:
             application/json:
               type: AmericanFlight
               examples: !include examples/AmericanFlightExample.raml
