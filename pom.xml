@@ -23,7 +23,7 @@
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
-        <mule.metadata.api.version>1.8.1</mule.metadata.api.version>
+        <mule.metadata.api.version>1.9.3</mule.metadata.api.version>
 
         <jackson.databind.version>2.16.1</jackson.databind.version>
         <guava.version>32.1.0-jre</guava.version>
