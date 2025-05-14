@@ -59,6 +59,25 @@ class ParameterImpl implements Parameter {
   private Set<String> allowedEncoding;
   private boolean required;
 
+  public int getMaxItems() {
+    return maxItems;
+  }
+
+  public void setMaxItems(int maxItems) {
+    this.maxItems = maxItems;
+  }
+
+  public int getMinItems() {
+    return minItems;
+  }
+
+  public void setMinItems(int minItems) {
+    this.minItems = minItems;
+  }
+
+  private int minItems;
+  private int maxItems;
+
   private LazyValue<List<String>> defaultValues;
 
   private LazyValue<Boolean> isArray = new LazyValue<>(() -> schema instanceof ArrayShape ||
