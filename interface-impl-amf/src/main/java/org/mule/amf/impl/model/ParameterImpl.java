@@ -7,7 +7,6 @@
 package org.mule.amf.impl.model;
 
 import amf.apicontract.client.platform.AMFConfiguration;
-import amf.core.client.platform.model.IntField;
 import amf.core.client.platform.model.StrField;
 import amf.core.client.platform.model.domain.ArrayNode;
 import amf.core.client.platform.model.domain.DataNode;
@@ -306,18 +305,18 @@ class ParameterImpl implements Parameter {
   }
 
   @Override
-  public Integer getMaxItems() {
-    if (!(schema instanceof ArrayShape)) {
-      return null;
+  public Optional<Integer> getMaxItems() {
+    if (schema instanceof ArrayShape && ((ArrayShape) schema).maxItems().nonNull()) {
+      return Optional.of(((ArrayShape) schema).maxItems().value());
     }
-    return ((ArrayShape) schema).maxItems().value();
+    return Optional.empty();
   }
 
   @Override
-  public Integer getMinItems() {
-    if (!(schema instanceof ArrayShape)) {
-      return null;
+  public Optional<Integer> getMinItems() {
+    if (schema instanceof ArrayShape && ((ArrayShape) schema).minItems().nonNull()) {
+      return Optional.of(((ArrayShape) schema).minItems().value());
     }
-    return ((ArrayShape) schema).minItems().value();
+    return Optional.empty();
   }
 }

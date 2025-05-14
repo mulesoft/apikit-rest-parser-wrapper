@@ -71,11 +71,11 @@ public interface Parameter {
    */
   boolean isNullable();
 
-  default Integer getMaxItems() {
-    return null;
+  default Optional<Integer> getMaxItems() {
+    return Optional.empty();
   }
 
-  default Integer getMinItems() {
-    return null;
+  default Optional<Integer> getMinItems() {
+    return Optional.empty();
   }
 }
