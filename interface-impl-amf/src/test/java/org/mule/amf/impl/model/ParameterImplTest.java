@@ -49,12 +49,14 @@ public class ParameterImplTest {
   private static final String TEST_NULL_RESOURCE = "/testNull";
   private static final String MULTIPART_DOCUMENTS = "/documents";
   private static final String RESOURCE_DYNAMIC_FILES = "/dynamic-files";
+  private static final String MULTIPART_UPLOAD = "/multipart-upload";
   private static final String ACTION_POST = "POST";
   private static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
 
   private static Map<String, Parameter> queryParams;
   private static Map<String, Parameter> testNullQueryParams;
   private static Map<String, List<Parameter>> formParameters;
+  private static Map<String, List<Parameter>> arrayShapeFormParameters;
   private Map<String, List<Parameter>> fileArrayParameterInForm;
 
   @Parameterized.Parameter
@@ -94,6 +96,8 @@ public class ParameterImplTest {
         .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
     fileArrayParameterInForm = apiSpecification.getResource(RESOURCE_DYNAMIC_FILES).getAction(ACTION_POST)
         .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
+    arrayShapeFormParameters = apiSpecification.getResource(MULTIPART_UPLOAD).getAction(ACTION_POST)
+            .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
   }
 
   @Test
@@ -379,6 +383,21 @@ public class ParameterImplTest {
       assertThat(props.getMinLength(), equalTo(0));
       assertThat(props.getMaxLength(), equalTo(0));
       assertThat(props.getFileTypes().isEmpty(), equalTo(true));
+    }
+  }
+
+  @Test
+  public void arrayShapeParameters() {
+    List<Parameter> parameters = arrayShapeFormParameters.get("Attachments");
+    Parameter parameter = parameters.get(0);
+    Optional<FileProperties> fileProperties = parameter.getFileProperties();
+    if (!ApiVendor.OAS_30.equals(apiVendor)) {
+      assertTrue(fileProperties.isPresent());
+      FileProperties props = fileProperties.get();
+      assertThat(props.getMinLength(), equalTo(0));
+      assertThat(props.getMaxLength(), equalTo(5242880));
+      assertTrue(parameter.getMinItems().isPresent() && parameter.getMinItems().get().equals(2));
+      assertTrue(parameter.getMaxItems().isPresent() && parameter.getMaxItems().get().equals(3));
     }
   }
 

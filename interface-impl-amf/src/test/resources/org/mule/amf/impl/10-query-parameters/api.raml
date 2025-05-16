@@ -10,6 +10,10 @@ types:
   DynamicFiles:
     type: file
     fileTypes: [ 'application/octet-stream','image/jpeg','image/png' ]
+  Attachment:
+    type: file
+    fileTypes: ['application/pdf', 'image/jpeg', 'image/png', 'text/plain']
+    maxLength: 5242880  # 5 MB
 
 /testNull:
   get:
@@ -111,3 +115,16 @@ types:
         properties:
           files:
             type: DynamicFiles[]
+
+/multipart-upload:
+  post:
+    description: Upload an array of files and a JSON array as multipart/form-data
+    body:
+      multipart/form-data:
+        properties:
+          Attachments:
+            description: Array of files
+            type: Attachment[]
+            required: true
+            minItems: 2
+            maxItems: 3
