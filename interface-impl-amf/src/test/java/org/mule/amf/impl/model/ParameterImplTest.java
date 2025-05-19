@@ -97,7 +97,7 @@ public class ParameterImplTest {
     fileArrayParameterInForm = apiSpecification.getResource(RESOURCE_DYNAMIC_FILES).getAction(ACTION_POST)
         .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
     arrayShapeFormParameters = apiSpecification.getResource(MULTIPART_UPLOAD).getAction(ACTION_POST)
-            .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
+        .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
   }
 
   @Test
