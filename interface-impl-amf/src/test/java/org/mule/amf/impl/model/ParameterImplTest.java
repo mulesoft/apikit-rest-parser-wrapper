@@ -402,6 +402,16 @@ public class ParameterImplTest {
   }
 
   @Test
+  public void fileShapeParameters() {
+    List<Parameter> parameters = formParameters.get("second");
+    Parameter parameter = parameters.get(0);
+    if (!ApiVendor.OAS_30.equals(apiVendor)) {
+      assertFalse(parameter.getMinItems().isPresent());
+      assertFalse(parameter.getMaxItems().isPresent());
+    }
+  }
+
+  @Test
   public void fileArrayParameter() {
     List<Parameter> parameters = fileArrayParameterInForm.get("files");
     FileProperties fileProperties = parameters.get(0).getFileProperties().get();
