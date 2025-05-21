@@ -155,6 +155,31 @@ paths:
               files:
                 contentType: application/octet-stream, image/jpeg, image/png
         required: true
+  /multipart-upload:
+    post:
+      responses:
+        default:
+          description: ''
+      operationId: Multipart_Upload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                Attachments:
+                  type: array
+                  minItems: 2
+                  maxItems: 3
+                  items:
+                    type: file
+                    maxLength: 5242880  # 5 MB
+              required:
+                - Attachments
+            encoding:
+              Attachments:
+                contentType: text/plain, image/jpeg
+        required: true
 components:
   schemas:
     author:

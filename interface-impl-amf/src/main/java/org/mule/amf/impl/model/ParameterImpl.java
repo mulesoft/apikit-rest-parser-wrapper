@@ -303,4 +303,20 @@ class ParameterImpl implements Parameter {
     }
     return emptyList();
   }
+
+  @Override
+  public Optional<Integer> getMaxItems() {
+    if (schema instanceof ArrayShape && ((ArrayShape) schema).maxItems().nonNull()) {
+      return Optional.of(((ArrayShape) schema).maxItems().value());
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Integer> getMinItems() {
+    if (schema instanceof ArrayShape && ((ArrayShape) schema).minItems().nonNull()) {
+      return Optional.of(((ArrayShape) schema).minItems().value());
+    }
+    return Optional.empty();
+  }
 }

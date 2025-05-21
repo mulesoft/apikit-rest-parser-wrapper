@@ -70,4 +70,12 @@ public interface Parameter {
    * @since 2.4.0
    */
   boolean isNullable();
+
+  default Optional<Integer> getMaxItems() {
+    return Optional.empty();
+  }
+
+  default Optional<Integer> getMinItems() {
+    return Optional.empty();
+  }
 }

@@ -185,4 +185,12 @@ public class ParameterImplTest {
     assertFalse(queryParams.get(AUTHOR_QUERY_PARAM).getFileProperties().isPresent());
   }
 
+  @Test
+  public void fileShapeParameter() {
+    List<Parameter> parameters = fileArrayParameterInForm.get("files");
+    Parameter parameter = parameters.get(0);
+    assertFalse(parameter.getMaxItems().isPresent());
+    assertFalse(parameter.getMinItems().isPresent());
+  }
+
 }

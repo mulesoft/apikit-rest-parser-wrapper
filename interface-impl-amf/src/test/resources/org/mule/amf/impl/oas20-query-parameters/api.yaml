@@ -160,3 +160,22 @@ paths:
           type: array
           items:
             type: file
+  /multipart-upload:
+    post:
+      operationId: Multipart_Upload
+      responses:
+        default:
+          description: ''
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: Attachments
+          in: formData
+          description: Array of files
+          type: array
+          items:
+            type: file
+            maxLength: 5242880  # 5 MB
+          required: true
+          minItems: 2
+          maxItems: 3
