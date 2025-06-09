@@ -15,9 +15,11 @@ import org.mule.apikit.model.parameter.Parameter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,6 +42,7 @@ public class ParameterImplTest {
   private Map<String, Parameter> queryParams;
   private Map<String, List<Parameter>> formParameters;
   private Map<String, List<Parameter>> fileArrayParameterInForm;
+  private Map<String, List<Parameter>> arrayTypeDeclarationParameters;
 
   @Before
   public void setUp() throws Exception {
@@ -50,6 +53,8 @@ public class ParameterImplTest {
     formParameters = parser.getResources().get(RESOURCE_DOCUMENTS).getAction(ACTION_POST)
         .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
     fileArrayParameterInForm = parser.getResources().get(RESOURCE_DYNAMIC_FILES).getAction(ACTION_POST)
+        .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
+    arrayTypeDeclarationParameters = parser.getResources().get(RESOURCE_DOCUMENTS).getAction(ACTION_POST)
         .getBody().get(MULTIPART_CONTENT_TYPE).getFormParameters();
   }
 
@@ -164,7 +169,7 @@ public class ParameterImplTest {
 
   @Test
   public void fileParameterWithoutValues() {
-    List<Parameter> parameters = formParameters.get("second");
+    List<Parameter> parameters = formParameters.get("third");
     FileProperties fileProperties = parameters.get(0).getFileProperties().get();
     assertThat(fileProperties.getMinLength(), equalTo(0));
     assertThat(fileProperties.getMaxLength(), equalTo(0));
@@ -193,4 +198,29 @@ public class ParameterImplTest {
     assertFalse(parameter.getMinItems().isPresent());
   }
 
+  @Test
+  public void arrayTypeDeclarationParameters() {
+    List<Parameter> parameters = arrayTypeDeclarationParameters.get("Attachments");
+    Parameter parameter = parameters.get(0);
+    assertTrue(parameter.getMinItems().isPresent() && parameter.getMinItems().get().equals(3));
+    assertTrue(parameter.getMaxItems().isPresent() && parameter.getMaxItems().get().equals(5));
+    Optional<FileProperties> fileProperties = parameter.getFileProperties();
+    assertTrue(fileProperties.isPresent());
+    FileProperties props = fileProperties.get();
+    assertThat(props.getMinLength(), equalTo(0));
+    assertThat(props.getMaxLength(), equalTo(5242880));
+  }
+
+  @Test
+  public void fileShapeParameters() {
+    List<Parameter> parameters = formParameters.get("second");
+    Parameter parameter = parameters.get(0);
+    assertTrue(parameter.isRequired());
+    Optional<FileProperties> fileProperties = parameter.getFileProperties();
+    assertTrue(fileProperties.isPresent());
+    FileProperties props = fileProperties.get();
+    assertThat(props.getFileTypes(), hasItems("image/jpeg"));
+    assertThat(props.getMinLength(), equalTo(8));
+    assertThat(props.getMaxLength(), equalTo(5000));
+  }
 }

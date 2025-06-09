@@ -72,6 +72,19 @@ types:
             maxLength: 5000
           second:
             type: file
+            fileTypes: 'image/jpeg'
+            minLength: 8
+            maxLength: 5000
+          third:
+            type: file
+          Attachments:
+            type: array
+            items:
+              type: file
+              minLength: 0
+              maxLength: 5242880
+            minItems: 3
+            maxItems: 5
 
 /dynamic-files:
   post:
