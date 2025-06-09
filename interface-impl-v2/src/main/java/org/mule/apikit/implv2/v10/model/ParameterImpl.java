@@ -248,4 +248,26 @@ public class ParameterImpl implements Parameter {
   private static boolean hasNilShape(UnionTypeDeclaration unionType) {
     return unionType.of().stream().anyMatch(NullTypeDeclaration.class::isInstance);
   }
+
+  @Override
+  public Optional<Integer> getMinItems() {
+    if (typeDeclaration instanceof ArrayTypeDeclaration) {
+      ArrayTypeDeclaration arrayType = (ArrayTypeDeclaration) typeDeclaration;
+      if (arrayType.minItems() != null) {
+        return Optional.of(arrayType.minItems());
+      }
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Integer> getMaxItems() {
+    if (typeDeclaration instanceof ArrayTypeDeclaration) {
+      ArrayTypeDeclaration arrayType = (ArrayTypeDeclaration) typeDeclaration;
+      if (arrayType.maxItems() != null) {
+        return Optional.of(arrayType.maxItems());
+      }
+    }
+    return Optional.empty();
+  }
 }
