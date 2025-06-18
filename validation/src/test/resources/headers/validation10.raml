@@ -1,0 +1,13 @@
+#%RAML 1.0
+title: Headers Test Case
+
+/headers-test:
+  get:
+    headers:
+      testing:
+        type: integer
+        required: true
+      defaultHeaderValue:
+        type: string
+        default: "hola-header"
+        required: false

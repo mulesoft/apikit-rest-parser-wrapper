@@ -17,6 +17,7 @@
         <module>interface-impl-v2</module>
         <module>interface-impl-amf</module>
         <module>parser-service</module>
+      <module>validation</module>
     </modules>
 
     <properties>
